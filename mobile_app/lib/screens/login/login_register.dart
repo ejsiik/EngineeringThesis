@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../authentication/auth.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -13,11 +14,24 @@ class _LoginPageState extends State<LoginPage> {
   bool isPasswordVisible = false;
   bool isConfirmPasswordVisible = false;
 
-  final TextEditingController _controllerName = TextEditingController();
-  final TextEditingController _controllerEmail = TextEditingController();
-  final TextEditingController _controllerPassword = TextEditingController();
-  final TextEditingController _controllerConfirmPassword =
-      TextEditingController();
+  final _controllerName = TextEditingController();
+  final _controllerEmail = TextEditingController();
+  final _controllerPassword = TextEditingController();
+  final _controllerConfirmPassword = TextEditingController();
+
+  Future<void> signInWithEmailAndPassword() async {
+    await Auth().signInWithEmailAndPassword(
+      email: _controllerEmail.text.trim(),
+      password: _controllerPassword.text.trim(),
+    );
+  }
+
+  Future<void> createUserWithEmailAndPassword() async {
+    await Auth().createUserWithEmailAndPassword(
+      email: _controllerEmail.text.trim(),
+      password: _controllerPassword.text.trim(),
+    );
+  }
 
   Widget _entryField(
     String title,
@@ -87,7 +101,19 @@ class _LoginPageState extends State<LoginPage> {
         foregroundColor: textColor,
         backgroundColor: buttonColor,
       ),
-      onPressed: () {},
+      onPressed: isLogin
+          ? signInWithEmailAndPassword
+          : () {
+              if (_controllerPassword.text.trim() ==
+                  _controllerConfirmPassword.text.trim()) {
+                createUserWithEmailAndPassword();
+              } else {
+                setState(() {
+                  errorMessage = 'Passwords do not match';
+                });
+              }
+              FocusScope.of(context).unfocus();
+            },
       child: Text(isLogin ? 'LOGIN' : 'REGISTER'),
     );
   }

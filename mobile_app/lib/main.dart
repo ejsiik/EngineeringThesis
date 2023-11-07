@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:mobile_app/constants/theme.dart';
-import 'screens/login/login_register.dart';
+import 'package:mobile_app/firebase_options.dart';
+import 'package:mobile_app/screens/screen_manager.dart';
 
 Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+  WidgetsFlutterBinding
+      .ensureInitialized(); // initialization has been completed
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(const MyApp());
 }
 
@@ -17,7 +21,7 @@ class MyApp extends StatelessWidget {
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.system, // System default theme mode (light/dark).
-      home: const LoginPage(),
+      home: const WidgetTree(),
     );
   }
 }
