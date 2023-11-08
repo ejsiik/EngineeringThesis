@@ -2,7 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../authentication/verify_email.dart';
-import 'login/login_register.dart';
+import 'login/login_page.dart';
 
 class WidgetTree extends StatefulWidget {
   const WidgetTree({super.key});
