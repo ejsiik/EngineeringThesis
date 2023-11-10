@@ -42,4 +42,20 @@ class Auth extends GetxController {
   Future<void> signOut() async {
     await _firebaseAuth.signOut();
   }
+
+  Future sendVerificationEmail() async {
+    try {
+      await currentUser?.sendEmailVerification();
+    } on FirebaseAuthException catch (e) {
+      return e.message;
+    }
+  }
+
+  Future<bool> checkEmailVerified() async {
+    if (currentUser!.emailVerified) {
+      return true;
+    } else {
+      return false;
+    }
+  }
 }

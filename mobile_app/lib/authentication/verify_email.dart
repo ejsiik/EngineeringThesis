@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import '../screens/user/home_page.dart';
 import 'auth.dart';
 
@@ -20,15 +19,14 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
   @override
   void initState() {
     super.initState();
-
-    isEmailVerified = FirebaseAuth.instance.currentUser!.emailVerified;
+    checkEmailVerification();
 
     if (!isEmailVerified) {
       sendVerificationEmail();
 
       timer = Timer.periodic(
         const Duration(seconds: 3),
-        (_) => checkEmailVerified(),
+        (_) => checkEmailVerification(),
       );
     }
   }
@@ -39,25 +37,22 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
     super.dispose();
   }
 
-  Future checkEmailVerified() async {
+  Future<void> checkEmailVerification() async {
     try {
-      await FirebaseAuth.instance.currentUser!.reload();
-
-      if (FirebaseAuth.instance.currentUser!.emailVerified) {
-        setState(() {
-          isEmailVerified = true;
-        });
-        timer?.cancel();
-      }
-    } on FirebaseAuthException catch (e) {
-      return e.message;
+      bool verified = await Auth().checkEmailVerified();
+      setState(() {
+        isEmailVerified = verified;
+      });
+    } catch (error) {
+      setState(() {
+        errorMessage = 'Error checking email verification status: $error';
+      });
     }
   }
 
   Future<void> sendVerificationEmail() async {
     try {
-      final user = FirebaseAuth.instance.currentUser!;
-      await user.sendEmailVerification();
+      await Auth().sendVerificationEmail();
 
       // Use the 'mounted' property to check if the widget is still in the widget tree
       if (mounted) {
@@ -74,10 +69,13 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
           canResendEmail = true;
         });
       }
-    } on FirebaseAuthException catch (e) {
+
+      // Check email verification status after sending the email
+      await checkEmailVerification();
+    } catch (error) {
       if (mounted) {
         setState(() {
-          errorMessage = e.message;
+          errorMessage = 'Error sending verification email: $error';
         });
       }
     }
@@ -125,6 +123,7 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
                   TextButton(
                     onPressed: () {
                       signOut();
+                      //Navigator.of(context).pop();
                     },
                     style: TextButton.styleFrom(
                       backgroundColor: buttonColor,
