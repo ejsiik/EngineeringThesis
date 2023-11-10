@@ -58,4 +58,13 @@ class Auth extends GetxController {
       return false;
     }
   }
+
+  Future<String?> passwordReset({required String email}) async {
+    try {
+      await FirebaseAuth.instance.sendPasswordResetEmail(email: email.trim());
+      return null; // Return null on success
+    } on FirebaseAuthException catch (e) {
+      return e.message;
+    }
+  }
 }

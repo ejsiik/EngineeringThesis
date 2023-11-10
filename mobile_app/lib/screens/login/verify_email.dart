@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import '../screens/user/home_page.dart';
-import 'auth.dart';
+import '../user/home_page.dart';
+import '../../authentication/auth.dart';
 
 class VerifyEmailPage extends StatefulWidget {
   const VerifyEmailPage({super.key});

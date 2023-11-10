@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_app/screens/login/forgot_password_button_widget.dart';
 import '../../authentication/auth.dart';
 import 'login_form.dart';
 import 'error_message_widget.dart';
@@ -98,6 +99,8 @@ class _LoginPageState extends State<LoginPage> {
                     true,
                     isPasswordVisible,
                     togglePasswordVisibility),
+              const SizedBox(height: 10),
+              if (isLogin) const ForgotPasswordButtonWidget(),
               const SizedBox(height: 30),
               ErrorMessageWidget(errorMessage ?? ''),
               SubmitButtonWidget(
