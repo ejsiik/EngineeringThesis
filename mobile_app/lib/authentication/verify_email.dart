@@ -54,18 +54,32 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
     }
   }
 
-  Future sendVerificationEmail() async {
+  Future<void> sendVerificationEmail() async {
     try {
       final user = FirebaseAuth.instance.currentUser!;
       await user.sendEmailVerification();
 
-      setState(() => canResendEmail = false);
-      await Future.delayed(const Duration(seconds: 10));
-      setState(() => canResendEmail = true);
+      // Use the 'mounted' property to check if the widget is still in the widget tree
+      if (mounted) {
+        setState(() {
+          canResendEmail = false;
+        });
+      }
+
+      await Future.delayed(const Duration(seconds: 20));
+
+      // Check 'mounted' again before updating the state
+      if (mounted) {
+        setState(() {
+          canResendEmail = true;
+        });
+      }
     } on FirebaseAuthException catch (e) {
-      setState(() {
-        errorMessage = e.message;
-      });
+      if (mounted) {
+        setState(() {
+          errorMessage = e.message;
+        });
+      }
     }
   }
 

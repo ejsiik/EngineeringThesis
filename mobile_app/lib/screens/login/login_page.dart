@@ -24,6 +24,7 @@ class _LoginPageState extends State<LoginPage> {
   final _controllerConfirmPassword = TextEditingController();
 
   void handlePasswordMismatch() {
+    // update the UI
     setState(() {
       errorMessage = 'Passwords do not match';
     });
@@ -42,17 +43,27 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<void> signInWithEmailAndPassword() async {
-    await Auth().signInWithEmailAndPassword(
+    // Call the signInWithEmailAndPassword function from Auth
+    String? signInErrorMessage = await Auth().signInWithEmailAndPassword(
       email: _controllerEmail.text.trim(),
       password: _controllerPassword.text.trim(),
     );
+
+    setState(() {
+      errorMessage = signInErrorMessage;
+    });
   }
 
   Future<void> createUserWithEmailAndPassword() async {
-    await Auth().createUserWithEmailAndPassword(
+    String? createUserErrorMessage =
+        await Auth().createUserWithEmailAndPassword(
       email: _controllerEmail.text.trim(),
       password: _controllerPassword.text.trim(),
     );
+
+    setState(() {
+      errorMessage = createUserErrorMessage;
+    });
   }
 
   @override

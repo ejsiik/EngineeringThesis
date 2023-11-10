@@ -18,10 +18,10 @@ class Auth extends GetxController {
         email: email.trim(),
         password: password.trim(),
       );
+      return null; // Return null if the sign-in is successful
     } on FirebaseAuthException catch (e) {
-      return e.message;
+      return e.message; // Return the error message if there's an exception
     }
-    return null;
   }
 
   Future<dynamic> createUserWithEmailAndPassword({
