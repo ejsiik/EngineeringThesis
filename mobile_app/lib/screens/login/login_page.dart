@@ -37,6 +37,12 @@ class _LoginPageState extends State<LoginPage> {
     });
   }
 
+  void toggleConfirmPasswordVisibility() {
+    setState(() {
+      isConfirmPasswordVisible = !isConfirmPasswordVisible;
+    });
+  }
+
   void toggleLoginRegister() {
     setState(() {
       isLogin = !isLogin;
@@ -97,8 +103,8 @@ class _LoginPageState extends State<LoginPage> {
                     _controllerConfirmPassword,
                     Icons.lock,
                     true,
-                    isPasswordVisible,
-                    togglePasswordVisibility),
+                    isConfirmPasswordVisible,
+                    toggleConfirmPasswordVisibility),
               const SizedBox(height: 10),
               if (isLogin) const ForgotPasswordButtonWidget(),
               const SizedBox(height: 30),
