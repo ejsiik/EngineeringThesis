@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import '../../constants/colors.dart';
 import 'forgot_password.dart';
 
@@ -8,6 +7,11 @@ class ForgotPasswordButtonWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    final Color textColor = theme.brightness == Brightness.light
+        ? AppColors.textLight
+        : AppColors.textDark;
+
     return GestureDetector(
       onTap: () {
         Navigator.push(
@@ -20,10 +24,10 @@ class ForgotPasswordButtonWidget extends StatelessWidget {
         );
         FocusScope.of(context).unfocus();
       },
-      child: const Text(
+      child: Text(
         'Forgot Password?',
         style: TextStyle(
-          color: AppColors.textDark,
+          color: textColor,
           decoration: TextDecoration.underline,
         ),
       ),

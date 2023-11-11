@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_app/constants/colors.dart';
-
 import '../../authentication/auth.dart';
 import 'error_message_widget.dart';
 import 'login_form.dart';
@@ -32,10 +31,18 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   }
 
   Widget _submitButton() {
+    final ThemeData theme = Theme.of(context);
+    final Color buttonBackgroundColor = theme.brightness == Brightness.light
+        ? AppColors.primaryLight
+        : AppColors.primaryDark;
+    final Color buttonTextColor = theme.brightness == Brightness.light
+        ? AppColors.backgroundLight
+        : AppColors.backgroundDark;
+
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
-        foregroundColor: AppColors.primaryDark,
-        backgroundColor: AppColors.backgroundDark,
+        foregroundColor: buttonTextColor,
+        backgroundColor: buttonBackgroundColor,
       ),
       onPressed: () {
         passwordReset();
@@ -47,34 +54,42 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
 
   @override
   Widget build(BuildContext context) {
-    //final ThemeData theme = Theme.of(context);
-    const Color primaryColor = AppColors.primaryDark;
-    const Color textColor = AppColors.textDark;
+    final ThemeData theme = Theme.of(context);
+    final Color arrowColor = theme.brightness == Brightness.light
+        ? AppColors.textLight
+        : AppColors.textDark;
+    final Color backgroundColor = theme.brightness == Brightness.light
+        ? AppColors.backgroundLight
+        : AppColors.backgroundDark;
+    final Color iconColor = theme.brightness == Brightness.light
+        ? AppColors.iconLight
+        : AppColors.iconDark;
+    final Color textColor = theme.brightness == Brightness.light
+        ? AppColors.textLight
+        : AppColors.textDark;
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
         appBar: AppBar(
-          backgroundColor: primaryColor,
+          backgroundColor: backgroundColor,
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back, color: textColor),
+            icon: Icon(Icons.arrow_back, color: arrowColor),
             onPressed: () {
               Navigator.of(context).pop();
             },
           ),
         ),
-        backgroundColor: primaryColor,
+        backgroundColor: backgroundColor,
         body: Container(
-          color: primaryColor,
+          color: backgroundColor,
           child: SingleChildScrollView(
             reverse: true,
             child: Column(
               children: [
-                const SizedBox(height: 80),
-                LoginFormEntry(
-                  'E-mail', _controllerEmail, Icons.person, false,
-                  false, () {}, // Empty function as a placeholder
-                ),
+                const SizedBox(height: 40),
+                LoginFormEntry('E-mail', _controllerEmail, Icons.person, false,
+                    false, () {}, iconColor, textColor),
                 const SizedBox(height: 10),
                 ErrorMessageWidget(errorMessage ?? ''),
                 const SizedBox(height: 10),

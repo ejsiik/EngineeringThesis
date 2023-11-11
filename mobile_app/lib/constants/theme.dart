@@ -8,6 +8,7 @@ class AppTheme {
     primarySwatch: Colors.blue,
     brightness: Brightness.light,
     textTheme: AppTextTheme.lightTextTheme,
+    scaffoldBackgroundColor: const Color(0xFFFAFAFA),
     appBarTheme: const AppBarTheme(),
     floatingActionButtonTheme: const FloatingActionButtonThemeData(),
     elevatedButtonTheme:
@@ -18,6 +19,7 @@ class AppTheme {
     primarySwatch: Colors.blue,
     brightness: Brightness.dark,
     textTheme: AppTextTheme.darkTextTheme,
+    scaffoldBackgroundColor: const Color(0xFF212121),
     appBarTheme: const AppBarTheme(),
     floatingActionButtonTheme: const FloatingActionButtonThemeData(),
     elevatedButtonTheme:

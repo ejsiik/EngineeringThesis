@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import '../user/home_page.dart';
 import '../../authentication/auth.dart';
+import 'package:mobile_app/constants/colors.dart';
 
 class VerifyEmailPage extends StatefulWidget {
   const VerifyEmailPage({super.key});
@@ -88,16 +89,25 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
-    final Color primaryColor = theme.primaryColor;
-    final Color? textColor = theme.textTheme.bodyLarge!.color;
-    final Color buttonColor = theme.primaryColor;
+    final Color backgroundColor = theme.brightness == Brightness.light
+        ? AppColors.backgroundLight
+        : AppColors.backgroundDark;
+    final Color textColor = theme.brightness == Brightness.light
+        ? AppColors.textLight
+        : AppColors.textDark;
+    final Color buttonBackgroundColor = theme.brightness == Brightness.light
+        ? AppColors.primaryLight
+        : AppColors.primaryDark;
+    final Color buttonTextColor = theme.brightness == Brightness.light
+        ? AppColors.backgroundLight
+        : AppColors.backgroundDark;
 
     return isEmailVerified
         ? const HomePage()
         : Scaffold(
             appBar: AppBar(
               title: const Text('Verify email'),
-              backgroundColor: primaryColor,
+              backgroundColor: backgroundColor,
             ),
             body: Center(
               child: Column(
@@ -113,10 +123,10 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
                     icon: const Icon(Icons.email, size: 32),
                     label: Text(
                       'Resend email',
-                      style: TextStyle(color: textColor),
+                      style: TextStyle(color: buttonTextColor),
                     ),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: buttonColor,
+                      backgroundColor: buttonBackgroundColor,
                     ),
                   ),
                   const SizedBox(height: 20),
@@ -126,11 +136,11 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
                       //Navigator.of(context).pop();
                     },
                     style: TextButton.styleFrom(
-                      backgroundColor: buttonColor,
+                      backgroundColor: buttonBackgroundColor,
                     ),
                     child: Text(
                       'Cancel',
-                      style: TextStyle(color: textColor),
+                      style: TextStyle(color: buttonTextColor),
                     ),
                   ),
                 ],

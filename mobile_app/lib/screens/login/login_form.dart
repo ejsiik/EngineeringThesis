@@ -7,18 +7,22 @@ class LoginFormEntry extends StatelessWidget {
   final bool isPassword;
   final bool isPasswordVisible;
   final Function togglePasswordVisibility;
+  final Color iconColor; // Dodaj kolor ikony
+  final Color textColor;
 
-  const LoginFormEntry(this.title, this.controller, this.prefixIcon,
-      this.isPassword, this.isPasswordVisible, this.togglePasswordVisibility,
+  const LoginFormEntry(
+      this.title,
+      this.controller,
+      this.prefixIcon,
+      this.isPassword,
+      this.isPasswordVisible,
+      this.togglePasswordVisibility,
+      this.iconColor,
+      this.textColor,
       {super.key});
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
-    final Color? textColor = isPassword
-        ? theme.textTheme.bodyMedium!.color
-        : theme.textTheme.bodyMedium!.color;
-
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: TextField(
@@ -27,13 +31,13 @@ class LoginFormEntry extends StatelessWidget {
         obscureText: isPassword && !isPasswordVisible,
         decoration: InputDecoration(
           hintText: title,
-          hintStyle: TextStyle(color: textColor),
-          prefixIcon: Icon(prefixIcon, color: Colors.grey),
+          hintStyle: TextStyle(color: iconColor),
+          prefixIcon: Icon(prefixIcon, color: iconColor),
           suffixIcon: isPassword
               ? IconButton(
                   icon: Icon(
                     isPasswordVisible ? Icons.visibility : Icons.visibility_off,
-                    color: textColor,
+                    color: iconColor,
                   ),
                   onPressed: () {
                     // Toggle password visibility
