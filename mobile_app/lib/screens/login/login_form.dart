@@ -22,7 +22,10 @@ class LoginFormEntry extends StatefulWidget {
       {super.key});
 
   @override
-  _LoginFormEntryState createState() => _LoginFormEntryState();
+  State<LoginFormEntry> createState() {
+    // Avoid using private types in public APIs.
+    return _LoginFormEntryState();
+  }
 }
 
 class _LoginFormEntryState extends State<LoginFormEntry> {
