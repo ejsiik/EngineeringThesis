@@ -7,6 +7,7 @@ class Auth extends GetxController {
 
   User? get currentUser => _firebaseAuth.currentUser;
 
+  // Listen to authentication state changes
   Stream<User?> get authStateChanges => _firebaseAuth.authStateChanges();
 
   Future<String?> signInWithEmailAndPassword({
@@ -43,32 +44,26 @@ class Auth extends GetxController {
     await _firebaseAuth.signOut();
   }
 
-  Future sendVerificationEmail() async {
+  Future<void> sendVerificationEmail() async {
     try {
-      // Check if currentUser is not null
       if (currentUser != null) {
-        // Check if the user is already verified
         if (currentUser!.emailVerified) {
-          return "User is already verified.";
+          throw "User is already verified.";
         } else {
-          // Send email verification
           await currentUser!.sendEmailVerification();
-          return "Verification email sent successfully.";
         }
-      } else {
-        return "User not found.";
       }
-    } on FirebaseAuthException catch (e) {
-      // Handle FirebaseAuthException
-      return e.message;
+    } catch (error) {
+      throw 'Error sending verification email: $error';
     }
   }
 
   Future<bool> checkEmailVerified() async {
-    if (currentUser!.emailVerified) {
-      return true;
-    } else {
-      return false;
+    try {
+      await currentUser!.reload();
+      return currentUser != null ? currentUser!.emailVerified : false;
+    } catch (error) {
+      throw 'Error checking email verification status: $error';
     }
   }
 
