@@ -133,7 +133,6 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
                   TextButton(
                     onPressed: () {
                       signOut();
-                      //Navigator.of(context).pop();
                     },
                     style: TextButton.styleFrom(
                       backgroundColor: buttonBackgroundColor,

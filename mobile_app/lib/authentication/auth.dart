@@ -45,8 +45,21 @@ class Auth extends GetxController {
 
   Future sendVerificationEmail() async {
     try {
-      await currentUser?.sendEmailVerification();
+      // Check if currentUser is not null
+      if (currentUser != null) {
+        // Check if the user is already verified
+        if (currentUser!.emailVerified) {
+          return "User is already verified.";
+        } else {
+          // Send email verification
+          await currentUser!.sendEmailVerification();
+          return "Verification email sent successfully.";
+        }
+      } else {
+        return "User not found.";
+      }
     } on FirebaseAuthException catch (e) {
+      // Handle FirebaseAuthException
       return e.message;
     }
   }
