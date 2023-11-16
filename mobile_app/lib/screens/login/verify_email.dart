@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import '../user/home_page.dart';
 import '../../authentication/auth.dart';
 import 'package:mobile_app/constants/colors.dart';
 
@@ -102,49 +101,47 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
         ? AppColors.backgroundLight
         : AppColors.backgroundDark;
 
-    return isEmailVerified
-        ? const HomePage()
-        : Scaffold(
-            appBar: AppBar(
-              title: const Text('Verify email'),
-              backgroundColor: backgroundColor,
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Verify email'),
+        backgroundColor: backgroundColor,
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              'Email link has been sent',
+              style: TextStyle(color: textColor),
             ),
-            body: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'Email link has been sent',
-                    style: TextStyle(color: textColor),
-                  ),
-                  const SizedBox(height: 20),
-                  ElevatedButton.icon(
-                    onPressed: canResendEmail ? sendVerificationEmail : null,
-                    icon: const Icon(Icons.email, size: 32),
-                    label: Text(
-                      'Resend email',
-                      style: TextStyle(color: buttonTextColor),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: buttonBackgroundColor,
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  TextButton(
-                    onPressed: () {
-                      signOut();
-                    },
-                    style: TextButton.styleFrom(
-                      backgroundColor: buttonBackgroundColor,
-                    ),
-                    child: Text(
-                      'Cancel',
-                      style: TextStyle(color: buttonTextColor),
-                    ),
-                  ),
-                ],
+            const SizedBox(height: 20),
+            ElevatedButton.icon(
+              onPressed: canResendEmail ? sendVerificationEmail : null,
+              icon: const Icon(Icons.email, size: 32),
+              label: Text(
+                'Resend email',
+                style: TextStyle(color: buttonTextColor),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: buttonBackgroundColor,
               ),
             ),
-          );
+            const SizedBox(height: 20),
+            TextButton(
+              onPressed: () {
+                signOut();
+              },
+              style: TextButton.styleFrom(
+                backgroundColor: buttonBackgroundColor,
+              ),
+              child: Text(
+                'Cancel',
+                style: TextStyle(color: buttonTextColor),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

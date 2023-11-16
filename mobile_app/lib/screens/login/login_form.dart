@@ -40,74 +40,85 @@ class _LoginFormEntryState extends State<LoginFormEntry> {
     });
   }
 
+  List<String> generateEmailSuggestions(String text) {
+    if (text.contains('@')) {
+      final prefix = text.substring(0, text.indexOf('@') + 1);
+      return emailSuggestions
+          .map((domain) => '$prefix$domain')
+          .where((domain) => domain.startsWith(text))
+          .toList();
+    } else {
+      return [];
+    }
+  }
+
+  void updateEmailSuggestions(String text) {
+    if (text.contains('@') && widget.title.toLowerCase() == 'e-mail') {
+      String domain = text.split('@')[1];
+      setState(() {
+        emailSuggestions = emailSuggestions
+            .where((suggestion) => suggestion.contains(domain))
+            .toList();
+      });
+    } else {
+      setState(() {
+        emailSuggestions = [];
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        // Add three TextButtons for email suggestions if conditions are met
-        if (widget.title.toLowerCase() == 'e-mail' &&
-            widget.controller.text.contains('@') &&
-            focusNode.hasFocus)
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              for (String suggestion in emailSuggestions)
-                TextButton(
-                  onPressed: () {
-                    // Auto-complete the email address
-                    widget.controller.text =
-                        '${widget.controller.text.split('@')[0]}@$suggestion';
-                  },
-                  child: Text(suggestion),
-                ),
-            ],
-          ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: TextField(
-            controller: widget.controller,
+    if (widget.title.toLowerCase() == 'e-mail') {
+      return Autocomplete<String>(
+        optionsBuilder: (TextEditingValue textEditingValue) {
+          final suggestions = generateEmailSuggestions(textEditingValue.text);
+          return suggestions;
+        },
+        onSelected: (String selectedEmail) {
+          widget.controller.text = selectedEmail;
+        },
+        fieldViewBuilder: (BuildContext context,
+            TextEditingController textEditingController,
+            FocusNode focusNode,
+            VoidCallback onFieldSubmitted) {
+          return TextField(
+            controller: textEditingController,
             focusNode: focusNode,
-            style: TextStyle(color: widget.textColor),
-            obscureText: widget.isPassword && !widget.isPasswordVisible,
-            onChanged: (text) {
-              // Check if '@' is present and the title is 'E-mail'
-              if (text.contains('@') &&
-                  widget.title.toLowerCase() == 'e-mail') {
-                String domain = text.split('@')[1];
-                setState(() {
-                  emailSuggestions = emailSuggestions
-                      .where((suggestion) => suggestion.contains(domain))
-                      .toList();
-                });
-              } else {
-                // Reset suggestions if '@' is removed or title is not 'E-mail'
-                setState(() {
-                  emailSuggestions = [];
-                });
-              }
-            },
             decoration: InputDecoration(
-              hintText: widget.title,
+              hintText: 'Enter email',
               hintStyle: TextStyle(color: widget.iconColor),
               prefixIcon: Icon(widget.prefixIcon, color: widget.iconColor),
-              suffixIcon: widget.isPassword
-                  ? IconButton(
-                      icon: Icon(
-                        widget.isPasswordVisible
-                            ? Icons.visibility
-                            : Icons.visibility_off,
-                        color: widget.iconColor,
-                      ),
-                      onPressed: () {
-                        // Toggle password visibility
-                        widget.togglePasswordVisibility();
-                      },
-                    )
-                  : null,
             ),
-          ),
+          );
+        },
+      );
+    } else {
+      return TextField(
+        controller: widget.controller,
+        focusNode: focusNode,
+        style: TextStyle(color: widget.textColor),
+        obscureText: widget.isPassword && !widget.isPasswordVisible,
+        onChanged: (text) => updateEmailSuggestions(text),
+        decoration: InputDecoration(
+          hintText: widget.title,
+          hintStyle: TextStyle(color: widget.iconColor),
+          prefixIcon: Icon(widget.prefixIcon, color: widget.iconColor),
+          suffixIcon: widget.isPassword
+              ? IconButton(
+                  icon: Icon(
+                    widget.isPasswordVisible
+                        ? Icons.visibility
+                        : Icons.visibility_off,
+                    color: widget.iconColor,
+                  ),
+                  onPressed: () {
+                    widget.togglePasswordVisibility();
+                  },
+                )
+              : null,
         ),
-      ],
-    );
+      );
+    }
   }
 }
