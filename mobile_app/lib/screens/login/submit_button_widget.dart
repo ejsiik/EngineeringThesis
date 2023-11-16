@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_app/constants/colors.dart';
 
 class SubmitButtonWidget extends StatelessWidget {
   final bool isLogin;
@@ -21,11 +22,19 @@ class SubmitButtonWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    final Color buttonBackgroundColor = theme.brightness == Brightness.light
+        ? AppColors.primaryLight
+        : AppColors.primaryDark;
+    final Color buttonTextColor = theme.brightness == Brightness.light
+        ? AppColors.backgroundLight
+        : AppColors.backgroundDark;
+
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
         // Dostosuj kolory tekstu i tła z motywu (Theme) aplikacji
-        foregroundColor: Theme.of(context).textTheme.bodyLarge!.color,
-        backgroundColor: Theme.of(context).primaryColor,
+        foregroundColor: buttonTextColor,
+        backgroundColor: buttonBackgroundColor,
       ),
       onPressed: isLogin
           ? signInWithEmailAndPassword

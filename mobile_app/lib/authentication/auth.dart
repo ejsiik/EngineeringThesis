@@ -7,6 +7,7 @@ class Auth extends GetxController {
 
   User? get currentUser => _firebaseAuth.currentUser;
 
+  // Listen to authentication state changes
   Stream<User?> get authStateChanges => _firebaseAuth.authStateChanges();
 
   Future<String?> signInWithEmailAndPassword({
@@ -18,10 +19,10 @@ class Auth extends GetxController {
         email: email.trim(),
         password: password.trim(),
       );
+      return null; // Return null if the sign-in is successful
     } on FirebaseAuthException catch (e) {
-      return e.message;
+      return e.message; // Return the error message if there's an exception
     }
-    return null;
   }
 
   Future<dynamic> createUserWithEmailAndPassword({
@@ -41,5 +42,37 @@ class Auth extends GetxController {
 
   Future<void> signOut() async {
     await _firebaseAuth.signOut();
+  }
+
+  Future<void> sendVerificationEmail() async {
+    try {
+      if (currentUser != null) {
+        if (currentUser!.emailVerified) {
+          throw "User is already verified.";
+        } else {
+          await currentUser!.sendEmailVerification();
+        }
+      }
+    } catch (error) {
+      throw 'Error sending verification email: $error';
+    }
+  }
+
+  Future<bool> checkEmailVerified() async {
+    try {
+      await currentUser!.reload();
+      return currentUser != null ? currentUser!.emailVerified : false;
+    } catch (error) {
+      throw 'Error checking email verification status: $error';
+    }
+  }
+
+  Future<String?> passwordReset({required String email}) async {
+    try {
+      await FirebaseAuth.instance.sendPasswordResetEmail(email: email.trim());
+      return null; // Return null on success
+    } on FirebaseAuthException catch (e) {
+      return e.message;
+    }
   }
 }

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_app/constants/colors.dart';
-
 import '../../authentication/auth.dart';
 
 class HomePage extends StatelessWidget {
@@ -14,8 +13,21 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
     final Color backgroundColor = theme.scaffoldBackgroundColor;
-    final Color? textColor = theme.textTheme.bodyLarge!.color;
-    const Color circleColor = AppColors.circleLight;
+    const Color circleOpenColor = AppColors.circleOpen;
+    const Color logoutColor = AppColors.logout;
+    //const Color circleCloseColor = AppColors.circleClose;
+    final Color navbarSelectedColor = theme.brightness == Brightness.light
+        ? AppColors.navbarSelectedLight
+        : AppColors.navbarSelectedDark;
+    final Color navbarUnselectedColor = theme.brightness == Brightness.light
+        ? AppColors.navbarUnselectedLight
+        : AppColors.navbarUnselectedDark;
+    final Color primaryColor = theme.brightness == Brightness.light
+        ? AppColors.primaryLight
+        : AppColors.primaryDark;
+    final Color textColor = theme.brightness == Brightness.light
+        ? AppColors.textLight
+        : AppColors.textDark;
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
@@ -39,7 +51,7 @@ class HomePage extends StatelessWidget {
                     Icon(
                       Icons.waving_hand,
                       size: 20,
-                      color: textColor,
+                      color: primaryColor,
                     ),
                   ],
                 ),
@@ -60,7 +72,7 @@ class HomePage extends StatelessWidget {
                       Icons
                           .check_circle, // green/red light when store is opened/closed
                       size: 20,
-                      color: circleColor,
+                      color: circleOpenColor,
                     ),
                   ],
                 ),
@@ -74,7 +86,7 @@ class HomePage extends StatelessWidget {
                       width: 60,
                       height: 60,
                       decoration: BoxDecoration(
-                        color: textColor,
+                        color: primaryColor,
                       ),
                       child: const Center(
                         child: Icon(
@@ -102,9 +114,9 @@ class HomePage extends StatelessWidget {
                 top: 20,
                 right: 20,
                 child: IconButton(
-                  icon: Icon(
+                  icon: const Icon(
                     Icons.exit_to_app,
-                    color: textColor,
+                    color: logoutColor,
                   ),
                   onPressed: () {
                     signOut();
@@ -121,6 +133,9 @@ class HomePage extends StatelessWidget {
                   backgroundColor: backgroundColor,
                   showSelectedLabels: false,
                   showUnselectedLabels: false,
+                  selectedIconTheme: IconThemeData(color: navbarSelectedColor),
+                  unselectedIconTheme:
+                      IconThemeData(color: navbarUnselectedColor),
                   items: [
                     BottomNavigationBarItem(
                       icon: const Icon(Icons.home),
