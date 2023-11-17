@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_app/constants/colors.dart';
 
 class LoginFormEntry extends StatefulWidget {
   final String title;
@@ -7,18 +8,9 @@ class LoginFormEntry extends StatefulWidget {
   final bool isPassword;
   final bool isPasswordVisible;
   final Function togglePasswordVisibility;
-  final Color iconColor;
-  final Color textColor;
 
-  const LoginFormEntry(
-      this.title,
-      this.controller,
-      this.prefixIcon,
-      this.isPassword,
-      this.isPasswordVisible,
-      this.togglePasswordVisibility,
-      this.iconColor,
-      this.textColor,
+  const LoginFormEntry(this.title, this.controller, this.prefixIcon,
+      this.isPassword, this.isPasswordVisible, this.togglePasswordVisibility,
       {super.key});
 
   @override
@@ -69,6 +61,14 @@ class _LoginFormEntryState extends State<LoginFormEntry> {
 
   @override
   Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    final Color iconColor = theme.brightness == Brightness.light
+        ? AppColors.iconLight
+        : AppColors.iconDark;
+    final Color textColor = theme.brightness == Brightness.light
+        ? AppColors.textLight
+        : AppColors.textDark;
+
     if (widget.title.toLowerCase() == 'e-mail') {
       return Autocomplete<String>(
         optionsBuilder: (TextEditingValue textEditingValue) {
@@ -87,8 +87,8 @@ class _LoginFormEntryState extends State<LoginFormEntry> {
             focusNode: focusNode,
             decoration: InputDecoration(
               hintText: 'Enter email',
-              hintStyle: TextStyle(color: widget.iconColor),
-              prefixIcon: Icon(widget.prefixIcon, color: widget.iconColor),
+              hintStyle: TextStyle(color: iconColor),
+              prefixIcon: Icon(widget.prefixIcon, color: iconColor),
             ),
           );
         },
@@ -97,20 +97,20 @@ class _LoginFormEntryState extends State<LoginFormEntry> {
       return TextField(
         controller: widget.controller,
         focusNode: focusNode,
-        style: TextStyle(color: widget.textColor),
+        style: TextStyle(color: textColor),
         obscureText: widget.isPassword && !widget.isPasswordVisible,
         onChanged: (text) => updateEmailSuggestions(text),
         decoration: InputDecoration(
           hintText: widget.title,
-          hintStyle: TextStyle(color: widget.iconColor),
-          prefixIcon: Icon(widget.prefixIcon, color: widget.iconColor),
+          hintStyle: TextStyle(color: iconColor),
+          prefixIcon: Icon(widget.prefixIcon, color: iconColor),
           suffixIcon: widget.isPassword
               ? IconButton(
                   icon: Icon(
                     widget.isPasswordVisible
                         ? Icons.visibility
                         : Icons.visibility_off,
-                    color: widget.iconColor,
+                    color: iconColor,
                   ),
                   onPressed: () {
                     widget.togglePasswordVisibility();

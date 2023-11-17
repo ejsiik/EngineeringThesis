@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 
 import 'login/verify_email.dart';
 import 'login/login_page.dart';
-import 'user/home_page.dart';
+import 'user/main_page.dart';
 
 class WidgetTree extends StatefulWidget {
   const WidgetTree({super.key});
@@ -24,7 +24,7 @@ class _WidgetTreeState extends State<WidgetTree> {
           if (user != null) {
             // Check if email is verified
             if (user.emailVerified) {
-              return const HomePage();
+              return const MainPage();
             } else {
               return const VerifyEmailPage();
             }
