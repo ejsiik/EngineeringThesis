@@ -5,7 +5,6 @@ import 'login_form.dart';
 import 'error_message_widget.dart';
 import 'submit_button_widget.dart';
 import 'login_or_register_button_widget.dart';
-import 'package:mobile_app/constants/colors.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -80,12 +79,6 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
     final Color primaryColor = theme.scaffoldBackgroundColor;
-    final Color iconColor = theme.brightness == Brightness.light
-        ? AppColors.iconLight
-        : AppColors.iconDark;
-    final Color textColor = theme.brightness == Brightness.light
-        ? AppColors.textLight
-        : AppColors.textDark;
 
     return Scaffold(
       backgroundColor: primaryColor,
@@ -98,14 +91,13 @@ class _LoginPageState extends State<LoginPage> {
               const SizedBox(height: 80),
               if (!isLogin)
                 LoginFormEntry(
-                    'Name',
-                    _controllerName,
-                    Icons.badge,
-                    false,
-                    isPasswordVisible,
-                    togglePasswordVisibility,
-                    iconColor,
-                    textColor),
+                  'Name',
+                  _controllerName,
+                  Icons.badge,
+                  false,
+                  isPasswordVisible,
+                  togglePasswordVisibility,
+                ),
               const SizedBox(height: 10),
               LoginFormEntry(
                 'E-mail',
@@ -114,8 +106,6 @@ class _LoginPageState extends State<LoginPage> {
                 false,
                 isPasswordVisible,
                 togglePasswordVisibility,
-                iconColor,
-                textColor,
               ),
               const SizedBox(height: 10),
               LoginFormEntry(
@@ -125,8 +115,6 @@ class _LoginPageState extends State<LoginPage> {
                 true,
                 isPasswordVisible,
                 togglePasswordVisibility,
-                iconColor,
-                textColor,
               ),
               const SizedBox(height: 10),
               if (!isLogin)
@@ -137,8 +125,6 @@ class _LoginPageState extends State<LoginPage> {
                   true,
                   isConfirmPasswordVisible,
                   toggleConfirmPasswordVisibility,
-                  iconColor,
-                  textColor,
                 ),
               const SizedBox(height: 10),
               if (isLogin) const ForgotPasswordButtonWidget(),

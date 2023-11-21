@@ -32,7 +32,6 @@ class SubmitButtonWidget extends StatelessWidget {
 
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
-        // Dostosuj kolory tekstu i tła z motywu (Theme) aplikacji
         foregroundColor: buttonTextColor,
         backgroundColor: buttonBackgroundColor,
       ),

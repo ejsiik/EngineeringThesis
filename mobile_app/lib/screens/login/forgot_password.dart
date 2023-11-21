@@ -61,41 +61,38 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
     final Color backgroundColor = theme.brightness == Brightness.light
         ? AppColors.backgroundLight
         : AppColors.backgroundDark;
-    final Color iconColor = theme.brightness == Brightness.light
-        ? AppColors.iconLight
-        : AppColors.iconDark;
-    final Color textColor = theme.brightness == Brightness.light
-        ? AppColors.textLight
-        : AppColors.textDark;
 
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: Scaffold(
-        appBar: AppBar(
-          backgroundColor: backgroundColor,
-          leading: IconButton(
-            icon: Icon(Icons.arrow_back, color: arrowColor),
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-          ),
-        ),
+    return Scaffold(
+      appBar: AppBar(
         backgroundColor: backgroundColor,
-        body: Container(
-          color: backgroundColor,
-          child: SingleChildScrollView(
-            reverse: true,
-            child: Column(
-              children: [
-                const SizedBox(height: 40),
-                LoginFormEntry('E-mail', _controllerEmail, Icons.person, false,
-                    false, () {}, iconColor, textColor),
-                const SizedBox(height: 10),
-                ErrorMessageWidget(errorMessage ?? ''),
-                const SizedBox(height: 10),
-                _submitButton(),
-              ],
-            ),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: arrowColor),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
+      ),
+      backgroundColor: backgroundColor,
+      body: Container(
+        color: backgroundColor,
+        child: SingleChildScrollView(
+          reverse: true,
+          child: Column(
+            children: [
+              const SizedBox(height: 40),
+              LoginFormEntry(
+                'E-mail',
+                _controllerEmail,
+                Icons.person,
+                false,
+                false,
+                () {},
+              ),
+              const SizedBox(height: 10),
+              ErrorMessageWidget(errorMessage ?? ''),
+              const SizedBox(height: 10),
+              _submitButton(),
+            ],
           ),
         ),
       ),
