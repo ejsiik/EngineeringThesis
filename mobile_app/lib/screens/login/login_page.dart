@@ -24,27 +24,34 @@ class _LoginPageState extends State<LoginPage> {
   final _controllerPassword = TextEditingController();
   final _controllerConfirmPassword = TextEditingController();
 
+  // Helper method to safely call safeSetState
+  void safeSetState(VoidCallback fn) {
+    if (mounted) {
+      setState(fn);
+    }
+  }
+
   void handlePasswordMismatch() {
     // update the UI
-    setState(() {
+    safeSetState(() {
       errorMessage = 'Passwords do not match';
     });
   }
 
   void togglePasswordVisibility() {
-    setState(() {
+    safeSetState(() {
       isPasswordVisible = !isPasswordVisible;
     });
   }
 
   void toggleConfirmPasswordVisibility() {
-    setState(() {
+    safeSetState(() {
       isConfirmPasswordVisible = !isConfirmPasswordVisible;
     });
   }
 
   void toggleLoginRegister() {
-    setState(() {
+    safeSetState(() {
       isLogin = !isLogin;
       isPasswordVisible = false;
       isConfirmPasswordVisible = false;
@@ -58,7 +65,7 @@ class _LoginPageState extends State<LoginPage> {
       password: _controllerPassword.text.trim(),
     );
 
-    setState(() {
+    safeSetState(() {
       errorMessage = signInErrorMessage;
     });
   }
@@ -68,11 +75,16 @@ class _LoginPageState extends State<LoginPage> {
         await Auth().createUserWithEmailAndPassword(
       email: _controllerEmail.text.trim(),
       password: _controllerPassword.text.trim(),
+      name: _controllerName.text.trim(),
     );
 
-    setState(() {
+    safeSetState(() {
       errorMessage = createUserErrorMessage;
     });
+  }
+
+  bool isControllerNotEmpty(TextEditingController controller) {
+    return controller.text.isNotEmpty;
   }
 
   @override
@@ -131,12 +143,17 @@ class _LoginPageState extends State<LoginPage> {
               const SizedBox(height: 30),
               ErrorMessageWidget(errorMessage ?? ''),
               SubmitButtonWidget(
-                  isLogin,
-                  _controllerPassword,
-                  _controllerConfirmPassword,
-                  createUserWithEmailAndPassword,
-                  togglePasswordVisibility,
-                  signInWithEmailAndPassword,
+                  isLogin, _controllerPassword, _controllerConfirmPassword, () {
+                if (isControllerNotEmpty(_controllerName) &&
+                    isControllerNotEmpty(_controllerEmail) &&
+                    isControllerNotEmpty(_controllerPassword)) {
+                  createUserWithEmailAndPassword();
+                } else {
+                  safeSetState(() {
+                    errorMessage = 'Please fill in all required fields.';
+                  });
+                }
+              }, togglePasswordVisibility, signInWithEmailAndPassword,
                   handlePasswordMismatch),
               const SizedBox(height: 20),
               LoginOrRegisterButtonWidget(isLogin, toggleLoginRegister),
