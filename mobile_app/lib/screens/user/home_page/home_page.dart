@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_app/constants/colors.dart';
+import 'package:mobile_app/database/data.dart';
 import '../../../authentication/auth.dart';
 
 class HomePage extends StatelessWidget {
@@ -7,6 +8,17 @@ class HomePage extends StatelessWidget {
 
   void signOut() async {
     await Auth().signOut();
+  }
+
+  Future<String> getUserName() async {
+    Data data = Data();
+    String? userName = await data.getUserName();
+
+    if (userName != null) {
+      return userName;
+    } else {
+      return 'Unknown User';
+    }
   }
 
   @override
@@ -29,45 +41,57 @@ class HomePage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // User name and logout
-            Row(
-              children: [
-                Expanded(
-                  child: Container(
-                    padding: const EdgeInsets.all(10.0),
-                    color: backgroundColor,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Row(
-                          children: [
-                            Text(
-                              'Witaj UserName ',
-                              style: TextStyle(
-                                fontSize: 20,
-                                color: textColor,
+            FutureBuilder<String>(
+              future: getUserName(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const CircularProgressIndicator(); // or another loading indicator
+                } else if (snapshot.hasError) {
+                  return Text('Error: ${snapshot.error}');
+                } else {
+                  String userName = snapshot.data ?? 'Unknown User';
+                  return Row(
+                    children: [
+                      Expanded(
+                        child: Container(
+                          padding: const EdgeInsets.all(10.0),
+                          color: backgroundColor,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Row(
+                                children: [
+                                  Text(
+                                    'Witaj $userName ',
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                      color: textColor,
+                                    ),
+                                  ),
+                                  Icon(
+                                    Icons.waving_hand,
+                                    size: 20,
+                                    color: primaryColor,
+                                  ),
+                                ],
                               ),
-                            ),
-                            Icon(
-                              Icons.waving_hand,
-                              size: 20,
-                              color: primaryColor,
-                            ),
-                          ],
-                        ),
-                        IconButton(
-                          icon: const Icon(
-                            Icons.exit_to_app,
-                            color: logoutColor,
+                              IconButton(
+                                icon: const Icon(
+                                  Icons.exit_to_app,
+                                  color: logoutColor,
+                                ),
+                                onPressed: () {
+                                  signOut();
+                                },
+                              ),
+                            ],
                           ),
-                          onPressed: () {
-                            signOut();
-                          },
                         ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
+                      ),
+                    ],
+                  );
+                }
+              },
             ),
 
             // Store location
