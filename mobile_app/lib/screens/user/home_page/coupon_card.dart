@@ -4,7 +4,7 @@ import '../../../database/data.dart';
 import 'coupons.dart';
 
 class CouponCardWidget extends StatelessWidget {
-  const CouponCardWidget({Key? key});
+  const CouponCardWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -87,17 +87,22 @@ class CouponScreen extends StatelessWidget {
         future: data.getAllCouponData(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return CircularProgressIndicator();
+            return const CircularProgressIndicator();
           } else if (snapshot.hasError) {
             return Text('Error: ${snapshot.error}');
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Text('No coupons available.');
+            return const Text('No coupons available.');
           } else {
             return GridView.count(
               crossAxisCount: 3,
-              children: snapshot.data!.map((couponData) {
+              children: snapshot.data!.asMap().entries.map((entry) {
+                int index = entry.key;
+                Map<dynamic, dynamic> couponData = entry.value;
+
+                bool isFree = index == 5;
+
                 return CouponCard(
-                  isFree: couponData['isFree'] ?? false,
+                  isFree: isFree,
                   wasUsed: couponData['wasUsed'] ?? false,
                   couponValue: couponData['couponValue'] ?? 0,
                 );

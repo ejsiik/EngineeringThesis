@@ -132,18 +132,6 @@ class _HomePageState extends State<HomePage> {
 
             const CouponCardWidget(),
 
-            /*GridView.count(
-              crossAxisCount: 3,
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              children: data.getAllCouponRefs().map((couponRef) {
-                return CouponCardWithFirebaseData(
-                  couponRef,
-                  isFree: false,
-                );
-              }).toList(),
-            ),*/
-
             // Empty container for future
             Flexible(
               child: Container(

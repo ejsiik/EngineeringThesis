@@ -23,7 +23,6 @@ class CouponCardWithFirebaseData extends StatelessWidget {
 
         final couponData =
             snapshot.data?.snapshot.value as Map<dynamic, dynamic>? ?? {};
-        //value as Map<dynamic, dynamic>? ?? {};
         final wasUsed = couponData['wasUsed'] ?? false;
         final couponValue = couponData['couponValue'] ?? 0;
 
@@ -54,14 +53,12 @@ class CouponCard extends StatelessWidget {
     final ThemeData theme = Theme.of(context);
     final Color backgroundColor = theme.scaffoldBackgroundColor;
     const Color couponColor = AppColors.circleOpen;
-    const Color accentColor = AppColors.accent;
-    const Color whiteColor = AppColors.white;
-    /*final Color primaryColor = theme.brightness == Brightness.light
+    final Color primaryColor = theme.brightness == Brightness.light
         ? AppColors.primaryLight
         : AppColors.primaryDark;
     final Color textColor = theme.brightness == Brightness.light
         ? AppColors.textLight
-        : AppColors.textDark;*/
+        : AppColors.textDark;
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
@@ -72,9 +69,9 @@ class CouponCard extends StatelessWidget {
             width: 70,
             height: 70,
             decoration: BoxDecoration(
-              color: whiteColor,
+              color: backgroundColor,
               shape: BoxShape.circle,
-              border: Border.all(color: accentColor, width: 2),
+              border: Border.all(color: primaryColor, width: 2),
             ),
             child: Stack(
               alignment: Alignment.center,
@@ -88,24 +85,24 @@ class CouponCard extends StatelessWidget {
                     ),
                   ),
                 if (isFree)
-                  const Center(
+                  Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          'Darmowe',
+                          'Free',
                           style: TextStyle(
-                            color: accentColor,
-                            fontSize: 15,
+                            color: textColor,
+                            fontSize: 12,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        SizedBox(height: 5),
+                        const SizedBox(height: 5),
                         Text(
-                          'Szkło!',
+                          'Glass!',
                           style: TextStyle(
-                            color: accentColor,
-                            fontSize: 14,
+                            color: textColor,
+                            fontSize: 11,
                           ),
                         ),
                       ],
@@ -121,8 +118,8 @@ class CouponCard extends StatelessWidget {
                 if (wasUsed)
                   Text(
                     '$couponValue',
-                    style: const TextStyle(
-                      color: accentColor,
+                    style: TextStyle(
+                      color: primaryColor,
                       fontSize: 14,
                       fontWeight: FontWeight.bold,
                     ),
