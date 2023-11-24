@@ -32,10 +32,12 @@ class QRCodePopup extends StatelessWidget {
                       if (snapshot.hasError) {
                         return _buildErrorWidget(textColor);
                       } else {
+                        // Display the generated QR code
                         return _buildQRCodeWidget(
                             snapshot.data!, backgroundColor);
                       }
                     } else {
+                      // Display a loading indicator while generating QR code
                       return _buildLoadingWidget();
                     }
                   },
@@ -43,6 +45,7 @@ class QRCodePopup extends StatelessWidget {
               ),
             ],
           ),
+          // Positioned close icon at the top-right corner
           Positioned(
             top: 2.0,
             right: 2.0,
@@ -58,6 +61,7 @@ class QRCodePopup extends StatelessWidget {
     );
   }
 
+  // Future method to generate QR code data
   Future<String> _generateQRCode() async {
     try {
       return await Data().generateQRCodeData();
@@ -66,6 +70,7 @@ class QRCodePopup extends StatelessWidget {
     }
   }
 
+  // Widget to display the generated QR code
   Widget _buildQRCodeWidget(String data, Color backgroundColor) {
     return Center(
       child: Container(
