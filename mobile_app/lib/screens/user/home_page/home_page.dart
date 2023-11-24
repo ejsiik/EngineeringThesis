@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mobile_app/constants/colors.dart';
 import 'package:mobile_app/database/data.dart';
 import 'package:mobile_app/screens/user/home_page/coupon_card.dart';
+import 'package:mobile_app/screens/user/home_page/qr_code_popup.dart';
 import '../../../authentication/auth.dart';
 
 class HomePage extends StatefulWidget {
@@ -27,6 +28,21 @@ class _HomePageState extends State<HomePage> {
     } else {
       return 'Unknown User';
     }
+  }
+
+  void openPopupScreen(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          content: SizedBox(
+            width: MediaQuery.of(context).size.width * 0.8,
+            height: MediaQuery.of(context).size.height * 0.4,
+            child: const QRCodePopup(),
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -85,11 +101,11 @@ class _HomePageState extends State<HomePage> {
                               ),
                               IconButton(
                                 icon: const Icon(
-                                  Icons.exit_to_app,
+                                  Icons.credit_score,
                                   color: logoutColor,
                                 ),
                                 onPressed: () {
-                                  signOut();
+                                  openPopupScreen(context);
                                 },
                               ),
                             ],
@@ -131,6 +147,16 @@ class _HomePageState extends State<HomePage> {
             ),
 
             const CouponCardWidget(),
+
+            IconButton(
+              icon: const Icon(
+                Icons.exit_to_app,
+                color: logoutColor,
+              ),
+              onPressed: () {
+                signOut();
+              },
+            ),
 
             // Empty container for future
             Flexible(

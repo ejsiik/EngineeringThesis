@@ -48,6 +48,28 @@ class Data {
     return [];
   }
 
+  Future<String> generateQRCodeData() async {
+    try {
+      if (currentUser != null) {
+        String userId = currentUser!.uid;
+        DatabaseReference userRef =
+            FirebaseDatabase.instance.ref().child('users').child(userId);
+        DatabaseEvent event = await userRef.once();
+        DataSnapshot snapshot = event.snapshot;
+
+        if (snapshot.value != null) {
+          return userId;
+        } else {
+          throw Exception('Error fetching user data');
+        }
+      } else {
+        throw Exception('User is not signed in');
+      }
+    } on FirebaseAuthException {
+      rethrow;
+    }
+  }
+
   Future<String?> getUserName() async {
     try {
       if (currentUser != null) {
