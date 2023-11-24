@@ -9,6 +9,45 @@ class Data {
   // Create a reference to the "users" node in the Realtime Database
   DatabaseReference usersRef = FirebaseDatabase.instance.ref().child('users');
 
+  DatabaseReference getCouponRef(int index) {
+    return FirebaseDatabase.instance
+        .ref()
+        .child('users')
+        .child(currentUser!.uid)
+        .child('coupons')
+        .child('coupon${index + 1}');
+  }
+
+  Future<List<Map<dynamic, dynamic>>> getAllCouponData() async {
+    try {
+      if (currentUser != null) {
+        List<Future<DataSnapshot>> futures = [];
+
+        // Create a list of futures for each coupon reference
+        for (int i = 0; i < 6; i++) {
+          DatabaseReference couponRef = getCouponRef(i);
+          futures.add(
+              couponRef.once().then((DatabaseEvent event) => event.snapshot));
+        }
+
+        // Wait for all futures to complete
+        List<DataSnapshot> snapshots = await Future.wait(futures);
+
+        // Convert DataSnapshots to List<Map<dynamic, dynamic>>
+        List<Map<dynamic, dynamic>> coupons = snapshots.map((snapshot) {
+          Map<dynamic, dynamic>? couponData =
+              snapshot.value as Map<dynamic, dynamic>?;
+          return couponData ?? {};
+        }).toList();
+
+        return coupons;
+      }
+    } on FirebaseAuthException {
+      rethrow;
+    }
+    return [];
+  }
+
   Future<String?> getUserName() async {
     try {
       if (currentUser != null) {

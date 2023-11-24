@@ -1,11 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_app/constants/colors.dart';
 import 'package:mobile_app/database/data.dart';
+import 'package:mobile_app/screens/user/home_page/coupon_card.dart';
 import '../../../authentication/auth.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
+  @override
+  State<HomePage> createState() {
+    return _HomePageState();
+  }
+}
+
+class _HomePageState extends State<HomePage> {
   void signOut() async {
     await Auth().signOut();
   }
@@ -122,44 +130,19 @@ class HomePage extends StatelessWidget {
               ],
             ),
 
-            // User money amount
-            Row(
-              children: [
-                Expanded(
-                  child: Container(
-                    padding: const EdgeInsets.all(10.0),
-                    color: backgroundColor,
-                    child: Row(
-                      children: [
-                        Container(
-                          width: 60,
-                          height: 60,
-                          decoration: BoxDecoration(
-                            color: primaryColor,
-                          ),
-                          child: const Center(
-                            child: Icon(
-                              Icons.qr_code,
-                              size: 40,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 20),
-                        Text(
-                          'Your Amount',
-                          style: TextStyle(fontSize: 20, color: textColor),
-                        ),
-                        Icon(
-                          Icons.attach_money,
-                          size: 30,
-                          color: textColor,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
+            const CouponCardWidget(),
+
+            /*GridView.count(
+              crossAxisCount: 3,
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              children: data.getAllCouponRefs().map((couponRef) {
+                return CouponCardWithFirebaseData(
+                  couponRef,
+                  isFree: false,
+                );
+              }).toList(),
+            ),*/
 
             // Empty container for future
             Flexible(
