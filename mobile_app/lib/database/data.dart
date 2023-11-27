@@ -150,3 +150,43 @@ class Data {
     }
   }
 }
+
+class UserDataProvider {
+  final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
+  User? get user => _firebaseAuth.currentUser;
+
+  Future<bool> isUserCreatedWithin14Days() async {
+    if (user == null) return false;
+
+    final firebaseCreationDate = DateTime.fromMillisecondsSinceEpoch(
+        user!.metadata.creationTime!.millisecondsSinceEpoch);
+    final currentDate = DateTime.now();
+    final daysDifference = currentDate.difference(firebaseCreationDate).inDays;
+
+    if (daysDifference <= 14) {
+      final DatabaseEvent snapshotEvent = await FirebaseDatabase.instance
+          .ref()
+          .child('users')
+          .child(user!.uid)
+          .child('couponUsed')
+          .once();
+
+      final DataSnapshot snapshot = snapshotEvent.snapshot;
+
+      if (snapshot.value is bool && snapshot.value == false) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  DatabaseReference getCouponRef(int index) {
+    return FirebaseDatabase.instance
+        .ref()
+        .child('users')
+        .child(user!.uid)
+        .child('coupons')
+        .child('coupon${index + 1}');
+  }
+}

@@ -4,9 +4,10 @@ import 'package:mobile_app/database/data.dart';
 import 'package:mobile_app/screens/user/home_page/coupon_card.dart';
 import 'package:mobile_app/screens/user/home_page/qr_code_popup.dart';
 import '../../../authentication/auth.dart';
+import 'welcome_banner.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  const HomePage({Key? key}) : super(key: key);
 
   @override
   State<HomePage> createState() {
@@ -15,12 +16,26 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  bool showWelcomeBanner = false;
+  Data data = Data();
+  UserDataProvider userData = UserDataProvider();
+
+  @override
+  void initState() {
+    super.initState();
+    // Set up a listener for changes in the database
+    userData.isUserCreatedWithin14Days().then((value) {
+      setState(() {
+        showWelcomeBanner = value;
+      });
+    });
+  }
+
   void signOut() async {
     await Auth().signOut();
   }
 
   Future<String> getUserName() async {
-    Data data = Data();
     String? userName = await data.getUserName();
 
     if (userName != null) {
@@ -49,9 +64,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
     final Color backgroundColor = theme.scaffoldBackgroundColor;
-    const Color circleOpenColor = AppColors.circleOpen;
     const Color logoutColor = AppColors.logout;
-    //const Color circleCloseColor = AppColors.circleClose;
     final Color primaryColor = theme.brightness == Brightness.light
         ? AppColors.primaryLight
         : AppColors.primaryDark;
@@ -69,7 +82,7 @@ class _HomePageState extends State<HomePage> {
               future: getUserName(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const CircularProgressIndicator(); // or another loading indicator
+                  return const CircularProgressIndicator();
                 } else if (snapshot.hasError) {
                   return Text('Error: ${snapshot.error}');
                 } else {
@@ -118,33 +131,13 @@ class _HomePageState extends State<HomePage> {
               },
             ),
 
-            // Store location
-            Row(
-              children: [
-                Expanded(
-                  child: Container(
-                    padding: const EdgeInsets.all(10.0),
-                    color: backgroundColor,
-                    child: Row(
-                      children: [
-                        Text(
-                          'Kaszubska 23, 44-100 Gliwice ',
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: textColor,
-                          ),
-                        ),
-                        const Icon(
-                          Icons.check_circle,
-                          size: 20,
-                          color: circleOpenColor,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
+            // Show the WelcomeBanner only if conditions are met
+            if (showWelcomeBanner)
+              WelcomeBanner(
+                onButtonPressed: () {
+                  openPopupScreen(context);
+                },
+              ),
 
             const CouponCardWidget(),
 
@@ -156,13 +149,6 @@ class _HomePageState extends State<HomePage> {
               onPressed: () {
                 signOut();
               },
-            ),
-
-            // Empty container for future
-            Flexible(
-              child: Container(
-                color: backgroundColor,
-              ),
             ),
           ],
         ),
