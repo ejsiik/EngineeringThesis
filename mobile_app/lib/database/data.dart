@@ -149,6 +149,98 @@ class Data {
       return e.message;
     }
   }
+
+  Future<void> submitData(String userId, bool welcomeBanner, String couponValue,
+      Function(String) onSubmitted) async {
+    try {
+      DatabaseReference usersRef =
+          FirebaseDatabase.instance.ref().child('users');
+      DatabaseEvent event = await usersRef.child(userId).once();
+      DataSnapshot snapshot = event.snapshot;
+
+      if (snapshot.value != null) {
+        if (welcomeBanner) {
+          await usersRef.child(userId).child('couponUsed').set(true);
+          onSubmitted("Welcome coupon used");
+        } else {
+          if (couponValue.isNotEmpty) {
+            int couponValueInt = int.tryParse(couponValue) ?? 0;
+
+            // Example: Check for available coupons and update the database
+            Map<dynamic, dynamic>? userData = snapshot.value as Map?;
+            Map<dynamic, dynamic>? couponsData = userData?['coupons'] as Map?;
+
+            if (couponsData != null) {
+              // Find an unused coupon
+              String? unusedCouponKey;
+              for (String key in couponsData.keys) {
+                if (couponsData[key]['wasUsed'] == false) {
+                  unusedCouponKey = key;
+                  break;
+                }
+              }
+
+              if (unusedCouponKey != null) {
+                // Update the unused coupon
+                await usersRef
+                    .child(userId)
+                    .child('coupons')
+                    .child(unusedCouponKey)
+                    .update({
+                  'wasUsed': true,
+                  'couponValue': couponValueInt,
+                });
+
+                int usedCouponsCount = 0;
+                couponsData.forEach((key, value) {
+                  if (value['wasUsed'] == true) {
+                    usedCouponsCount++;
+                  }
+                });
+
+                if (usedCouponsCount >= 5) {
+                  double totalCouponValue = 0;
+
+                  couponsData.forEach((key, value) {
+                    if (value['wasUsed'] == true) {
+                      totalCouponValue += (value['couponValue'] as int);
+                    }
+                  });
+                  // Check for the Average value of coupons
+                  double meanCouponValue = totalCouponValue / 5;
+                  // Set all coupons to false
+                  couponsData.forEach((key, value) async {
+                    await usersRef
+                        .child(userId)
+                        .child('coupons')
+                        .child(key)
+                        .update({
+                      'wasUsed': false,
+                      'couponValue': 0,
+                    });
+                  });
+
+                  onSubmitted('Free glass! Mean value: $meanCouponValue');
+                } else {
+                  onSubmitted('Coupon accepted');
+                }
+              } else {
+                onSubmitted('No available coupons');
+              }
+            } else {
+              onSubmitted('No available coupons');
+            }
+          } else {
+            onSubmitted('Provide glass price');
+          }
+        }
+      } else {
+        throw Exception('User not found');
+      }
+    } catch (e) {
+      throw Exception('Error submitting data: $e');
+    }
+  }
 }
 
 class UserDataProvider {
