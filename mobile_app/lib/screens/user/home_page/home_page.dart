@@ -1,3 +1,4 @@
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_app/constants/colors.dart';
 import 'package:mobile_app/database/data.dart';
@@ -5,6 +6,11 @@ import 'package:mobile_app/screens/user/home_page/coupon_card.dart';
 import 'package:mobile_app/screens/user/home_page/qr_code_popup.dart';
 import '../../../authentication/auth.dart';
 import 'welcome_banner.dart';
+import 'product_search_model.dart';
+import 'product_search_result.dart';
+import 'shop_location_model.dart';
+import 'categories_model.dart';
+import 'image_model.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -16,9 +22,145 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  bool isListVisible = false;
   bool showWelcomeBanner = false;
   Data data = Data();
   UserDataProvider userData = UserDataProvider();
+  final CarouselController _carouselController = CarouselController();
+  List<ProductSearchModel> displayList = [];
+
+  final List<ProductSearchModel> productsList = [
+    ProductSearchModel(
+      "GigaTelefon1",
+      "https://cdn.x-kom.pl/i/setup/images/prod/big/product-new-big,,2023/3/pr_2023_3_15_9_51_8_337_00.jpg",
+      "1999 PLN",
+    ),
+    ProductSearchModel(
+      "GigaMegaTelefon2",
+      "https://f00.esfr.pl/foto/8/127951435809/fbeb997a1226825bb473edb64d12b009/apple-iphone-15-pro-max-1tb-space-black,127951435809_3.jpg",
+      "2999 PLN",
+    ),
+    ProductSearchModel(
+      "OKTelefon3",
+      "https://f00.esfr.pl/foto/4/128493638353/97550a9211d16dfb6917b6266e7bdf32/samsung-smartfon-z-fold5-1tb-bezowy-samsung,128493638353_3.jpg",
+      "3999 PLN",
+    ),
+    ProductSearchModel(
+      "SpokoTelefon4",
+      "https://f00.esfr.pl/foto/9/121350929873/f22c0a0a7c6a674ddf0655a8c4c0aad3/xiaomi-smartfon-xiaomi-13-12-256-c-black,121350929873_3.jpg",
+      "4999 PLN",
+    ),
+    ProductSearchModel(
+      "SpokoOkTelefon5",
+      "https://f00.esfr.pl/foto/4/128493523425/6e9bfeb90872ef5cb6245cdb0a1f8cd6/samsung-smartfon-z-flip5-512gb-bezowy-samsung,128493523425_3.jpg",
+      "5999 PLN",
+    ),
+  ];
+
+  final List<ShopLocationModel> locationsList = [
+    ShopLocationModel(
+      location: "Kasztanowa 1/2, 44-100 Gliwice",
+      monday: "08:00 - 20:00",
+      tuesday: "08:00 - 20:00",
+      wednesday: "08:00 - 20:00",
+      thursday: "08:00 - 20:00",
+      friday: "08:00 - 20:00",
+      saturday: "08:00 - 16:00",
+      sunday: "nieczynne",
+      isExpanded: false,
+    ),
+    ShopLocationModel(
+      location: "Ogórkowa 1/3, 44-100 Gliwice",
+      monday: "08:00 - 20:00",
+      tuesday: "08:00 - 20:00",
+      wednesday: "08:00 - 20:00",
+      thursday: "08:00 - 20:00",
+      friday: "08:00 - 20:00",
+      saturday: "08:00 - 16:00",
+      sunday: "nieczynne",
+      isExpanded: false,
+    ),
+    ShopLocationModel(
+      location: "Kasztelanowa 1/4, 44-100 Gliwice",
+      monday: "08:00 - 20:00",
+      tuesday: "08:00 - 20:00",
+      wednesday: "08:00 - 20:00",
+      thursday: "08:00 - 20:00",
+      friday: "08:00 - 20:00",
+      saturday: "08:00 - 16:00",
+      sunday: "nieczynne",
+      isExpanded: false,
+    ),
+  ];
+
+  final List<ImageModel> imagesList = [
+    ImageModel(
+      "https://cdn.x-kom.pl/i/setup/images/prod/big/product-new-big,,2023/3/pr_2023_3_15_9_51_8_337_00.jpg",
+    ),
+    ImageModel(
+      "https://f00.esfr.pl/foto/8/127951435809/fbeb997a1226825bb473edb64d12b009/apple-iphone-15-pro-max-1tb-space-black,127951435809_3.jpg",
+    ),
+    ImageModel(
+      "https://f00.esfr.pl/foto/4/128493638353/97550a9211d16dfb6917b6266e7bdf32/samsung-smartfon-z-fold5-1tb-bezowy-samsung,128493638353_3.jpg",
+    ),
+    ImageModel(
+      "https://f00.esfr.pl/foto/9/121350929873/f22c0a0a7c6a674ddf0655a8c4c0aad3/xiaomi-smartfon-xiaomi-13-12-256-c-black,121350929873_3.jpg",
+    ),
+    ImageModel(
+      "https://f00.esfr.pl/foto/4/128493523425/6e9bfeb90872ef5cb6245cdb0a1f8cd6/samsung-smartfon-z-flip5-512gb-bezowy-samsung,128493523425_3.jpg",
+    ),
+  ];
+
+  final List<CategoriesModel> categoriesList = [
+    CategoriesModel("Kosiarki"),
+    CategoriesModel("Drukarki"),
+    CategoriesModel("Parówki"),
+    CategoriesModel("Węże"),
+    CategoriesModel("Rowery"),
+    CategoriesModel("Telefony"),
+    CategoriesModel("Tratwy"),
+    CategoriesModel("Miski"),
+    CategoriesModel("Klawiatury"),
+    CategoriesModel("Płatki"),
+    CategoriesModel("Lokomotywy"),
+    CategoriesModel("Puzzle"),
+  ];
+
+  Widget buildGridItem(int index) {
+    return Card(
+      elevation: 2.0,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Center(
+          child: Text(
+            categoriesList[index].name,
+            style: const TextStyle(fontSize: 16.0),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget buildDay(String day, String hours) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 5.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            day,
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          Text(
+            hours,
+            textAlign: TextAlign.right,
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   void initState() {
@@ -43,6 +185,22 @@ class _HomePageState extends State<HomePage> {
     } else {
       return 'Unknown User';
     }
+  }
+
+  void updateProductSearchList(String value) {
+    setState(() {
+      displayList = productsList
+          .where((element) => element.name
+              .toLowerCase()
+              .trim()
+              .contains(value.toLowerCase().trim()))
+          .toList();
+    });
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (contex) => ProductSearchResult(displayList)),
+    );
   }
 
   void openPopupScreen(BuildContext context) {
@@ -74,81 +232,218 @@ class _HomePageState extends State<HomePage> {
 
     return Scaffold(
       body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // User name and logout
-            FutureBuilder<String>(
-              future: getUserName(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const CircularProgressIndicator();
-                } else if (snapshot.hasError) {
-                  return Text('Error: ${snapshot.error}');
-                } else {
-                  String userName = snapshot.data ?? 'Unknown User';
-                  return Row(
+        child: CustomScrollView(
+          slivers: <Widget>[
+            SliverToBoxAdapter(
+              child: Column(
+                children: [
+                  // User name and logout
+                  FutureBuilder<String>(
+                    future: getUserName(),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const CircularProgressIndicator();
+                      } else if (snapshot.hasError) {
+                        return Text('Error: ${snapshot.error}');
+                      } else {
+                        String userName = snapshot.data ?? 'Unknown User';
+                        return Row(
+                          children: [
+                            Expanded(
+                              child: Container(
+                                padding: const EdgeInsets.all(10.0),
+                                color: backgroundColor,
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Text(
+                                          'Witaj $userName ',
+                                          style: TextStyle(
+                                            fontSize: 20,
+                                            color: textColor,
+                                          ),
+                                        ),
+                                        Icon(
+                                          Icons.waving_hand,
+                                          size: 20,
+                                          color: primaryColor,
+                                        ),
+                                      ],
+                                    ),
+                                    IconButton(
+                                      icon: const Icon(
+                                        Icons.credit_score,
+                                        color: logoutColor,
+                                      ),
+                                      onPressed: () {
+                                        openPopupScreen(context);
+                                      },
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        );
+                      }
+                    },
+                  ),
+
+                  // product searching bar
+                  Row(
                     children: [
                       Expanded(
                         child: Container(
                           padding: const EdgeInsets.all(10.0),
                           color: backgroundColor,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Row(
-                                children: [
-                                  Text(
-                                    'Witaj $userName ',
-                                    style: TextStyle(
-                                      fontSize: 20,
-                                      color: textColor,
-                                    ),
-                                  ),
-                                  Icon(
-                                    Icons.waving_hand,
-                                    size: 20,
-                                    color: primaryColor,
-                                  ),
-                                ],
-                              ),
-                              IconButton(
-                                icon: const Icon(
-                                  Icons.credit_score,
-                                  color: logoutColor,
-                                ),
-                                onPressed: () {
-                                  openPopupScreen(context);
-                                },
-                              ),
-                            ],
+                          child: TextField(
+                            onSubmitted: (value) =>
+                                updateProductSearchList(value),
+                            decoration: InputDecoration(
+                              filled: true,
+                              prefixIcon: const Icon(Icons.search),
+                              hintText: "Wyszukaj w sklepie, np \"tel\"",
+                              border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10.0),
+                                  borderSide: BorderSide.none),
+                            ),
                           ),
                         ),
                       ),
                     ],
-                  );
-                }
-              },
-            ),
+                  ),
 
-            // Show the WelcomeBanner only if conditions are met
-            if (showWelcomeBanner)
-              WelcomeBanner(
-                onButtonPressed: () {
-                  openPopupScreen(context);
-                },
+                  // Show the WelcomeBanner only if conditions are met
+                  if (showWelcomeBanner)
+                    WelcomeBanner(
+                      onButtonPressed: () {
+                        openPopupScreen(context);
+                      },
+                    ),
+
+                  const CouponCardWidget(),
+
+                  // shop locations header
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Container(
+                          padding: const EdgeInsets.only(
+                              top: 20.0, left: 10.0, right: 10.0, bottom: 10.0),
+                          color: backgroundColor,
+                          child: Text(
+                            'Jesteśmy dostępni lokalnie:',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: textColor,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  // Store location
+                  SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        ExpansionPanelList(
+                          elevation: 1,
+                          expandedHeaderPadding: const EdgeInsets.all(0),
+                          expansionCallback: (int index, bool isExpanded) {
+                            setState(() {
+                              for (var i = 0; i < locationsList.length; i++) {
+                                if (i != index) {
+                                  locationsList[i].isExpanded = false;
+                                } else {
+                                  locationsList[i].isExpanded =
+                                      !locationsList[i].isExpanded;
+                                }
+                              }
+                            });
+                          },
+                          children: locationsList.map<ExpansionPanel>(
+                            (ShopLocationModel item) {
+                              return ExpansionPanel(
+                                headerBuilder:
+                                    (BuildContext context, bool isExpanded) {
+                                  return ListTile(
+                                    title: Text(item.location),
+                                  );
+                                },
+                                body: ListTile(
+                                  title: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      buildDay('Poniedziałek:', item.monday),
+                                      buildDay('Wtorek:', item.tuesday),
+                                      buildDay('Środa:', item.wednesday),
+                                      buildDay('Czwartek:', item.thursday),
+                                      buildDay('Piątek:', item.friday),
+                                      buildDay('Sobota:', item.saturday),
+                                      buildDay('Niedziela:', item.sunday),
+                                    ],
+                                  ),
+                                ),
+                                isExpanded: item.isExpanded,
+                              );
+                            },
+                          ).toList(),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  // slider with special offers, popular products etc
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 20.0),
+                    child: Column(
+                      children: [
+                        CarouselSlider.builder(
+                          itemCount: imagesList.length,
+                          options: CarouselOptions(
+                            height: 150,
+                            enlargeCenterPage: true,
+                            viewportFraction: 0.6,
+                          ),
+                          carouselController: _carouselController,
+                          itemBuilder:
+                              (BuildContext context, int index, int realIndex) {
+                            return SizedBox(
+                              width: double.infinity,
+                              child: Image.network(
+                                imagesList[index].urlImage,
+                                fit: BoxFit.cover,
+                              ),
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  // categories
+                  GridView.builder(
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 3,
+                      crossAxisSpacing: 8.0,
+                      mainAxisSpacing: 8.0,
+                    ),
+                    itemCount: categoriesList.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      return buildGridItem(index);
+                    },
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                  ),
+                ],
               ),
-
-            const CouponCardWidget(),
-
-            IconButton(
-              icon: const Icon(
-                Icons.exit_to_app,
-                color: logoutColor,
-              ),
-              onPressed: () {
-                signOut();
-              },
             ),
           ],
         ),

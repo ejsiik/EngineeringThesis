@@ -37,20 +37,15 @@ class CouponCardWidget extends StatelessWidget {
                     ),
                     child: const Center(
                       child: Icon(
-                        Icons.qr_code,
+                        Icons.local_offer,
                         size: 40,
                       ),
                     ),
                   ),
                   const SizedBox(width: 20),
                   Text(
-                    'Your Amount',
+                    'Twoje Kupony',
                     style: TextStyle(fontSize: 20, color: textColor),
-                  ),
-                  Icon(
-                    Icons.attach_money,
-                    size: 30,
-                    color: textColor,
                   ),
                 ],
               ),
