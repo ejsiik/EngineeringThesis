@@ -36,49 +36,51 @@ class _MainPageState extends State<MainPage> {
         ? AppColors.navbarUnselectedLight
         : AppColors.navbarUnselectedDark;
 
-    return Scaffold(
-      /*
-      // remember state of each page
-      body: IndexedStack(
-        index: _currentIndex,
-        children: _pages,
-      ),
-      */
-      body: pages[_currentIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: backgroundColor,
-        showSelectedLabels: false,
-        showUnselectedLabels: false,
-        selectedIconTheme: IconThemeData(
-          color: navbarSelectedColor,
+    return SafeArea(
+      child: Scaffold(
+        /*
+        // remember state of each page
+        body: IndexedStack(
+          index: _currentIndex,
+          children: _pages,
         ),
-        unselectedIconTheme: IconThemeData(
-          color: navbarUnselectedColor,
+        */
+        body: pages[_currentIndex],
+        bottomNavigationBar: BottomNavigationBar(
+          backgroundColor: backgroundColor,
+          showSelectedLabels: false,
+          showUnselectedLabels: false,
+          selectedIconTheme: IconThemeData(
+            color: navbarSelectedColor,
+          ),
+          unselectedIconTheme: IconThemeData(
+            color: navbarUnselectedColor,
+          ),
+          currentIndex: _currentIndex,
+          onTap: (index) => setState(() => _currentIndex = index),
+          items: [
+            BottomNavigationBarItem(
+              icon: const Icon(Icons.home),
+              label: 'Home',
+              backgroundColor: backgroundColor,
+            ),
+            BottomNavigationBarItem(
+              icon: const Icon(Icons.local_offer),
+              label: 'Coupons',
+              backgroundColor: backgroundColor,
+            ),
+            BottomNavigationBarItem(
+              icon: const Icon(Icons.add_shopping_cart),
+              label: 'Trolley',
+              backgroundColor: backgroundColor,
+            ),
+            BottomNavigationBarItem(
+              icon: const Icon(Icons.person),
+              label: 'Profile',
+              backgroundColor: backgroundColor,
+            ),
+          ],
         ),
-        currentIndex: _currentIndex,
-        onTap: (index) => setState(() => _currentIndex = index),
-        items: [
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.home),
-            label: 'Home',
-            backgroundColor: backgroundColor,
-          ),
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.local_offer),
-            label: 'Coupons',
-            backgroundColor: backgroundColor,
-          ),
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.add_shopping_cart),
-            label: 'Trolley',
-            backgroundColor: backgroundColor,
-          ),
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.person),
-            label: 'Profile',
-            backgroundColor: backgroundColor,
-          ),
-        ],
       ),
     );
   }
