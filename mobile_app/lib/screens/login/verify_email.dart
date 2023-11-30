@@ -1,9 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:mobile_app/screens/user/main_page.dart';
 import '../../authentication/auth.dart';
 import 'package:mobile_app/constants/colors.dart';
-
-import '../user/home_page.dart';
 
 class VerifyEmailPage extends StatefulWidget {
   const VerifyEmailPage({super.key});
@@ -17,6 +16,13 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
   String? errorMessage = '';
   Timer? timer;
   bool canResendEmail = false;
+
+  // Helper method to safely call safeSetState
+  void safeSetState(VoidCallback fn) {
+    if (mounted) {
+      setState(fn);
+    }
+  }
 
   @override
   void initState() {
@@ -42,11 +48,11 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
   Future<void> checkEmailVerification() async {
     try {
       bool verified = await Auth().checkEmailVerified();
-      setState(() {
+      safeSetState(() {
         isEmailVerified = verified;
       });
     } catch (error) {
-      setState(() {
+      safeSetState(() {
         errorMessage = 'Error checking email verification status: $error';
       });
     }
@@ -56,30 +62,22 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
     try {
       await Auth().sendVerificationEmail();
 
-      // Use the 'mounted' property to check if the widget is still in the widget tree
-      if (mounted) {
-        setState(() {
-          canResendEmail = false;
-        });
-      }
+      safeSetState(() {
+        canResendEmail = false;
+      });
 
       await Future.delayed(const Duration(seconds: 20));
 
-      // Check 'mounted' again before updating the state
-      if (mounted) {
-        setState(() {
-          canResendEmail = true;
-        });
-      }
+      safeSetState(() {
+        canResendEmail = true;
+      });
 
       // Check email verification status after sending the email
       await checkEmailVerification();
     } catch (error) {
-      if (mounted) {
-        setState(() {
-          errorMessage = 'Error sending verification email: $error';
-        });
-      }
+      safeSetState(() {
+        errorMessage = 'Error sending verification email: $error';
+      });
     }
   }
 
@@ -104,7 +102,7 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
         : AppColors.backgroundDark;
 
     return isEmailVerified
-        ? const HomePage()
+        ? const MainPage()
         : Scaffold(
             appBar: AppBar(
               title: const Text('Verify email'),

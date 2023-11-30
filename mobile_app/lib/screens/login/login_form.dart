@@ -24,11 +24,18 @@ class _LoginFormEntryState extends State<LoginFormEntry> {
   List<String> emailSuggestions = ['gmail.com', 'wp.pl', 'onet.pl'];
   FocusNode focusNode = FocusNode();
 
+  // Helper method to safely call safeSetState
+  void safeSetState(VoidCallback fn) {
+    if (mounted) {
+      setState(fn);
+    }
+  }
+
   @override
   void initState() {
     super.initState();
     focusNode.addListener(() {
-      setState(() {});
+      safeSetState(() {});
     });
   }
 
@@ -47,13 +54,13 @@ class _LoginFormEntryState extends State<LoginFormEntry> {
   void updateEmailSuggestions(String text) {
     if (text.contains('@') && widget.title.toLowerCase() == 'e-mail') {
       String domain = text.split('@')[1];
-      setState(() {
+      safeSetState(() {
         emailSuggestions = emailSuggestions
             .where((suggestion) => suggestion.contains(domain))
             .toList();
       });
     } else {
-      setState(() {
+      safeSetState(() {
         emailSuggestions = [];
       });
     }

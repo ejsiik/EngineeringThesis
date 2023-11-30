@@ -1,6 +1,8 @@
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+import '../database/data.dart';
+
 class Auth extends GetxController {
   static Auth get instance => Get.find();
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
@@ -28,12 +30,18 @@ class Auth extends GetxController {
   Future<dynamic> createUserWithEmailAndPassword({
     required String email,
     required String password,
+    required String name,
   }) async {
     try {
       await _firebaseAuth.createUserWithEmailAndPassword(
         email: email.trim(),
         password: password.trim(),
       );
+      // Create an instance of the Data class
+      Data data = Data();
+
+      // Call the instance method on the created instance
+      await data.createUserInDatabase(email: email.trim(), name: name.trim());
     } on FirebaseAuthException catch (e) {
       return e.message;
     }
@@ -44,17 +52,17 @@ class Auth extends GetxController {
     await _firebaseAuth.signOut();
   }
 
-  Future<void> sendVerificationEmail() async {
+  Future<dynamic> sendVerificationEmail() async {
     try {
       if (currentUser != null) {
         if (currentUser!.emailVerified) {
-          throw "User is already verified.";
+          return "User is already verified.";
         } else {
           await currentUser!.sendEmailVerification();
         }
       }
     } catch (error) {
-      throw 'Error sending verification email: $error';
+      return 'Error sending verification email: $error';
     }
   }
 

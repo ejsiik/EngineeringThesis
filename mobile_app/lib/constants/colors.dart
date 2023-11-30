@@ -6,6 +6,8 @@ class AppColors {
   static const Color circleClose = Color(0xFFDD2C00);
   static const Color circleOpen = Color(0xFF64DD17);
   static const Color logout = Color(0xFFD50000);
+  static const Color white = Color.fromARGB(255, 255, 255, 255);
+  static const Color black = Color.fromARGB(255, 0, 0, 0);
 
   // Light Mode Colors
   static const Color backgroundLight = Color(0xFFFAFAFA);

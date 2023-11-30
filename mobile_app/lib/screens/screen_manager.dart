@@ -1,6 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-
+import 'admin/home_page.dart';
 import 'login/verify_email.dart';
 import 'login/login_page.dart';
 import 'user/main_page.dart';
@@ -22,9 +22,15 @@ class _WidgetTreeState extends State<WidgetTree> {
           User? user = snapshot.data;
 
           if (user != null) {
+            String userEmailAddress =
+                user.email ?? ""; // Fetch user's email address
             // Check if email is verified
             if (user.emailVerified) {
-              return const MainPage();
+              if (userEmailAddress == "daw.wydra@gmail.com") {
+                return const AdminHomePage();
+              } else {
+                return const MainPage();
+              }
             } else {
               return const VerifyEmailPage();
             }

@@ -21,9 +21,11 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
       String? resetError =
           await Auth().passwordReset(email: _controllerEmail.text);
       if (resetError != null) {
-        setState(() {
-          errorMessage = resetError;
-        });
+        if (mounted) {
+          setState(() {
+            errorMessage = resetError;
+          });
+        }
       }
     } catch (e) {
       errorMessage = e.toString();
