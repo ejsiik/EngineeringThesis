@@ -1,5 +1,5 @@
 class ImageModel {
-  final String urlImage;
+  final String imageAsset;
 
-  ImageModel(this.urlImage);
+  ImageModel(this.imageAsset);
 }

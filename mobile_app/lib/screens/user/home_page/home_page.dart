@@ -32,27 +32,27 @@ class _HomePageState extends State<HomePage> {
   final List<ProductSearchModel> productsList = [
     ProductSearchModel(
       "GigaTelefon1",
-      "https://cdn.x-kom.pl/i/setup/images/prod/big/product-new-big,,2023/3/pr_2023_3_15_9_51_8_337_00.jpg",
+      "assets/s23.jpg",
       "1999 PLN",
     ),
     ProductSearchModel(
       "GigaMegaTelefon2",
-      "https://f00.esfr.pl/foto/8/127951435809/fbeb997a1226825bb473edb64d12b009/apple-iphone-15-pro-max-1tb-space-black,127951435809_3.jpg",
+      "assets/s23.jpg",
       "2999 PLN",
     ),
     ProductSearchModel(
       "OKTelefon3",
-      "https://f00.esfr.pl/foto/4/128493638353/97550a9211d16dfb6917b6266e7bdf32/samsung-smartfon-z-fold5-1tb-bezowy-samsung,128493638353_3.jpg",
+      "assets/s23.jpg",
       "3999 PLN",
     ),
     ProductSearchModel(
       "SpokoTelefon4",
-      "https://f00.esfr.pl/foto/9/121350929873/f22c0a0a7c6a674ddf0655a8c4c0aad3/xiaomi-smartfon-xiaomi-13-12-256-c-black,121350929873_3.jpg",
+      "assets/s23.jpg",
       "4999 PLN",
     ),
     ProductSearchModel(
       "SpokoOkTelefon5",
-      "https://f00.esfr.pl/foto/4/128493523425/6e9bfeb90872ef5cb6245cdb0a1f8cd6/samsung-smartfon-z-flip5-512gb-bezowy-samsung,128493523425_3.jpg",
+      "assets/s23.jpg",
       "5999 PLN",
     ),
   ];
@@ -94,21 +94,11 @@ class _HomePageState extends State<HomePage> {
   ];
 
   final List<ImageModel> imagesList = [
-    ImageModel(
-      "https://cdn.x-kom.pl/i/setup/images/prod/big/product-new-big,,2023/3/pr_2023_3_15_9_51_8_337_00.jpg",
-    ),
-    ImageModel(
-      "https://f00.esfr.pl/foto/8/127951435809/fbeb997a1226825bb473edb64d12b009/apple-iphone-15-pro-max-1tb-space-black,127951435809_3.jpg",
-    ),
-    ImageModel(
-      "https://f00.esfr.pl/foto/4/128493638353/97550a9211d16dfb6917b6266e7bdf32/samsung-smartfon-z-fold5-1tb-bezowy-samsung,128493638353_3.jpg",
-    ),
-    ImageModel(
-      "https://f00.esfr.pl/foto/9/121350929873/f22c0a0a7c6a674ddf0655a8c4c0aad3/xiaomi-smartfon-xiaomi-13-12-256-c-black,121350929873_3.jpg",
-    ),
-    ImageModel(
-      "https://f00.esfr.pl/foto/4/128493523425/6e9bfeb90872ef5cb6245cdb0a1f8cd6/samsung-smartfon-z-flip5-512gb-bezowy-samsung,128493523425_3.jpg",
-    ),
+    ImageModel("assets/s23.jpg"),
+    ImageModel("assets/s23.jpg"),
+    ImageModel("assets/s23.jpg"),
+    ImageModel("assets/s23.jpg"),
+    ImageModel("assets/s23.jpg"),
   ];
 
   final List<CategoriesModel> categoriesList = [
@@ -416,8 +406,8 @@ class _HomePageState extends State<HomePage> {
                               (BuildContext context, int index, int realIndex) {
                             return SizedBox(
                               width: double.infinity,
-                              child: Image.network(
-                                imagesList[index].urlImage,
+                              child: Image.asset(
+                                imagesList[index].imageAsset,
                                 fit: BoxFit.cover,
                               ),
                             );

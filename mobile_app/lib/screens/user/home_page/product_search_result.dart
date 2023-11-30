@@ -72,8 +72,10 @@ class _ProductSearchResultState extends State<ProductSearchResult> {
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        leading: Image.network(
-                          widget.displayList[index].urlImage,
+                        leading: Image.asset(
+                          widget.displayList[index].imageAsset,
+                          width: 50,
+                          height: 50,
                         ),
                         trailing: Text(
                           widget.displayList[index].price,

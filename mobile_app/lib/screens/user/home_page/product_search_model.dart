@@ -1,7 +1,7 @@
 class ProductSearchModel {
   final String name;
-  final String urlImage;
+  final String imageAsset;
   final String price;
 
-  ProductSearchModel(this.name, this.urlImage, this.price);
+  ProductSearchModel(this.name, this.imageAsset, this.price);
 }
