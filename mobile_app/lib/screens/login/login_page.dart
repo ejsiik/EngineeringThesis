@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_app/screens/login/forgot_password_button_widget.dart';
+import 'package:mobile_app/screens/login/google_widget.dart';
 import '../../authentication/auth.dart';
 import 'login_form.dart';
 import 'error_message_widget.dart';
@@ -155,6 +156,8 @@ class _LoginPageState extends State<LoginPage> {
                 }
               }, togglePasswordVisibility, signInWithEmailAndPassword,
                   handlePasswordMismatch),
+              const SizedBox(height: 20),
+              const GoogleWidget(),
               const SizedBox(height: 20),
               LoginOrRegisterButtonWidget(isLogin, toggleLoginRegister),
             ],
