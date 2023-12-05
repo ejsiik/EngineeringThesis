@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 import '../database/data.dart';
 
@@ -11,6 +12,37 @@ class Auth extends GetxController {
 
   // Listen to authentication state changes
   Stream<User?> get authStateChanges => _firebaseAuth.authStateChanges();
+
+  googleSignIn() async {
+    try {
+      final GoogleSignInAccount? gUser = await GoogleSignIn().signIn();
+
+      // auth details from request
+      final GoogleSignInAuthentication gAuth = await gUser!.authentication;
+
+      final credential = GoogleAuthProvider.credential(
+        accessToken: gAuth.accessToken,
+        idToken: gAuth.idToken,
+      );
+
+      // Sign in with Firebase authentication
+      UserCredential authResult =
+          await FirebaseAuth.instance.signInWithCredential(credential);
+
+      // Get the user information
+      User? user = authResult.user;
+      Data data = Data();
+      // Create user in the Realtime Database
+      await data.createUserInDatabase(
+        email: user!.email!,
+        name: user.displayName!,
+      );
+      // Return the UserCredential
+      return authResult;
+    } on FirebaseAuthException catch (e) {
+      return e.message;
+    }
+  }
 
   Future<String?> signInWithEmailAndPassword({
     required String email,

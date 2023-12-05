@@ -157,7 +157,10 @@ class _LoginPageState extends State<LoginPage> {
               }, togglePasswordVisibility, signInWithEmailAndPassword,
                   handlePasswordMismatch),
               const SizedBox(height: 20),
-              const GoogleWidget(),
+              GestureDetector(
+                onTap: () => Auth().googleSignIn(),
+                child: const GoogleWidget(),
+              ),
               const SizedBox(height: 20),
               LoginOrRegisterButtonWidget(isLogin, toggleLoginRegister),
             ],

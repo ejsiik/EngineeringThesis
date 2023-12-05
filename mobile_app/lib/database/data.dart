@@ -144,6 +144,8 @@ class Data {
             },
           },
         });
+        // Provide some feedback to the user (you can customize this)
+        return 'Account created successfully!';
       }
     } on FirebaseAuthException catch (e) {
       return e.message;
