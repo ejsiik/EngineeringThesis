@@ -4,7 +4,6 @@ import 'package:mobile_app/constants/colors.dart';
 import 'package:mobile_app/database/data.dart';
 import 'package:mobile_app/screens/user/home_page/coupon_card.dart';
 import 'package:mobile_app/screens/user/home_page/qr_code_popup.dart';
-import '../../../authentication/auth.dart';
 import 'welcome_banner.dart';
 import 'product_search_model.dart';
 import 'product_search_result.dart';
@@ -148,10 +147,6 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  void signOut() async {
-    await Auth().signOut();
-  }
-
   Future<String> getUserName() async {
     String? userName = await data.getUserName();
 
@@ -218,7 +213,7 @@ class _HomePageState extends State<HomePage> {
             SliverToBoxAdapter(
               child: Column(
                 children: [
-                  // User name and logout
+                  // User name and coupons
                   FutureBuilder<String>(
                     future: getUserName(),
                     builder: (context, snapshot) {
