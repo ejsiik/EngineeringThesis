@@ -9,7 +9,6 @@ import 'welcome_banner.dart';
 import 'product_search_model.dart';
 import 'product_search_result.dart';
 import 'shop_location_model.dart';
-import 'categories_model.dart';
 import 'image_model.dart';
 
 class HomePage extends StatefulWidget {
@@ -101,29 +100,14 @@ class _HomePageState extends State<HomePage> {
     ImageModel("assets/s23.jpg"),
   ];
 
-  final List<CategoriesModel> categoriesList = [
-    CategoriesModel("Kosiarki"),
-    CategoriesModel("Drukarki"),
-    CategoriesModel("Parówki"),
-    CategoriesModel("Węże"),
-    CategoriesModel("Rowery"),
-    CategoriesModel("Telefony"),
-    CategoriesModel("Tratwy"),
-    CategoriesModel("Miski"),
-    CategoriesModel("Klawiatury"),
-    CategoriesModel("Płatki"),
-    CategoriesModel("Lokomotywy"),
-    CategoriesModel("Puzzle"),
-  ];
-
-  Widget buildGridItem(int index) {
+  Widget buildGridItem(int index, List categoriesList) {
     return Card(
       elevation: 2.0,
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Center(
           child: Text(
-            categoriesList[index].name,
+            categoriesList[index],
             style: const TextStyle(fontSize: 16.0),
           ),
         ),
@@ -156,6 +140,7 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     // Set up a listener for changes in the database
+    getCategories();
     userData.isUserCreatedWithin14Days().then((value) {
       setState(() {
         showWelcomeBanner = value;
@@ -175,6 +160,12 @@ class _HomePageState extends State<HomePage> {
     } else {
       return 'Unknown User';
     }
+  }
+
+  Future<List> getCategories() async {
+    List list = await data.getAllCategories();
+    //categoriesList = list;
+    return list;
   }
 
   void updateProductSearchList(String value) {
@@ -417,20 +408,35 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ),
 
-                  // categories
-                  GridView.builder(
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 3,
-                      crossAxisSpacing: 8.0,
-                      mainAxisSpacing: 8.0,
-                    ),
-                    itemCount: categoriesList.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      return buildGridItem(index);
+                  FutureBuilder<List>(
+                    future: getCategories(),
+                    builder:
+                        (BuildContext context, AsyncSnapshot<List> snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        // Return a loading indicator while data is being fetched.
+                        return const CircularProgressIndicator();
+                      } else if (snapshot.hasError) {
+                        // Handle the error case.
+                        return Text('Error: ${snapshot.error}');
+                      } else {
+                        // Categories have been fetched successfully, use them in the GridView.builder.
+                        List? categoriesList = snapshot.data;
+                        return GridView.builder(
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 3,
+                            crossAxisSpacing: 8.0,
+                            mainAxisSpacing: 8.0,
+                          ),
+                          itemCount: categoriesList?.length,
+                          itemBuilder: (BuildContext context, int index) {
+                            return buildGridItem(index, categoriesList!);
+                          },
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                        );
+                      }
                     },
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
                   ),
                 ],
               ),
