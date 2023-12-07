@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../constants/colors.dart';
-import '../../../database/data.dart';
+import '../../../database/user_data.dart';
 import 'coupons.dart';
 
 class CouponCardWidget extends StatelessWidget {
@@ -57,7 +57,7 @@ class CouponCardWidget extends StatelessWidget {
   }
 
   void _showCouponScreen(BuildContext context) {
-    Data data = Data();
+    UserData data = UserData();
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -68,7 +68,7 @@ class CouponCardWidget extends StatelessWidget {
 }
 
 class CouponScreen extends StatelessWidget {
-  final Data data;
+  final UserData data;
 
   const CouponScreen({Key? key, required this.data}) : super(key: key);
 

@@ -3,7 +3,7 @@ import 'package:mobile_app/constants/colors.dart';
 import 'package:mobile_app/constants/theme.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
-import '../../../database/data.dart';
+import '../../../database/user_data.dart';
 
 class QRCodePopup extends StatelessWidget {
   const QRCodePopup({super.key});
@@ -64,7 +64,7 @@ class QRCodePopup extends StatelessWidget {
   // Future method to generate QR code data
   Future<String> _generateQRCode() async {
     try {
-      return await Data().generateQRCodeData();
+      return await UserData().generateQRCodeData();
     } catch (e) {
       rethrow;
     }

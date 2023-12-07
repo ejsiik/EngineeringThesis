@@ -1,7 +1,7 @@
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-class Data {
+class UserData {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
   User? get currentUser => _firebaseAuth.currentUser;
   // Listen to authentication state changes
@@ -17,94 +17,6 @@ class Data {
         .child(currentUser!.uid)
         .child('coupons')
         .child('coupon${index + 1}');
-  }
-
-  // Reference to each "category" node
-  DatabaseReference getCategoriesRef(int index) {
-    return FirebaseDatabase.instance.ref().child('categories').child('$index');
-  }
-
-  // Reference to each "location" node
-  DatabaseReference getShopsLocationsRef(int index) {
-    return FirebaseDatabase.instance
-        .ref()
-        .child('shops_locations')
-        .child('$index');
-  }
-
-  Future<List> getAllShopsLocations() async {
-    DatabaseReference ref =
-        FirebaseDatabase.instance.ref().child('shops_locations');
-    DatabaseEvent event = await ref.once();
-    DataSnapshot snapshot = event.snapshot;
-    int shopsLocationsLength = 0;
-
-    if (snapshot.value != null) {
-      List<dynamic>? shopsLocationsData = snapshot.value as List<dynamic>?;
-
-      if (shopsLocationsData != null) {
-        shopsLocationsLength = shopsLocationsData.length;
-      }
-    }
-
-    List<Future<DataSnapshot>> futures = [];
-
-    // Create a list of futures for each coupon reference
-    for (int i = 0; i < shopsLocationsLength; i++) {
-      DatabaseReference shopLocationRef = getShopsLocationsRef(i);
-      futures.add(
-          shopLocationRef.once().then((DatabaseEvent event) => event.snapshot));
-    }
-
-    // Wait for all futures to complete
-    List<DataSnapshot> snapshots = await Future.wait(futures);
-
-    // Convert DataSnapshots to List<Map<dynamic, dynamic>>
-    List<Map<dynamic, dynamic>> shopsLocations = snapshots.map((snapshot) {
-      Map<dynamic, dynamic>? shopLocationData =
-          snapshot.value as Map<dynamic, dynamic>?;
-      return shopLocationData ?? {};
-    }).toList();
-
-    return shopsLocations;
-  }
-
-  Future<List> getAllCategories() async {
-    DatabaseReference ref = FirebaseDatabase.instance.ref().child('categories');
-    DatabaseEvent event = await ref.once();
-    DataSnapshot snapshot = event.snapshot;
-    int categoriesLength = 0;
-
-    if (snapshot.value != null) {
-      List<dynamic>? categoriesData = snapshot.value as List<dynamic>?;
-
-      if (categoriesData != null) {
-        categoriesLength = categoriesData.length;
-      }
-    }
-
-    List<Future<DataSnapshot>> futures = [];
-
-    // Create a list of futures for each coupon reference
-    for (int i = 0; i < categoriesLength; i++) {
-      DatabaseReference categoryRef = getCategoriesRef(i);
-      futures.add(
-          categoryRef.once().then((DatabaseEvent event) => event.snapshot));
-    }
-
-    // Wait for all futures to complete
-    List<DataSnapshot> snapshots = await Future.wait(futures);
-
-    // Convert DataSnapshots to List<Map<dynamic, dynamic>>
-    List categories = snapshots.map((snapshot) {
-      Map<dynamic, dynamic>? categoryData =
-          snapshot.value as Map<dynamic, dynamic>?;
-
-      dynamic categoryName = categoryData?['name'];
-      return categoryName ?? '';
-    }).toList();
-
-    return categories;
   }
 
   Future<List<Map<dynamic, dynamic>>> getAllCouponData() async {

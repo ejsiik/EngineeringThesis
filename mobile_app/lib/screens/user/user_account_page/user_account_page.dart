@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mobile_app/constants/colors.dart';
 import 'package:mobile_app/screens/user/user_account_page/user_account_list_view.dart';
 import '../../../authentication/auth.dart';
-import 'package:mobile_app/database/data.dart';
+import 'package:mobile_app/database/user_data.dart';
 
 class UserAccountPage extends StatefulWidget {
   const UserAccountPage({Key? key}) : super(key: key);
@@ -14,7 +14,7 @@ class UserAccountPage extends StatefulWidget {
 }
 
 class _UserAccountPage extends State<UserAccountPage> {
-  Data data = Data();
+  UserData data = UserData();
 
   void signOut() async {
     await Auth().signOut();

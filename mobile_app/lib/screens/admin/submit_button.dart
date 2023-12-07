@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mobile_app/database/data.dart';
+import 'package:mobile_app/database/user_data.dart';
 
 import '../../constants/colors.dart';
 
@@ -25,7 +25,7 @@ class SubmitButton extends StatelessWidget {
         String userId = _controllerUserID.text.trim();
         String couponValue = _controllerValue.text.trim();
 
-        await Data()
+        await UserData()
             .submitData(userId, _welcomeBanner, couponValue, onSubmitted);
       } else {
         onSubmitted('Provide user ID');

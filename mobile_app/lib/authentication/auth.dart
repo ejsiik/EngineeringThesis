@@ -2,7 +2,7 @@ import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
-import '../database/data.dart';
+import '../database/user_data.dart';
 
 class Auth extends GetxController {
   static Auth get instance => Get.find();
@@ -31,7 +31,7 @@ class Auth extends GetxController {
 
       // Get the user information
       User? user = authResult.user;
-      Data data = Data();
+      UserData data = UserData();
       // Create user in the Realtime Database
       await data.createUserInDatabase(
         email: user!.email!,
@@ -70,7 +70,7 @@ class Auth extends GetxController {
         password: password.trim(),
       );
       // Create an instance of the Data class
-      Data data = Data();
+      UserData data = UserData();
 
       // Call the instance method on the created instance
       await data.createUserInDatabase(email: email.trim(), name: name.trim());

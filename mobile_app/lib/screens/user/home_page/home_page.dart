@@ -1,7 +1,9 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_app/constants/colors.dart';
-import 'package:mobile_app/database/data.dart';
+import 'package:mobile_app/database/shop_location_data.dart';
+import 'package:mobile_app/database/category_data.dart';
+import 'package:mobile_app/database/user_data.dart';
 import 'package:mobile_app/screens/user/home_page/coupon_card.dart';
 import 'package:mobile_app/screens/user/home_page/qr_code_popup.dart';
 import 'welcome_banner.dart';
@@ -21,8 +23,10 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   bool isListVisible = false;
   bool showWelcomeBanner = false;
-  Data data = Data();
-  UserDataProvider userData = UserDataProvider();
+  UserDataProvider userDataProvider = UserDataProvider();
+  UserData userData = UserData();
+  CategoryData categoryData = CategoryData();
+  ShopLocationData shopLocationData = ShopLocationData();
   final CarouselController _carouselController = CarouselController();
   List<ProductSearchModel> displayList = [];
   late List shops = [];
@@ -80,11 +84,14 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget buildDay(String day, Map<dynamic, dynamic> dayData) {
-    String openTime = dayData['open']?.toString() ?? '';
-    String closedTime = dayData['closed']?.toString() ?? '';
+    String openTime = dayData['open']!.toString();
+    String closedTime = dayData['closed']!.toString();
+    String hours = "";
 
-    if (openTime.isNotEmpty) {
-      openTime += " -";
+    if (openTime.isEmpty || closedTime.isEmpty) {
+      hours = "nieczynne";
+    } else {
+      hours = "$openTime - $closedTime";
     }
 
     return Padding(
@@ -99,7 +106,7 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
           Text(
-            '$openTime $closedTime',
+            hours,
             textAlign: TextAlign.right,
           ),
         ],
@@ -113,7 +120,7 @@ class _HomePageState extends State<HomePage> {
     // Set up a listener for changes in the database
     getCategories();
     getLocations();
-    userData.isUserCreatedWithin14Days().then((value) {
+    userDataProvider.isUserCreatedWithin14Days().then((value) {
       setState(() {
         showWelcomeBanner = value;
       });
@@ -121,7 +128,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<String> getUserName() async {
-    String? userName = await data.getUserName();
+    String? userName = await userData.getUserName();
 
     if (userName != null) {
       return userName;
@@ -131,12 +138,12 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<List> getCategories() async {
-    List list = await data.getAllCategories();
+    List list = await categoryData.getAllCategories();
     return list;
   }
 
   Future<void> getLocations() async {
-    shops = await data.getAllShopsLocations();
+    shops = await shopLocationData.getAllShopsLocations();
     shopsExpansionStates = List<bool>.filled(shops.length, false);
     setState(() {});
   }
