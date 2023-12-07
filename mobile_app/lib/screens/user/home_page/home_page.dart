@@ -7,7 +7,6 @@ import 'package:mobile_app/screens/user/home_page/qr_code_popup.dart';
 import 'welcome_banner.dart';
 import 'product_search_model.dart';
 import 'product_search_result.dart';
-import 'shop_location_model.dart';
 import 'image_model.dart';
 
 class HomePage extends StatefulWidget {
@@ -26,6 +25,8 @@ class _HomePageState extends State<HomePage> {
   UserDataProvider userData = UserDataProvider();
   final CarouselController _carouselController = CarouselController();
   List<ProductSearchModel> displayList = [];
+  late List shops = [];
+  late List<bool> shopsExpansionStates = [];
 
   final List<ProductSearchModel> productsList = [
     ProductSearchModel(
@@ -55,42 +56,6 @@ class _HomePageState extends State<HomePage> {
     ),
   ];
 
-  final List<ShopLocationModel> locationsList = [
-    ShopLocationModel(
-      location: "Kasztanowa 1/2, 44-100 Gliwice",
-      monday: "08:00 - 20:00",
-      tuesday: "08:00 - 20:00",
-      wednesday: "08:00 - 20:00",
-      thursday: "08:00 - 20:00",
-      friday: "08:00 - 20:00",
-      saturday: "08:00 - 16:00",
-      sunday: "nieczynne",
-      isExpanded: false,
-    ),
-    ShopLocationModel(
-      location: "Ogórkowa 1/3, 44-100 Gliwice",
-      monday: "08:00 - 20:00",
-      tuesday: "08:00 - 20:00",
-      wednesday: "08:00 - 20:00",
-      thursday: "08:00 - 20:00",
-      friday: "08:00 - 20:00",
-      saturday: "08:00 - 16:00",
-      sunday: "nieczynne",
-      isExpanded: false,
-    ),
-    ShopLocationModel(
-      location: "Kasztelanowa 1/4, 44-100 Gliwice",
-      monday: "08:00 - 20:00",
-      tuesday: "08:00 - 20:00",
-      wednesday: "08:00 - 20:00",
-      thursday: "08:00 - 20:00",
-      friday: "08:00 - 20:00",
-      saturday: "08:00 - 16:00",
-      sunday: "nieczynne",
-      isExpanded: false,
-    ),
-  ];
-
   final List<ImageModel> imagesList = [
     ImageModel("assets/s23.jpg"),
     ImageModel("assets/s23.jpg"),
@@ -114,7 +79,14 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget buildDay(String day, String hours) {
+  Widget buildDay(String day, Map<dynamic, dynamic> dayData) {
+    String openTime = dayData['open']?.toString() ?? '';
+    String closedTime = dayData['closed']?.toString() ?? '';
+
+    if (openTime.isNotEmpty) {
+      openTime += " -";
+    }
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5.0),
       child: Row(
@@ -127,7 +99,7 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
           Text(
-            hours,
+            '$openTime $closedTime',
             textAlign: TextAlign.right,
           ),
         ],
@@ -140,6 +112,7 @@ class _HomePageState extends State<HomePage> {
     super.initState();
     // Set up a listener for changes in the database
     getCategories();
+    getLocations();
     userData.isUserCreatedWithin14Days().then((value) {
       setState(() {
         showWelcomeBanner = value;
@@ -159,8 +132,13 @@ class _HomePageState extends State<HomePage> {
 
   Future<List> getCategories() async {
     List list = await data.getAllCategories();
-    //categoriesList = list;
     return list;
+  }
+
+  Future<void> getLocations() async {
+    shops = await data.getAllShopsLocations();
+    shopsExpansionStates = List<bool>.filled(shops.length, false);
+    setState(() {});
   }
 
   void updateProductSearchList(String value) {
@@ -323,56 +301,63 @@ class _HomePageState extends State<HomePage> {
                     ],
                   ),
 
-                  // Store location
-                  SingleChildScrollView(
-                    child: Column(
-                      children: [
-                        ExpansionPanelList(
-                          elevation: 1,
-                          expandedHeaderPadding: const EdgeInsets.all(0),
-                          expansionCallback: (int index, bool isExpanded) {
-                            setState(() {
-                              for (var i = 0; i < locationsList.length; i++) {
-                                if (i != index) {
-                                  locationsList[i].isExpanded = false;
-                                } else {
-                                  locationsList[i].isExpanded =
-                                      !locationsList[i].isExpanded;
-                                }
-                              }
-                            });
-                          },
-                          children: locationsList.map<ExpansionPanel>(
-                            (ShopLocationModel item) {
-                              return ExpansionPanel(
-                                headerBuilder:
-                                    (BuildContext context, bool isExpanded) {
-                                  return ListTile(
-                                    title: Text(item.location),
-                                  );
-                                },
-                                body: ListTile(
-                                  title: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      buildDay('Poniedziałek:', item.monday),
-                                      buildDay('Wtorek:', item.tuesday),
-                                      buildDay('Środa:', item.wednesday),
-                                      buildDay('Czwartek:', item.thursday),
-                                      buildDay('Piątek:', item.friday),
-                                      buildDay('Sobota:', item.saturday),
-                                      buildDay('Niedziela:', item.sunday),
-                                    ],
-                                  ),
-                                ),
-                                isExpanded: item.isExpanded,
+                  // shops locations
+                  ExpansionPanelList(
+                    expandedHeaderPadding: const EdgeInsets.all(0),
+                    elevation: 1,
+                    expansionCallback: (int index, bool isExpanded) {
+                      setState(() {
+                        for (var i = 0; i < shopsExpansionStates.length; i++) {
+                          if (i != index) {
+                            shopsExpansionStates[i] = false;
+                          } else {
+                            shopsExpansionStates[i] = !shopsExpansionStates[i];
+                          }
+                        }
+                      });
+                    },
+                    children: shops.asMap().entries.map<ExpansionPanel>(
+                      (entry) {
+                        var item = entry.value;
+                        var index = entry.key;
+                        var daysData = item['days'];
+                        var locationData = item['location'];
+                        if (daysData is Map && locationData is Map) {
+                          return ExpansionPanel(
+                            headerBuilder:
+                                (BuildContext context, bool isExpanded) {
+                              return ListTile(
+                                title: Text(
+                                    '${locationData['city']}, ${locationData['street']} ${locationData['street_number']}'),
                               );
                             },
-                          ).toList(),
-                        ),
-                      ],
-                    ),
+                            body: ListTile(
+                              title: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  buildDay('Poniedziałek:', daysData['monday']),
+                                  buildDay('Wtorek:', daysData['tuesday']),
+                                  buildDay('Środa:', daysData['wednesday']!),
+                                  buildDay('Czwartek:', daysData['thursday']!),
+                                  buildDay('Piątek:', daysData['friday']!),
+                                  buildDay('Sobota:', daysData['saturday']!),
+                                  buildDay('Niedziela:', daysData['sunday']!),
+                                ],
+                              ),
+                            ),
+                            isExpanded: shopsExpansionStates[index],
+                          );
+                        } else {
+                          return ExpansionPanel(
+                            headerBuilder:
+                                (BuildContext context, bool isExpanded) =>
+                                    const ListTile(title: Text('Invalid Data')),
+                            body: const ListTile(title: Text('Invalid Data')),
+                            isExpanded: true,
+                          );
+                        }
+                      },
+                    ).toList(),
                   ),
 
                   // slider with special offers, popular products etc
@@ -403,6 +388,7 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ),
 
+                  // categories of products
                   FutureBuilder<List>(
                     future: getCategories(),
                     builder:
