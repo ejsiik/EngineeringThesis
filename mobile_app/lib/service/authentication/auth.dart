@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:mobile_app/service/database/chat_data.dart';
 
 import '../database/data.dart';
 
@@ -12,6 +13,14 @@ class Auth extends GetxController {
 
   // Listen to authentication state changes
   Stream<User?> get authStateChanges => _firebaseAuth.authStateChanges();
+
+  String userId() {
+    return currentUser!.uid;
+  }
+
+  String? userEmail() {
+    return currentUser!.email.toString();
+  }
 
   googleSignIn() async {
     try {
@@ -32,11 +41,13 @@ class Auth extends GetxController {
       // Get the user information
       User? user = authResult.user;
       Data data = Data();
+      ChatData chatData = ChatData();
       // Create user in the Realtime Database
       await data.createUserInDatabase(
         email: user!.email!,
         name: user.displayName!,
       );
+      await chatData.createUserInDatabase(email: user.email!);
       // Return the UserCredential
       return authResult;
     } on FirebaseAuthException catch (e) {
@@ -71,9 +82,11 @@ class Auth extends GetxController {
       );
       // Create an instance of the Data class
       Data data = Data();
+      ChatData chatData = ChatData();
 
       // Call the instance method on the created instance
       await data.createUserInDatabase(email: email.trim(), name: name.trim());
+      await chatData.createUserInDatabase(email: email.trim());
     } on FirebaseAuthException catch (e) {
       return e.message;
     }

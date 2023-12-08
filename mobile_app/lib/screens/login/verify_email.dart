@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:mobile_app/screens/user/main_page.dart';
-import '../../authentication/auth.dart';
+import '../../service/authentication/auth.dart';
 import 'package:mobile_app/constants/colors.dart';
 
 class VerifyEmailPage extends StatefulWidget {

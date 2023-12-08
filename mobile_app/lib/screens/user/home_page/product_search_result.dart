@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../authentication/auth.dart';
+import '../../../service/authentication/auth.dart';
 import '../../../constants/colors.dart';
 import 'product_search_model.dart';
 

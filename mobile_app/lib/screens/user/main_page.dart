@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_app/constants/colors.dart';
-import '../../../authentication/auth.dart';
+import 'package:mobile_app/screens/user/home_page/chat_page.dart';
+import '../../service/authentication/auth.dart';
 import 'package:mobile_app/screens/user/user_account_page/user_account_page.dart';
 import 'package:mobile_app/screens/user/home_page/home_page.dart';
 
@@ -16,7 +17,10 @@ class _MainPageState extends State<MainPage> {
 
   final pages = [
     const HomePage(),
-    const UserAccountPage(),
+    const ChatPage(
+      receiverId: 'jlZWkZEd2aeZKfSVU7p0iIzLhLr2',
+      receiverEmail: 'daw.wydra@gmail.com',
+    ),
     const HomePage(),
     const UserAccountPage(),
   ];

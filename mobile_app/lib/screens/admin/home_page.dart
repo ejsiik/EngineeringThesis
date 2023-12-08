@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_app/screens/admin/qr_button.dart';
-import '../../authentication/auth.dart';
+import '../../service/authentication/auth.dart';
 import '../../constants/colors.dart';
 import 'entry_field.dart';
 import 'submit_button.dart';
