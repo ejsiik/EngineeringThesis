@@ -21,9 +21,7 @@ class Chat extends ChangeNotifier {
         timestamp: timestamp);
 
     // chat room id
-    List<String> ids = [userId, receiverId];
-    ids.sort(); // chat room is the same for pair of users
-    String chatRoomId = ids.join("_"); // combine ids into String
+    String chatRoomId = generateChatRoomId(userId, receiverId);
 
     // add to database
     ChatData()
@@ -32,9 +30,17 @@ class Chat extends ChangeNotifier {
 
   // Get messages
   Stream<QuerySnapshot> getMessages(String userId, String otherUserId) {
-    List<String> ids = [userId, otherUserId];
+    // chat room id
+    String chatRoomId = generateChatRoomId(userId, otherUserId);
+
+    return ChatData().getMessages(chatRoomId: chatRoomId);
+  }
+
+  // Generate chat room id based on user IDs
+  String generateChatRoomId(String userId1, String userId2) {
+    List<String> ids = [userId1, userId2];
     ids.sort();
     String chatRoomId = ids.join("_");
-    return ChatData().getMessages(chatRoomId: chatRoomId);
+    return chatRoomId;
   }
 }

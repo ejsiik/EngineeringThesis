@@ -21,7 +21,6 @@ class ChatData {
           'uid': userId,
           'email': email,
         }, SetOptions(merge: true));
-        // Provide some feedback to the user (you can customize this)
         return 'Account created successfully!';
       }
     } on FirebaseAuthException catch (e) {
@@ -49,5 +48,16 @@ class ChatData {
         .collection('messages')
         .orderBy('timestamp', descending: false)
         .snapshots();
+  }
+
+  Stream<List<Map<String, String>>> getAllUsers() {
+    return _firestore.collection('users').snapshots().map((snapshot) {
+      return snapshot.docs.map((doc) {
+        return {
+          'id': doc.id,
+          'email': doc['email'].toString(),
+        };
+      }).toList();
+    });
   }
 }

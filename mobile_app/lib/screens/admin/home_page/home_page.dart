@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:mobile_app/screens/admin/qr_button.dart';
-import '../../service/authentication/auth.dart';
-import '../../constants/colors.dart';
+import 'package:mobile_app/screens/admin/home_page/qr_button.dart';
+import '../../../service/authentication/auth.dart';
+import '../../../constants/colors.dart';
+import '../chat/admin_chat.dart';
 import 'entry_field.dart';
 import 'submit_button.dart';
 import 'error_message.dart';
@@ -141,6 +142,17 @@ class _AdminHomePageState extends State<AdminHomePage> {
                 const SizedBox(height: 30),
                 ErrorMessage(message: errorMessage as String),
                 _buildSubmitButton(),
+                const SizedBox(height: 30),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const AdminChatScreen()),
+                    );
+                  },
+                  child: const Text('Go to Admin Chat'),
+                ),
               ],
             ),
           ),

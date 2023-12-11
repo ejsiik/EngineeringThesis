@@ -32,7 +32,7 @@ class _ChatPageState extends State<ChatPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Chat with Store'),
+        title: Text('Chat with ${widget.receiverId}'),
       ),
       body: Column(
         children: [

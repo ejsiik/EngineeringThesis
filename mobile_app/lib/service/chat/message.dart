@@ -25,4 +25,15 @@ class Message {
       'timestamp': timestamp,
     };
   }
+
+  // factory method to create Message object from a map
+  factory Message.fromMap(Map<String, dynamic> map) {
+    return Message(
+      senderId: map['senderId'],
+      senderEmail: map['senderEmail'],
+      receiverId: map['receiverId'],
+      message: map['message'],
+      timestamp: map['timestamp'],
+    );
+  }
 }
