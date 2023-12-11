@@ -69,8 +69,8 @@ class _MainPageState extends State<MainPage> {
               backgroundColor: backgroundColor,
             ),
             BottomNavigationBarItem(
-              icon: const Icon(Icons.local_offer),
-              label: 'Coupons',
+              icon: const Icon(Icons.chat),
+              label: 'Chat',
               backgroundColor: backgroundColor,
             ),
             BottomNavigationBarItem(
