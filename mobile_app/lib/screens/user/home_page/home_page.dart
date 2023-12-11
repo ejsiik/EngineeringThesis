@@ -1,9 +1,11 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_app/constants/colors.dart';
+//import 'package:mobile_app/database/add_product_data.dart';
 import 'package:mobile_app/database/shop_location_data.dart';
 import 'package:mobile_app/database/category_data.dart';
 import 'package:mobile_app/database/user_data.dart';
+import 'package:mobile_app/screens/user/category_products_page/category_products_page.dart';
 import 'package:mobile_app/screens/user/home_page/coupon_card.dart';
 import 'package:mobile_app/screens/user/home_page/qr_code_popup.dart';
 import 'welcome_banner.dart';
@@ -27,6 +29,7 @@ class _HomePageState extends State<HomePage> {
   UserData userData = UserData();
   CategoryData categoryData = CategoryData();
   ShopLocationData shopLocationData = ShopLocationData();
+  //AddProduct addProductData = AddProduct();
   final CarouselController _carouselController = CarouselController();
   List<ProductSearchModel> displayList = [];
   late List shops = [];
@@ -69,14 +72,27 @@ class _HomePageState extends State<HomePage> {
   ];
 
   Widget buildGridItem(int index, List categoriesList) {
-    return Card(
-      elevation: 2.0,
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Center(
-          child: Text(
-            categoriesList[index],
-            style: const TextStyle(fontSize: 16.0),
+    return InkWell(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => CategoryProductsPage(
+              index,
+              categoriesList[index],
+            ),
+          ),
+        );
+      },
+      child: Card(
+        elevation: 2.0,
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Center(
+            child: Text(
+              categoriesList[index],
+              style: const TextStyle(fontSize: 16.0),
+            ),
           ),
         ),
       ),
