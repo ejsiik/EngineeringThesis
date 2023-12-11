@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_app/constants/colors.dart';
 import 'package:mobile_app/screens/user/user_account_page/user_account_list_view.dart';
-import '../../../authentication/auth.dart';
+import '../../../service/authentication/auth.dart';
 
 class UserAccountPage extends StatelessWidget {
   const UserAccountPage({super.key});

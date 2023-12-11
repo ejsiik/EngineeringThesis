@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_app/constants/colors.dart';
-import '../../authentication/auth.dart';
+import '../../service/authentication/auth.dart';
 import 'error_message_widget.dart';
 import 'login_form.dart';
 

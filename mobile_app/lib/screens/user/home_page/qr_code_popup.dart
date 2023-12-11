@@ -3,7 +3,7 @@ import 'package:mobile_app/constants/colors.dart';
 import 'package:mobile_app/constants/theme.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
-import '../../../database/data.dart';
+import '../../../service/database/data.dart';
 
 class QRCodePopup extends StatelessWidget {
   const QRCodePopup({super.key});

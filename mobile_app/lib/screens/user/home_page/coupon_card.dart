@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../constants/colors.dart';
-import '../../../database/data.dart';
+import '../../../service/database/data.dart';
 import 'coupons.dart';
 
 class CouponCardWidget extends StatelessWidget {

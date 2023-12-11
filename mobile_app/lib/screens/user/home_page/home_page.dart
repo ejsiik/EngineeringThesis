@@ -1,10 +1,10 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_app/constants/colors.dart';
-import 'package:mobile_app/database/data.dart';
+import 'package:mobile_app/service/database/data.dart';
 import 'package:mobile_app/screens/user/home_page/coupon_card.dart';
 import 'package:mobile_app/screens/user/home_page/qr_code_popup.dart';
-import '../../../authentication/auth.dart';
+import '../../../service/authentication/auth.dart';
 import 'welcome_banner.dart';
 import 'product_search_model.dart';
 import 'product_search_result.dart';

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_app/screens/login/forgot_password_button_widget.dart';
 import 'package:mobile_app/screens/login/google_widget.dart';
-import '../../authentication/auth.dart';
+import '../../service/authentication/auth.dart';
 import 'login_form.dart';
 import 'error_message_widget.dart';
 import 'submit_button_widget.dart';

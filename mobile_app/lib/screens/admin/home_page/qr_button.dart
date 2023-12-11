@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:barcode_scan2/barcode_scan2.dart' as scanner;
 
-import '../../constants/colors.dart';
+import '../../../constants/colors.dart';
 
 class QRButton extends StatelessWidget {
   final Function(String) onScan;
