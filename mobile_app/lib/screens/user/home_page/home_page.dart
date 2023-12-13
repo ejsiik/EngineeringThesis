@@ -1,4 +1,6 @@
+import 'dart:typed_data';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_app/constants/colors.dart';
 //import 'package:mobile_app/database/add_product_data.dart';
@@ -9,9 +11,8 @@ import 'package:mobile_app/screens/user/category_products_page/category_products
 import 'package:mobile_app/screens/user/home_page/coupon_card.dart';
 import 'package:mobile_app/screens/user/home_page/qr_code_popup.dart';
 import 'welcome_banner.dart';
-import 'product_search_model.dart';
-import 'product_search_result.dart';
-import 'image_model.dart';
+import '../category_products_page/product_search_model.dart';
+import '../category_products_page/product_search_result.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -30,45 +31,14 @@ class _HomePageState extends State<HomePage> {
   CategoryData categoryData = CategoryData();
   ShopLocationData shopLocationData = ShopLocationData();
   //AddProduct addProductData = AddProduct();
-  final CarouselController _carouselController = CarouselController();
   List<ProductSearchModel> displayList = [];
   late List shops = [];
   late List<bool> shopsExpansionStates = [];
 
-  final List<ProductSearchModel> productsList = [
-    ProductSearchModel(
-      "GigaTelefon1",
-      "assets/s23.jpg",
-      "1999 PLN",
-    ),
-    ProductSearchModel(
-      "GigaMegaTelefon2",
-      "assets/s23.jpg",
-      "2999 PLN",
-    ),
-    ProductSearchModel(
-      "OKTelefon3",
-      "assets/s23.jpg",
-      "3999 PLN",
-    ),
-    ProductSearchModel(
-      "SpokoTelefon4",
-      "assets/s23.jpg",
-      "4999 PLN",
-    ),
-    ProductSearchModel(
-      "SpokoOkTelefon5",
-      "assets/s23.jpg",
-      "5999 PLN",
-    ),
-  ];
-
-  final List<ImageModel> imagesList = [
-    ImageModel("assets/s23.jpg"),
-    ImageModel("assets/s23.jpg"),
-    ImageModel("assets/s23.jpg"),
-    ImageModel("assets/s23.jpg"),
-    ImageModel("assets/s23.jpg"),
+  final List<String> sliderImagesList = [
+    "0_1.jpg",
+    "1_2.jpg",
+    "2_3.jpg",
   ];
 
   Widget buildGridItem(int index, List categoriesList) {
@@ -153,6 +123,17 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  Future<List<Uint8List>> loadImages(List<String> imageUrls) async {
+    List<Uint8List> loadedImages = [];
+
+    for (String imageUrl in imageUrls) {
+      final ref = FirebaseStorage.instance.ref().child(imageUrl);
+      final data = await ref.getData();
+      loadedImages.add(Uint8List.fromList(data!));
+    }
+    return loadedImages;
+  }
+
   Future<List> getCategories() async {
     List list = await categoryData.getAllCategories();
     return list;
@@ -165,18 +146,9 @@ class _HomePageState extends State<HomePage> {
   }
 
   void updateProductSearchList(String value) {
-    setState(() {
-      displayList = productsList
-          .where((element) => element.name
-              .toLowerCase()
-              .trim()
-              .contains(value.toLowerCase().trim()))
-          .toList();
-    });
-
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (contex) => ProductSearchResult(displayList)),
+      MaterialPageRoute(builder: (contex) => ProductSearchResult(value)),
     );
   }
 
@@ -282,7 +254,7 @@ class _HomePageState extends State<HomePage> {
                             decoration: InputDecoration(
                               filled: true,
                               prefixIcon: const Icon(Icons.search),
-                              hintText: "Wyszukaj w sklepie, np \"tel\"",
+                              hintText: "Wyszukaj w sklepie",
                               border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(10.0),
                                   borderSide: BorderSide.none),
@@ -388,23 +360,35 @@ class _HomePageState extends State<HomePage> {
                     padding: const EdgeInsets.symmetric(vertical: 20.0),
                     child: Column(
                       children: [
-                        CarouselSlider.builder(
-                          itemCount: imagesList.length,
-                          options: CarouselOptions(
-                            height: 150,
-                            enlargeCenterPage: true,
-                            viewportFraction: 0.6,
-                          ),
-                          carouselController: _carouselController,
-                          itemBuilder:
-                              (BuildContext context, int index, int realIndex) {
-                            return SizedBox(
-                              width: double.infinity,
-                              child: Image.asset(
-                                imagesList[index].imageAsset,
-                                fit: BoxFit.cover,
-                              ),
-                            );
+                        FutureBuilder(
+                          future: loadImages(sliderImagesList),
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              return const CircularProgressIndicator();
+                            } else if (snapshot.hasError) {
+                              return const Icon(Icons.error);
+                            } else {
+                              List<Uint8List> loadedImages =
+                                  snapshot.data as List<Uint8List>;
+
+                              return CarouselSlider(
+                                items: loadedImages.map((image) {
+                                  return Image.memory(
+                                    image,
+                                    width: MediaQuery.of(context).size.width,
+                                    fit: BoxFit.cover,
+                                  );
+                                }).toList(),
+                                options: CarouselOptions(
+                                  height: 350.0,
+                                  viewportFraction: 1.0,
+                                  enlargeCenterPage: false,
+                                  autoPlay: true,
+                                  aspectRatio: 16 / 9,
+                                ),
+                              );
+                            }
                           },
                         ),
                       ],

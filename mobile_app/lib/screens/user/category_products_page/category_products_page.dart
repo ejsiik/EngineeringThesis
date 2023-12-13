@@ -2,6 +2,7 @@ import 'dart:typed_data';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_app/database/product_data.dart';
+import 'package:mobile_app/screens/user/category_products_page/product_details_page.dart';
 
 class CategoryProductsPage extends StatefulWidget {
   final int categoryId;
@@ -32,7 +33,8 @@ class _CategoryProductsPageState extends State<CategoryProductsPage> {
   }
 
   Widget buildProductItem(Map product) {
-    //Map<String, dynamic> details = (product['details'] as Map<dynamic, dynamic>).cast<String, dynamic>();
+    Map<String, dynamic> details =
+        (product['details'] as Map<dynamic, dynamic>).cast<String, dynamic>();
     Map<String, dynamic> images =
         (product['images'] as Map<dynamic, dynamic>).cast<String, dynamic>();
     return Card(
@@ -64,7 +66,17 @@ class _CategoryProductsPageState extends State<CategoryProductsPage> {
         ),
         trailing: const Icon(Icons.shopping_cart),
         onTap: () {
-          // TO DO
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ProductDetailsPage(
+                  categoryId: widget.categoryId,
+                  name: product['name'],
+                  price: product['price'],
+                  details: details,
+                  images: images),
+            ),
+          );
         },
       ),
     );
