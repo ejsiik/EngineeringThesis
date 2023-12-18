@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:mobile_app/service/authentication/auth.dart';
 import 'package:mobile_app/service/chat/chat.dart';
 
+import '../../../constants/colors.dart';
+
 class ChatPage extends StatefulWidget {
   final String receiverEmail;
   final String receiverId;
@@ -61,8 +63,13 @@ class _ChatPageState extends State<ChatPage> {
                         var messageText = messageData['message'];
                         var messageSender = messageData['senderEmail'];
 
-                        var messageWidget =
-                            MessageWidget(messageSender, messageText);
+                        var messageWidget = MessageWidget(
+                          messageSender,
+                          messageText,
+                          messageSender ==
+                              Auth()
+                                  .userEmail(), // Check if the message is sent by the current user
+                        );
                         messageWidgets.add(messageWidget);
                       }
 
@@ -108,22 +115,52 @@ class MessageWidget extends StatelessWidget {
   final String sender;
   final String text;
 
-  const MessageWidget(this.sender, this.text, {super.key});
+  // Add a parameter to check if the message is sent by the current user
+  final bool isMyMessage;
+
+  const MessageWidget(this.sender, this.text, this.isMyMessage, {Key? key})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    final Color textColor = theme.brightness == Brightness.light
+        ? AppColors.textLight
+        : AppColors.textDark;
+    const Color myChat = AppColors.chatCurrent;
+    const Color otherChat = AppColors.chatOther;
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
+        // Align messages based on whether they are sent by the current user or the other user
+        mainAxisAlignment:
+            isMyMessage ? MainAxisAlignment.end : MainAxisAlignment.start,
         children: [
-          Text(
-            '$sender: ',
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
+          Container(
+            padding: const EdgeInsets.all(8.0),
+            decoration: BoxDecoration(
+              color: isMyMessage ? myChat : otherChat,
+              borderRadius: BorderRadius.circular(8.0),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '$sender:',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: textColor,
+                  ),
+                ),
+                Text(
+                  text,
+                  style: TextStyle(
+                    color: textColor,
+                  ),
+                ),
+              ],
             ),
           ),
-          Text(text),
         ],
       ),
     );

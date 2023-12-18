@@ -8,6 +8,8 @@ class AppColors {
   static const Color logout = Color(0xFFD50000);
   static const Color white = Color.fromARGB(255, 255, 255, 255);
   static const Color black = Color.fromARGB(255, 0, 0, 0);
+  static const Color chatCurrent = Color.fromARGB(255, 1, 79, 223);
+  static const Color chatOther = Color.fromARGB(255, 196, 187, 187);
 
   // Light Mode Colors
   static const Color backgroundLight = Color(0xFFFAFAFA);
