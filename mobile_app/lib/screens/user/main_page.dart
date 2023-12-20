@@ -4,6 +4,7 @@ import 'package:mobile_app/screens/user/home_page/chat_page.dart';
 import '../../service/authentication/auth.dart';
 import 'package:mobile_app/screens/user/user_account_page/user_account_page.dart';
 import 'package:mobile_app/screens/user/home_page/home_page.dart';
+import '/constants/config.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({Key? key}) : super(key: key);
@@ -18,8 +19,8 @@ class _MainPageState extends State<MainPage> {
   final pages = [
     const HomePage(),
     const ChatPage(
-      receiverId: 'jlZWkZEd2aeZKfSVU7p0iIzLhLr2',
-      receiverEmail: 'daw.wydra@gmail.com',
+      receiverId: receiverId,
+      receiverEmail: receiverEmail,
     ),
     const HomePage(),
     const UserAccountPage(),

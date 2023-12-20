@@ -128,6 +128,10 @@ class MessageWidget extends StatelessWidget {
         : AppColors.textDark;
     const Color myChat = AppColors.chatCurrent;
     const Color otherChat = AppColors.chatOther;
+
+    // Display 'Me' instead of the sender's email for the current user's messages
+    final displayedSender = isMyMessage ? 'Me' : sender;
+
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Row(
@@ -145,7 +149,7 @@ class MessageWidget extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '$sender:',
+                  '$displayedSender:',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     color: textColor,

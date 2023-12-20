@@ -1,7 +1,5 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_app/service/chat/chat.dart';
-import 'package:mobile_app/service/authentication/auth.dart';
 import 'package:mobile_app/service/database/chat_data.dart';
 
 import 'chat_page.dart';
@@ -86,69 +84,6 @@ class _AdminChatScreenState extends State<AdminChatScreen> {
               },
             ),
           ),
-          // Display the messages for the selected user
-          Expanded(
-            child: StreamBuilder<QuerySnapshot>(
-              stream: chat.getMessages(Auth().userId(), selectedUserId),
-              builder: (context, snapshot) {
-                try {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const CircularProgressIndicator();
-                  } else if (snapshot.hasError) {
-                    return Text(snapshot.error.toString());
-                  } else if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                    return const Text('No messages available for admin.');
-                  } else {
-                    var messages = snapshot.data!.docs.reversed;
-                    List<Widget> messageWidgets = [];
-
-                    for (var message in messages) {
-                      var messageData = message.data() as Map<String, dynamic>;
-                      var messageText = messageData['message'];
-                      var messageSender = messageData['senderEmail'];
-
-                      var messageWidget =
-                          MessageWidget(messageSender, messageText);
-                      messageWidgets.add(messageWidget);
-                    }
-
-                    return ListView(
-                      reverse: true,
-                      children: messageWidgets,
-                    );
-                  }
-                } catch (error) {
-                  return const Text('An error occurred (caught)');
-                }
-              },
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class MessageWidget extends StatelessWidget {
-  final String sender;
-  final String text;
-
-  const MessageWidget(this.sender, this.text, {super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          Text(
-            '$sender: ',
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          Text(text),
         ],
       ),
     );

@@ -114,8 +114,6 @@ class _ChatPageState extends State<ChatPage> {
 class MessageWidget extends StatelessWidget {
   final String sender;
   final String text;
-
-  // Add a parameter to check if the message is sent by the current user
   final bool isMyMessage;
 
   const MessageWidget(this.sender, this.text, this.isMyMessage, {Key? key})
@@ -129,10 +127,15 @@ class MessageWidget extends StatelessWidget {
         : AppColors.textDark;
     const Color myChat = AppColors.chatCurrent;
     const Color otherChat = AppColors.chatOther;
+
+    // Display 'Me' instead of the sender's email for the current user's messages
+    final displayedSender = isMyMessage ? 'Me' : sender;
+    // Display 'Store' instead of the receiver's email for the other user's messages
+    final displayedText = isMyMessage ? text : 'Store';
+
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Row(
-        // Align messages based on whether they are sent by the current user or the other user
         mainAxisAlignment:
             isMyMessage ? MainAxisAlignment.end : MainAxisAlignment.start,
         children: [
@@ -146,14 +149,14 @@ class MessageWidget extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '$sender:',
+                  '$displayedSender:',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     color: textColor,
                   ),
                 ),
                 Text(
-                  text,
+                  displayedText,
                   style: TextStyle(
                     color: textColor,
                   ),
