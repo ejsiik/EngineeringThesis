@@ -28,6 +28,23 @@ class ChatData {
     }
   }
 
+  Future<String> deleteUser() async {
+    try {
+      if (currentUser != null) {
+        // Get the user ID
+        String userId = currentUser!.uid;
+
+        // Delete the user document from the 'users' collection
+        await _firestore.collection('users').doc(userId).delete();
+        return 'Account deleted successfully!';
+      } else {
+        return 'User not logged in.';
+      }
+    } catch (e) {
+      return 'Error deleting user: $e';
+    }
+  }
+
   addMessageToDatabase({
     required String chatRoomId,
     required Message message,
