@@ -2,6 +2,7 @@ import 'dart:typed_data';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_app/database/product_data.dart';
+import 'package:mobile_app/database/user_data.dart';
 import 'package:mobile_app/screens/user/category_products_page/product_details_page.dart';
 
 class CategoryProductsPage extends StatefulWidget {
@@ -18,6 +19,7 @@ class CategoryProductsPage extends StatefulWidget {
 
 class _CategoryProductsPageState extends State<CategoryProductsPage> {
   ProductData productData = ProductData();
+  UserData userData = UserData();
 
   Future<List<Map<String, dynamic>>> getProductData() async {
     List<Map<String, dynamic>> data =
@@ -33,6 +35,10 @@ class _CategoryProductsPageState extends State<CategoryProductsPage> {
   }
 
   Widget buildProductItem(Map product) {
+    Future<void> addToShoppingCart(String productId) async {
+      await userData.addToShoppingCart(productId);
+    }
+
     Map<String, dynamic> details =
         (product['details'] as Map<dynamic, dynamic>).cast<String, dynamic>();
     Map<String, dynamic> images =
@@ -64,17 +70,23 @@ class _CategoryProductsPageState extends State<CategoryProductsPage> {
             Text('Cena: ${product['price']} zł'),
           ],
         ),
-        trailing: const Icon(Icons.shopping_cart),
+        trailing: GestureDetector(
+          onTap: () {
+            addToShoppingCart(product['id']);
+          },
+          child: const Icon(Icons.shopping_cart),
+        ),
         onTap: () {
           Navigator.push(
             context,
             MaterialPageRoute(
               builder: (context) => ProductDetailsPage(
-                  categoryId: widget.categoryId,
-                  name: product['name'],
-                  price: product['price'],
-                  details: details,
-                  images: images),
+                  widget.categoryId,
+                  product['id'],
+                  product['name'],
+                  product['price'],
+                  details,
+                  images),
             ),
           );
         },

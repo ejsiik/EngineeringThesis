@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_app/database/product_data.dart';
+import 'package:mobile_app/database/user_data.dart';
 import '../../../constants/colors.dart';
 import 'dart:typed_data';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -18,6 +19,7 @@ class ProductSearchResult extends StatefulWidget {
 class _ProductSearchResultState extends State<ProductSearchResult> {
   int len = 0;
   ProductData productData = ProductData();
+  UserData userData = UserData();
 
   Future<List<Map<String, dynamic>>> getProductData() async {
     List<Map<String, dynamic>> data =
@@ -45,6 +47,10 @@ class _ProductSearchResultState extends State<ProductSearchResult> {
   }
 
   Widget buildProductItem(Map product) {
+    Future<void> addToShoppingCart(String productId) async {
+      await userData.addToShoppingCart(productId);
+    }
+
     Map<String, dynamic> details =
         (product['details'] as Map<dynamic, dynamic>).cast<String, dynamic>();
     Map<String, dynamic> images =
@@ -76,17 +82,23 @@ class _ProductSearchResultState extends State<ProductSearchResult> {
             Text('Cena: ${product['price']} zł'),
           ],
         ),
-        trailing: const Icon(Icons.shopping_cart),
+        trailing: GestureDetector(
+          onTap: () {
+            addToShoppingCart(product['id']);
+          },
+          child: const Icon(Icons.shopping_cart),
+        ),
         onTap: () {
           Navigator.push(
             context,
             MaterialPageRoute(
               builder: (context) => ProductDetailsPage(
-                  categoryId: product['category_id'],
-                  name: product['name'],
-                  price: product['price'],
-                  details: details,
-                  images: images),
+                  product['category_id'],
+                  product['id'],
+                  product['name'],
+                  product['price'],
+                  details,
+                  images),
             ),
           );
         },

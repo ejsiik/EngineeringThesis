@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -118,6 +120,9 @@ class UserData {
           'name': name,
           'createdAt': currentDate.toString(),
           'couponUsed': false,
+          'shoppingCart': {
+            'isActive': true,
+          },
           'coupons': {
             'coupon1': {
               'wasUsed': false,
@@ -150,6 +155,61 @@ class UserData {
       }
     } on FirebaseAuthException catch (e) {
       return e.message;
+    }
+  }
+
+  Future<void> addToShoppingCart(String productId) async {
+    String userId = currentUser!.uid;
+
+    try {
+      // Sprawdź, czy użytkownik ma aktywny koszyk
+      DatabaseEvent event = await usersRef.child('$userId/shoppingCart').once();
+      DataSnapshot snapshot = event.snapshot;
+      final shoppingCartData =
+          Map<String, dynamic>.from(snapshot.value! as Map<Object?, Object?>);
+
+      // checking if shopping list is already created
+      if (shoppingCartData.containsKey('shoppingList')) {
+        List<dynamic> currentShoppingList =
+            List.from(shoppingCartData['shoppingList'] ?? []);
+
+        bool productAlreadyInCart = false;
+
+        for (var item in currentShoppingList) {
+          // removing product from shopping cart
+          if (item['product_id'] == productId) {
+            currentShoppingList.remove(item);
+            productAlreadyInCart = true;
+            break;
+          }
+        }
+
+        if (!productAlreadyInCart) {
+          // Produkt nie był wcześniej w koszyku, dodaj nowy
+          currentShoppingList.add({
+            'product_id': productId,
+            'quantity': 1,
+          });
+        }
+
+        await usersRef
+            .child('$userId/shoppingCart')
+            .update({'shoppingList': currentShoppingList});
+      } else {
+        // Jeśli 'shoppingList' nie istnieje, stwórz nową listę zakupów i dodaj produkt
+        await usersRef.child('$userId/shoppingCart').set({
+          'isActive': true,
+          'shoppingList': [
+            {
+              'product_id': productId,
+              'quantity': 1,
+            },
+          ],
+        });
+      }
+    } catch (error) {
+      print('Error adding to shopping cart: $error');
+      // Obsłuż błąd
     }
   }
 

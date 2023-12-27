@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_app/constants/colors.dart';
+import 'package:mobile_app/screens/user/shopping_cart_page/shopping_cart_page.dart';
 import '../../../authentication/auth.dart';
 import 'package:mobile_app/screens/user/user_account_page/user_account_page.dart';
 import 'package:mobile_app/screens/user/home_page/home_page.dart';
@@ -17,7 +18,7 @@ class _MainPageState extends State<MainPage> {
   final pages = [
     const HomePage(),
     const UserAccountPage(),
-    const HomePage(),
+    const ShoppingCartPage(),
     const UserAccountPage(),
   ];
 
@@ -71,7 +72,7 @@ class _MainPageState extends State<MainPage> {
             ),
             BottomNavigationBarItem(
               icon: const Icon(Icons.add_shopping_cart),
-              label: 'Trolley',
+              label: 'Shopping Cart',
               backgroundColor: backgroundColor,
             ),
             BottomNavigationBarItem(
