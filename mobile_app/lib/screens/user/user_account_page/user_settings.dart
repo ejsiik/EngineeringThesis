@@ -3,7 +3,21 @@ import 'package:mobile_app/screens/login/login_page.dart';
 import 'package:mobile_app/service/authentication/auth.dart';
 import '../../../service/database/data.dart';
 
-class UserSettings extends StatelessWidget {
+class UserSettings extends StatefulWidget {
+  @override
+  _UserSettingsState createState() => _UserSettingsState();
+}
+
+class _UserSettingsState extends State<UserSettings> {
+  TextEditingController _nameController = TextEditingController();
+  String newName = '';
+
+  void _showSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(message),
+    ));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -17,13 +31,24 @@ class UserSettings extends StatelessWidget {
           children: [
             // TextField for changing username
             TextField(
+              controller: _nameController,
               decoration: InputDecoration(labelText: 'Change name'),
-              onChanged: (value) {},
+              onChanged: (value) {
+                newName = value;
+              },
             ),
             SizedBox(height: 16.0),
 
             ElevatedButton(
-              onPressed: () {},
+              onPressed: () {
+                try {
+                  Data().changeUserName(newName);
+                  _nameController.clear(); // Clear the TextField
+                  _showSnackBar('Username changed successfully');
+                } catch (error) {
+                  _showSnackBar('Error changing username: $error');
+                }
+              },
               child: Text('Change name'),
             ),
 

@@ -1,5 +1,6 @@
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:mobile_app/service/authentication/auth.dart';
 
 class Data {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
@@ -93,6 +94,17 @@ class Data {
       return ('Error getting user name: ${e.message}');
     }
     return null;
+  }
+
+  Future<void> updateUserName(String newName) async {
+    try {
+      // Update the name for the specified user
+      await usersRef.child(Auth().userId()).update({
+        'name': newName,
+      });
+    } catch (e) {
+      print('Error updating user name: $e');
+    }
   }
 
   Future<dynamic> createUserInDatabase({
