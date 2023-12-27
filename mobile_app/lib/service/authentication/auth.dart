@@ -22,6 +22,20 @@ class Auth extends GetxController {
     return currentUser!.email.toString();
   }
 
+  Future<String> deleteUser() async {
+    try {
+      User? currentUser = _firebaseAuth.currentUser;
+
+      if (currentUser != null) {
+        // Delete user from Firebase Authentication
+        await currentUser.delete();
+      }
+    } catch (e) {
+      return "Error deleting user from authentication: $e";
+    }
+    return "User successfully deleted from authentication";
+  }
+
   googleSignIn() async {
     try {
       final GoogleSignInAccount? gUser = await GoogleSignIn().signIn();

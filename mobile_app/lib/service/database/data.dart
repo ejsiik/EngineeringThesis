@@ -243,6 +243,35 @@ class Data {
       throw Exception('Error submitting data: $e');
     }
   }
+
+  // Function to delete the current user from Firebase Authentication and Realtime Database
+  Future<String> deleteUser() async {
+    try {
+      User? currentUser = FirebaseAuth.instance.currentUser;
+
+      if (currentUser != null) {
+        // Delete user data from Realtime Database
+        await usersRef.child(currentUser.uid).remove();
+      }
+    } catch (e) {
+      return "Error deleting user from database: $e";
+    }
+    return "User data successfully deleted from database";
+  }
+
+  // Function to change the username in the Realtime Database
+  Future<void> changeUserName(String newUsername) async {
+    try {
+      User? currentUser = _firebaseAuth.currentUser;
+
+      if (currentUser != null) {
+        // Update username in Realtime Database
+        await usersRef.child(currentUser.uid).update({'name': newUsername});
+      }
+    } catch (e) {
+      throw ("Error changing username: $e");
+    }
+  }
 }
 
 class UserDataProvider {
