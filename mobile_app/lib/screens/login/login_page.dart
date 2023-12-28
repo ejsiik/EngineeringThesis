@@ -56,6 +56,9 @@ class _LoginPageState extends State<LoginPage> {
       isLogin = !isLogin;
       isPasswordVisible = false;
       isConfirmPasswordVisible = false;
+      // Clear text fields when switching from register to login
+      _controllerEmail.clear();
+      _controllerPassword.clear();
     });
   }
 
