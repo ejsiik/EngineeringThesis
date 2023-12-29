@@ -20,6 +20,7 @@ class CategoryProductsPage extends StatefulWidget {
 class _CategoryProductsPageState extends State<CategoryProductsPage> {
   ProductData productData = ProductData();
   UserData userData = UserData();
+  static const String routeName = '/categoryProductsPage';
 
   Future<List<Map<String, dynamic>>> getProductData() async {
     List<Map<String, dynamic>> data =
@@ -86,7 +87,8 @@ class _CategoryProductsPageState extends State<CategoryProductsPage> {
                   product['name'],
                   product['price'],
                   details,
-                  images),
+                  images,
+                  routeName),
             ),
           );
         },

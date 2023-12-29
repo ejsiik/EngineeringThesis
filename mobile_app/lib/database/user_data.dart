@@ -1,5 +1,3 @@
-import 'dart:ffi';
-
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -10,6 +8,8 @@ class UserData {
   Stream<User?> get authStateChanges => _firebaseAuth.authStateChanges();
   // Create a reference to the "users" node in the Realtime Database
   DatabaseReference usersRef = FirebaseDatabase.instance.ref().child('users');
+  DatabaseReference productsRef =
+      FirebaseDatabase.instance.ref().child('products');
 
   // Reference to each "coupon" node
   DatabaseReference getCouponRef(int index) {
@@ -121,7 +121,7 @@ class UserData {
           'createdAt': currentDate.toString(),
           'couponUsed': false,
           'shoppingCart': {
-            'isActive': true,
+            'totalPrice': 0,
           },
           'coupons': {
             'coupon1': {
@@ -159,9 +159,9 @@ class UserData {
   }
 
   Future<void> addToShoppingCart(String productId) async {
-    String userId = currentUser!.uid;
-
     try {
+      String userId = currentUser!.uid;
+
       // Sprawdź, czy użytkownik ma aktywny koszyk
       DatabaseEvent event = await usersRef.child('$userId/shoppingCart').once();
       DataSnapshot snapshot = event.snapshot;
@@ -198,7 +198,7 @@ class UserData {
       } else {
         // Jeśli 'shoppingList' nie istnieje, stwórz nową listę zakupów i dodaj produkt
         await usersRef.child('$userId/shoppingCart').set({
-          'isActive': true,
+          'totalPrice': 0,
           'shoppingList': [
             {
               'product_id': productId,
@@ -208,8 +208,93 @@ class UserData {
         });
       }
     } catch (error) {
-      print('Error adding to shopping cart: $error');
-      // Obsłuż błąd
+      throw Exception('Error accesing shopping cart: $error');
+    }
+  }
+
+  Future<void> changeQuantityInShoppingCart(
+      String productId, int quantity) async {
+    try {
+      String userId = currentUser!.uid;
+
+      // Sprawdź, czy użytkownik ma aktywny koszyk
+      DatabaseEvent event =
+          await usersRef.child('$userId/shoppingCart/shoppingList').once();
+      DataSnapshot snapshot = event.snapshot;
+      final shoppingCartData =
+          List<dynamic>.from(snapshot.value! as List<Object?>);
+
+      for (int i = 0; i < shoppingCartData.length; i++) {
+        if (shoppingCartData[i]['product_id'] == productId) {
+          shoppingCartData[i]['quantity'] = quantity;
+          break;
+        }
+      }
+
+      await usersRef
+          .child('$userId/shoppingCart')
+          .update({'shoppingList': shoppingCartData});
+    } catch (error) {
+      throw Exception('Error accesing shopping cart: $error');
+    }
+  }
+
+  Future<int> getQuantityOfShoppingCart(String productId) async {
+    try {
+      String userId = currentUser!.uid;
+
+      // Sprawdź, czy użytkownik ma aktywny koszyk
+      DatabaseEvent event =
+          await usersRef.child('$userId/shoppingCart/shoppingList').once();
+      DataSnapshot snapshot = event.snapshot;
+      final shoppingCartData =
+          List<dynamic>.from(snapshot.value! as List<Object?>);
+      int quantity = 0;
+
+      for (int i = 0; i < shoppingCartData.length; i++) {
+        if (shoppingCartData[i]['product_id'] == productId) {
+          quantity = shoppingCartData[i]['quantity'];
+          break;
+        }
+      }
+
+      return quantity;
+    } catch (error) {
+      throw Exception('Error accesing shopping cart: $error');
+    }
+  }
+
+  Future<List<dynamic>> getShoppingCartData() async {
+    try {
+      String userId = currentUser!.uid;
+
+      DatabaseEvent productEvent = await productsRef.once();
+      DataSnapshot productSnapshot = productEvent.snapshot;
+      final allProducts = Map<dynamic, dynamic>.from(
+          productSnapshot.value! as Map<Object?, Object?>);
+
+      // Sprawdź, czy użytkownik ma aktywny koszyk
+      DatabaseEvent event = await usersRef.child('$userId/shoppingCart').once();
+      DataSnapshot snapshot = event.snapshot;
+      final shoppingCartData =
+          Map<String, dynamic>.from(snapshot.value! as Map<Object?, Object?>);
+
+      // checking if shopping list is already created
+      if (shoppingCartData.containsKey('shoppingList')) {
+        List<dynamic> currentShoppingList =
+            List.from(shoppingCartData['shoppingList'] ?? []);
+
+        List<dynamic> productsInCart = currentShoppingList
+            .map((cartItem) =>
+                allProducts[cartItem['product_id']] ?? {'quantity': 0})
+            .toList();
+
+        return productsInCart;
+      } else {
+        return [];
+      }
+    } catch (error) {
+      throw Exception('Error accesing shopping cart: $error');
     }
   }
 

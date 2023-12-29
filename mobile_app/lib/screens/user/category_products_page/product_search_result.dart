@@ -20,6 +20,7 @@ class _ProductSearchResultState extends State<ProductSearchResult> {
   int len = 0;
   ProductData productData = ProductData();
   UserData userData = UserData();
+  static const String routeName = '/productSearchResultPage';
 
   Future<List<Map<String, dynamic>>> getProductData() async {
     List<Map<String, dynamic>> data =
@@ -98,7 +99,8 @@ class _ProductSearchResultState extends State<ProductSearchResult> {
                   product['name'],
                   product['price'],
                   details,
-                  images),
+                  images,
+                  routeName),
             ),
           );
         },
