@@ -210,7 +210,7 @@ class UserData {
             .update({'shoppingList': currentShoppingList});
 
         // Oblicz nową sumę cen produktów i zaktualizuj totalPrice
-        double newTotalPrice = 0;
+        double newTotalPrice = 0.0;
         for (var item in currentShoppingList) {
           newTotalPrice += item['price'];
         }
@@ -219,11 +219,11 @@ class UserData {
             .child('$userId/shoppingCart')
             .update({'totalPrice': newTotalPrice});
       } else {
-        int productPrice = 0;
+        double productPrice = 0.0;
 
         if (allProducts.containsKey(productId)) {
           // Pobierz cenę produktu
-          productPrice = allProducts[productId]['price'];
+          productPrice = (allProducts[productId]['price']).toDouble();
         }
 
         // Jeśli 'shoppingList' nie istnieje, stwórz nową listę zakupów i dodaj produkt
@@ -275,7 +275,7 @@ class UserData {
           .update({'shoppingList': shoppingCartData});
 
       // Oblicz nową sumę cen produktów i zaktualizuj totalPrice
-      double newTotalPrice = 0;
+      double newTotalPrice = 0.0;
       for (var item in shoppingCartData) {
         newTotalPrice += item['price'];
       }
