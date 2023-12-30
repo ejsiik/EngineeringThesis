@@ -162,6 +162,11 @@ class UserData {
     try {
       String userId = currentUser!.uid;
 
+      DatabaseEvent productEvent = await productsRef.once();
+      DataSnapshot productSnapshot = productEvent.snapshot;
+      final allProducts = Map<dynamic, dynamic>.from(
+          productSnapshot.value! as Map<Object?, Object?>);
+
       // Sprawdź, czy użytkownik ma aktywny koszyk
       DatabaseEvent event = await usersRef.child('$userId/shoppingCart').once();
       DataSnapshot snapshot = event.snapshot;
@@ -184,25 +189,51 @@ class UserData {
           }
         }
 
+        // Produkt nie był wcześniej w koszyku, dodaj nowy
         if (!productAlreadyInCart) {
-          // Produkt nie był wcześniej w koszyku, dodaj nowy
+          double productPrice = 0.0;
+
+          if (allProducts.containsKey(productId)) {
+            // Pobierz cenę produktu
+            productPrice = (allProducts[productId]['price']).toDouble();
+          }
+
           currentShoppingList.add({
             'product_id': productId,
             'quantity': 1,
+            'price': productPrice,
           });
         }
 
         await usersRef
             .child('$userId/shoppingCart')
             .update({'shoppingList': currentShoppingList});
+
+        // Oblicz nową sumę cen produktów i zaktualizuj totalPrice
+        double newTotalPrice = 0;
+        for (var item in currentShoppingList) {
+          newTotalPrice += item['price'];
+        }
+
+        await usersRef
+            .child('$userId/shoppingCart')
+            .update({'totalPrice': newTotalPrice});
       } else {
+        int productPrice = 0;
+
+        if (allProducts.containsKey(productId)) {
+          // Pobierz cenę produktu
+          productPrice = allProducts[productId]['price'];
+        }
+
         // Jeśli 'shoppingList' nie istnieje, stwórz nową listę zakupów i dodaj produkt
         await usersRef.child('$userId/shoppingCart').set({
-          'totalPrice': 0,
+          'totalPrice': productPrice,
           'shoppingList': [
             {
               'product_id': productId,
               'quantity': 1,
+              'price': productPrice,
             },
           ],
         });
@@ -224,9 +255,17 @@ class UserData {
       final shoppingCartData =
           List<dynamic>.from(snapshot.value! as List<Object?>);
 
+      DatabaseEvent productEvent = await productsRef.once();
+      DataSnapshot productSnapshot = productEvent.snapshot;
+      final allProducts = Map<dynamic, dynamic>.from(
+          productSnapshot.value! as Map<Object?, Object?>);
+
       for (int i = 0; i < shoppingCartData.length; i++) {
         if (shoppingCartData[i]['product_id'] == productId) {
           shoppingCartData[i]['quantity'] = quantity;
+
+          double productPrice = (allProducts[productId]['price']).toDouble();
+          shoppingCartData[i]['price'] = productPrice * quantity;
           break;
         }
       }
@@ -234,6 +273,16 @@ class UserData {
       await usersRef
           .child('$userId/shoppingCart')
           .update({'shoppingList': shoppingCartData});
+
+      // Oblicz nową sumę cen produktów i zaktualizuj totalPrice
+      double newTotalPrice = 0;
+      for (var item in shoppingCartData) {
+        newTotalPrice += item['price'];
+      }
+
+      await usersRef
+          .child('$userId/shoppingCart')
+          .update({'totalPrice': newTotalPrice});
     } catch (error) {
       throw Exception('Error accesing shopping cart: $error');
     }
@@ -285,8 +334,7 @@ class UserData {
             List.from(shoppingCartData['shoppingList'] ?? []);
 
         List<dynamic> productsInCart = currentShoppingList
-            .map((cartItem) =>
-                allProducts[cartItem['product_id']] ?? {'quantity': 0})
+            .map((cartItem) => allProducts[cartItem['product_id']])
             .toList();
 
         return productsInCart;

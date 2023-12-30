@@ -54,6 +54,7 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
             .cast<String, dynamic>();
     Map<String, dynamic> images =
         (productMap['images'] as Map<dynamic, dynamic>).cast<String, dynamic>();
+
     return Card(
       margin: const EdgeInsets.all(8.0),
       child: ListTile(
@@ -199,13 +200,13 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => OrdersPage(),
+                    builder: (context) => const OrdersPage(),
                   ),
                 );
               },
               child: const ListTile(
                 leading: Icon(Icons.shopping_cart),
-                title: Text('Przejdź do składania zamówienia'),
+                title: Text('Złóż zamówienie'),
               ),
             ),
           ),
