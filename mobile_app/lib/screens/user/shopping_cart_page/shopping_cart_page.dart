@@ -18,6 +18,19 @@ class ShoppingCartPage extends StatefulWidget {
 class _ShoppingCartPageState extends State<ShoppingCartPage> {
   UserData userData = UserData();
   static const String routeName = '/shoppingCartPage';
+  double totalPrice = 0.0;
+
+  @override
+  void initState() {
+    super.initState();
+    // Set up a listener for changes in the database
+    getTotalPrice();
+  }
+
+  Future<void> getTotalPrice() async {
+    double totalPriceData = await userData.getTotalPriceData();
+    totalPrice = totalPriceData;
+  }
 
   Future<List<dynamic>> getShoppingCartData() async {
     List<dynamic> data = await userData.getShoppingCartData();
@@ -193,20 +206,22 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
             ),
           ),
           Container(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(8.0),
             color: Colors.orange,
             child: GestureDetector(
               onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const OrdersPage(),
-                  ),
-                );
+                if (totalPrice != 0) {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const OrdersPage(),
+                    ),
+                  );
+                }
               },
               child: const ListTile(
                 leading: Icon(Icons.shopping_cart),
-                title: Text('Złóż zamówienie'),
+                title: Text('Składanie zamówienia'),
               ),
             ),
           ),

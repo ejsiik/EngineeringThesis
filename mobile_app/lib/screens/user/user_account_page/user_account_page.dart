@@ -110,29 +110,31 @@ class _UserAccountPage extends State<UserAccountPage> {
                     UserAccountListView(
                       text: "Aktywne zamówienia",
                       icon: Icons.auto_stories,
+                      type: "activeOrders",
                     ),
                     UserAccountListView(
                       text: "Zamówienia zrealizowane",
                       icon: Icons.history,
+                      type: "completedOrders",
                     ),
                     UserAccountListView(
                       text: "Obserwowane produkty",
                       icon: Icons.remove_red_eye,
+                      type: "other",
                     ),
                     UserAccountListView(
                       text: "Zakupione produkty",
                       icon: Icons.home_repair_service,
+                      type: "other",
                     ),
                     UserAccountListView(
                       text: "Kupony",
                       icon: Icons.local_offer,
-                    ),
-                    UserAccountListView(
-                      text: "Koszyk",
-                      icon: Icons.add_shopping_cart,
+                      type: "other",
                     ),
                     UserAccountListView(
                       text: "Ustawienia konta",
+                      type: "other",
                       icon: Icons.settings,
                     ),
                   ],

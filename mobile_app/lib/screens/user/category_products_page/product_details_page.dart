@@ -137,9 +137,10 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
               ),
             ),
           ),
-          if (widget.routeName != '/shoppingCartPage')
+          if (widget.routeName != '/shoppingCartPage' &&
+              widget.routeName != '/ordersPage')
             Container(
-              padding: const EdgeInsets.all(16.0),
+              padding: const EdgeInsets.all(8.0),
               color: Colors.orange,
               child: GestureDetector(
                 onTap: () {

@@ -32,8 +32,6 @@ class _HomePageState extends State<HomePage> {
   ShopLocationData shopLocationData = ShopLocationData();
   //AddProduct addProductData = AddProduct();
   List<ProductSearchModel> displayList = [];
-  late List shops = [];
-  late List<bool> shopsExpansionStates = [];
 
   final List<String> sliderImagesList = [
     "0_1.jpg",
@@ -105,7 +103,6 @@ class _HomePageState extends State<HomePage> {
     super.initState();
     // Set up a listener for changes in the database
     getCategories();
-    getLocations();
     userDataProvider.isUserCreatedWithin14Days().then((value) {
       setState(() {
         showWelcomeBanner = value;
@@ -137,12 +134,6 @@ class _HomePageState extends State<HomePage> {
   Future<List> getCategories() async {
     List list = await categoryData.getAllCategories();
     return list;
-  }
-
-  Future<void> getLocations() async {
-    shops = await shopLocationData.getAllShopsLocations();
-    shopsExpansionStates = List<bool>.filled(shops.length, false);
-    setState(() {});
   }
 
   void updateProductSearchList(String value) {
@@ -274,86 +265,6 @@ class _HomePageState extends State<HomePage> {
                     ),
 
                   const CouponCardWidget(),
-
-                  // shop locations header
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Container(
-                          padding: const EdgeInsets.only(
-                              top: 20.0, left: 10.0, right: 10.0, bottom: 10.0),
-                          color: backgroundColor,
-                          child: Text(
-                            'Jesteśmy dostępni lokalnie:',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: textColor,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  // shops locations
-                  ExpansionPanelList(
-                    expandedHeaderPadding: const EdgeInsets.all(0),
-                    elevation: 1,
-                    expansionCallback: (int index, bool isExpanded) {
-                      setState(() {
-                        for (var i = 0; i < shopsExpansionStates.length; i++) {
-                          if (i != index) {
-                            shopsExpansionStates[i] = false;
-                          } else {
-                            shopsExpansionStates[i] = !shopsExpansionStates[i];
-                          }
-                        }
-                      });
-                    },
-                    children: shops.asMap().entries.map<ExpansionPanel>(
-                      (entry) {
-                        var item = entry.value;
-                        var index = entry.key;
-                        var daysData = item['days'];
-                        var locationData = item['location'];
-                        if (daysData is Map && locationData is Map) {
-                          return ExpansionPanel(
-                            headerBuilder:
-                                (BuildContext context, bool isExpanded) {
-                              return ListTile(
-                                title: Text(
-                                    '${locationData['city']}, ${locationData['street']} ${locationData['street_number']}'),
-                              );
-                            },
-                            body: ListTile(
-                              title: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  buildDay('Poniedziałek:', daysData['monday']),
-                                  buildDay('Wtorek:', daysData['tuesday']),
-                                  buildDay('Środa:', daysData['wednesday']!),
-                                  buildDay('Czwartek:', daysData['thursday']!),
-                                  buildDay('Piątek:', daysData['friday']!),
-                                  buildDay('Sobota:', daysData['saturday']!),
-                                  buildDay('Niedziela:', daysData['sunday']!),
-                                ],
-                              ),
-                            ),
-                            isExpanded: shopsExpansionStates[index],
-                          );
-                        } else {
-                          return ExpansionPanel(
-                            headerBuilder:
-                                (BuildContext context, bool isExpanded) =>
-                                    const ListTile(title: Text('Invalid Data')),
-                            body: const ListTile(title: Text('Invalid Data')),
-                            isExpanded: true,
-                          );
-                        }
-                      },
-                    ).toList(),
-                  ),
 
                   // slider with special offers, popular products etc
                   Padding(

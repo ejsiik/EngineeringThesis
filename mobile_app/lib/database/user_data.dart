@@ -243,6 +243,17 @@ class UserData {
     }
   }
 
+  Future<void> deleteShoppingList() async {
+    try {
+      String userId = currentUser!.uid;
+
+      await usersRef.child('$userId/shoppingCart/shoppingList').remove();
+      await usersRef.child('$userId/shoppingCart').update({'totalPrice': 0.0});
+    } catch (error) {
+      throw Exception('Error accesing shopping cart: $error');
+    }
+  }
+
   Future<void> changeQuantityInShoppingCart(
       String productId, int quantity) async {
     try {
@@ -313,6 +324,29 @@ class UserData {
     }
   }
 
+  Future<List<dynamic>> getShoppingListData() async {
+    try {
+      String userId = currentUser!.uid;
+
+      DatabaseEvent event = await usersRef.child('$userId/shoppingCart').once();
+      DataSnapshot snapshot = event.snapshot;
+      final shoppingCartData =
+          Map<String, dynamic>.from(snapshot.value! as Map<Object?, Object?>);
+
+      // checking if shopping list is already created
+      if (shoppingCartData.containsKey('shoppingList')) {
+        List<dynamic> currentShoppingList =
+            List.from(shoppingCartData['shoppingList'] ?? []);
+
+        return currentShoppingList;
+      } else {
+        return [];
+      }
+    } catch (error) {
+      throw Exception('Error accesing shopping cart: $error');
+    }
+  }
+
   Future<List<dynamic>> getShoppingCartData() async {
     try {
       String userId = currentUser!.uid;
@@ -341,6 +375,23 @@ class UserData {
       } else {
         return [];
       }
+    } catch (error) {
+      throw Exception('Error accesing shopping cart: $error');
+    }
+  }
+
+  Future<double> getTotalPriceData() async {
+    try {
+      String userId = currentUser!.uid;
+
+      DatabaseEvent event = await usersRef.child('$userId/shoppingCart').once();
+      DataSnapshot snapshot = event.snapshot;
+      final shoppingCartData =
+          Map<String, dynamic>.from(snapshot.value! as Map<Object?, Object?>);
+
+      double totalPrice = (shoppingCartData['totalPrice']).toDouble();
+
+      return totalPrice;
     } catch (error) {
       throw Exception('Error accesing shopping cart: $error');
     }
