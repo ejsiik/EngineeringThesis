@@ -2,7 +2,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:mobile_app/database/user_data.dart';
+import 'package:mobile_app/service/database/data.dart';
 
 class ProductDetailsPage extends StatefulWidget {
   final int categoryId;
@@ -24,7 +24,7 @@ class ProductDetailsPage extends StatefulWidget {
 }
 
 class _ProductDetailsPageState extends State<ProductDetailsPage> {
-  UserData userData = UserData();
+  Data userData = Data();
 
   Future<List<Uint8List>> loadImages(Map<String, dynamic> images) async {
     List<Uint8List> loadedImages = [];

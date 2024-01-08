@@ -1,7 +1,7 @@
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-class UserData {
+class Data {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
   User? get currentUser => _firebaseAuth.currentUser;
   // Listen to authentication state changes

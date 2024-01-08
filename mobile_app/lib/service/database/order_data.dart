@@ -1,6 +1,6 @@
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:mobile_app/database/user_data.dart';
+import 'package:mobile_app/service/database/data.dart';
 
 class OrderData {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
@@ -19,7 +19,7 @@ class OrderData {
       String street = location['street'];
       String streetNumber = location['street_number'];
 
-      UserData userData = UserData();
+      Data userData = Data();
       List<dynamic> data = await userData.getShoppingListData();
 
       DateTime now = DateTime.now();

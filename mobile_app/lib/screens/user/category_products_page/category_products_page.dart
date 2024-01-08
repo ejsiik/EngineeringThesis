@@ -1,8 +1,8 @@
 import 'dart:typed_data';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:mobile_app/database/product_data.dart';
-import 'package:mobile_app/database/user_data.dart';
+import 'package:mobile_app/service/database/product_data.dart';
+import 'package:mobile_app/service/database/data.dart';
 import 'package:mobile_app/screens/user/category_products_page/product_details_page.dart';
 
 class CategoryProductsPage extends StatefulWidget {
@@ -19,7 +19,7 @@ class CategoryProductsPage extends StatefulWidget {
 
 class _CategoryProductsPageState extends State<CategoryProductsPage> {
   ProductData productData = ProductData();
-  UserData userData = UserData();
+  Data userData = Data();
   static const String routeName = '/categoryProductsPage';
 
   Future<List<Map<String, dynamic>>> getProductData() async {

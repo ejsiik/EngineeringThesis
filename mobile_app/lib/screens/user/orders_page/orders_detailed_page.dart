@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mobile_app/database/order_data.dart';
+import 'package:mobile_app/service/database/order_data.dart';
 import 'package:mobile_app/screens/user/category_products_page/product_details_page.dart';
 
 class OrderDetailsPage extends StatelessWidget {

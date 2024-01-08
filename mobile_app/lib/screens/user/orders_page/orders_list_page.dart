@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:mobile_app/database/order_data.dart';
+import 'package:mobile_app/service/database/order_data.dart';
 import 'package:mobile_app/screens/user/orders_page/orders_detailed_page.dart';
 
 class OrdersListPage extends StatefulWidget {

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:mobile_app/database/order_data.dart';
-import 'package:mobile_app/database/shop_location_data.dart';
-import 'package:mobile_app/database/user_data.dart';
+import 'package:mobile_app/service/database/order_data.dart';
+import 'package:mobile_app/service/database/shop_location_data.dart';
+import 'package:mobile_app/service/database/data.dart';
 import 'package:mobile_app/screens/user/main_page.dart';
 
 class OrdersPage extends StatefulWidget {
@@ -21,7 +21,7 @@ class _OrdersState extends State<OrdersPage> {
   late List<bool> shopsExpansionStates = [];
   late Map<String, dynamic>? selectedLocationData = {};
   ShopLocationData shopLocationData = ShopLocationData();
-  UserData userData = UserData();
+  Data userData = Data();
   OrderData orderData = OrderData();
   double totalPrice = 0.0;
 

@@ -2,7 +2,7 @@ import 'dart:typed_data';
 
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:mobile_app/database/user_data.dart';
+import 'package:mobile_app/service/database/data.dart';
 import 'package:mobile_app/screens/user/category_products_page/product_details_page.dart';
 import 'package:mobile_app/screens/user/orders_page/orders_page.dart';
 
@@ -16,7 +16,7 @@ class ShoppingCartPage extends StatefulWidget {
 }
 
 class _ShoppingCartPageState extends State<ShoppingCartPage> {
-  UserData userData = UserData();
+  Data userData = Data();
   static const String routeName = '/shoppingCartPage';
   double totalPrice = 0.0;
 

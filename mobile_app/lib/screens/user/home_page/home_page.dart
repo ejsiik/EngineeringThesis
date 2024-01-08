@@ -1,16 +1,18 @@
+import 'dart:typed_data';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_app/constants/colors.dart';
+//import 'package:mobile_app/database/add_product_data.dart';
+import 'package:mobile_app/service/database/shop_location_data.dart';
+import 'package:mobile_app/service/database/category_data.dart';
 import 'package:mobile_app/service/database/data.dart';
+import 'package:mobile_app/screens/user/category_products_page/category_products_page.dart';
 import 'package:mobile_app/screens/user/home_page/coupon_card.dart';
 import 'package:mobile_app/screens/user/home_page/qr_code_popup.dart';
-import '../../../service/authentication/auth.dart';
 import 'welcome_banner.dart';
-import 'product_search_model.dart';
-import 'product_search_result.dart';
-import 'shop_location_model.dart';
-import 'categories_model.dart';
-import 'image_model.dart';
+import '../category_products_page/product_search_model.dart';
+import '../category_products_page/product_search_result.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -24,114 +26,58 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   bool isListVisible = false;
   bool showWelcomeBanner = false;
-  Data data = Data();
-  UserDataProvider userData = UserDataProvider();
-  final CarouselController _carouselController = CarouselController();
+  UserDataProvider userDataProvider = UserDataProvider();
+  Data userData = Data();
+  CategoryData categoryData = CategoryData();
+  ShopLocationData shopLocationData = ShopLocationData();
+  //AddProduct addProductData = AddProduct();
   List<ProductSearchModel> displayList = [];
 
-  final List<ProductSearchModel> productsList = [
-    ProductSearchModel(
-      "GigaTelefon1",
-      "assets/s23.jpg",
-      "1999 PLN",
-    ),
-    ProductSearchModel(
-      "GigaMegaTelefon2",
-      "assets/s23.jpg",
-      "2999 PLN",
-    ),
-    ProductSearchModel(
-      "OKTelefon3",
-      "assets/s23.jpg",
-      "3999 PLN",
-    ),
-    ProductSearchModel(
-      "SpokoTelefon4",
-      "assets/s23.jpg",
-      "4999 PLN",
-    ),
-    ProductSearchModel(
-      "SpokoOkTelefon5",
-      "assets/s23.jpg",
-      "5999 PLN",
-    ),
+  final List<String> sliderImagesList = [
+    "0_1.jpg",
+    "1_2.jpg",
+    "2_3.jpg",
   ];
 
-  final List<ShopLocationModel> locationsList = [
-    ShopLocationModel(
-      location: "Kasztanowa 1/2, 44-100 Gliwice",
-      monday: "08:00 - 20:00",
-      tuesday: "08:00 - 20:00",
-      wednesday: "08:00 - 20:00",
-      thursday: "08:00 - 20:00",
-      friday: "08:00 - 20:00",
-      saturday: "08:00 - 16:00",
-      sunday: "nieczynne",
-      isExpanded: false,
-    ),
-    ShopLocationModel(
-      location: "Ogórkowa 1/3, 44-100 Gliwice",
-      monday: "08:00 - 20:00",
-      tuesday: "08:00 - 20:00",
-      wednesday: "08:00 - 20:00",
-      thursday: "08:00 - 20:00",
-      friday: "08:00 - 20:00",
-      saturday: "08:00 - 16:00",
-      sunday: "nieczynne",
-      isExpanded: false,
-    ),
-    ShopLocationModel(
-      location: "Kasztelanowa 1/4, 44-100 Gliwice",
-      monday: "08:00 - 20:00",
-      tuesday: "08:00 - 20:00",
-      wednesday: "08:00 - 20:00",
-      thursday: "08:00 - 20:00",
-      friday: "08:00 - 20:00",
-      saturday: "08:00 - 16:00",
-      sunday: "nieczynne",
-      isExpanded: false,
-    ),
-  ];
-
-  final List<ImageModel> imagesList = [
-    ImageModel("assets/s23.jpg"),
-    ImageModel("assets/s23.jpg"),
-    ImageModel("assets/s23.jpg"),
-    ImageModel("assets/s23.jpg"),
-    ImageModel("assets/s23.jpg"),
-  ];
-
-  final List<CategoriesModel> categoriesList = [
-    CategoriesModel("Kosiarki"),
-    CategoriesModel("Drukarki"),
-    CategoriesModel("Parówki"),
-    CategoriesModel("Węże"),
-    CategoriesModel("Rowery"),
-    CategoriesModel("Telefony"),
-    CategoriesModel("Tratwy"),
-    CategoriesModel("Miski"),
-    CategoriesModel("Klawiatury"),
-    CategoriesModel("Płatki"),
-    CategoriesModel("Lokomotywy"),
-    CategoriesModel("Puzzle"),
-  ];
-
-  Widget buildGridItem(int index) {
-    return Card(
-      elevation: 2.0,
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Center(
-          child: Text(
-            categoriesList[index].name,
-            style: const TextStyle(fontSize: 16.0),
+  Widget buildGridItem(int index, List categoriesList) {
+    return InkWell(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => CategoryProductsPage(
+              index,
+              categoriesList[index],
+            ),
+          ),
+        );
+      },
+      child: Card(
+        elevation: 2.0,
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Center(
+            child: Text(
+              categoriesList[index],
+              style: const TextStyle(fontSize: 16.0),
+            ),
           ),
         ),
       ),
     );
   }
 
-  Widget buildDay(String day, String hours) {
+  Widget buildDay(String day, Map<dynamic, dynamic> dayData) {
+    String openTime = dayData['open']!.toString();
+    String closedTime = dayData['closed']!.toString();
+    String hours = "";
+
+    if (openTime.isEmpty || closedTime.isEmpty) {
+      hours = "nieczynne";
+    } else {
+      hours = "$openTime - $closedTime";
+    }
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5.0),
       child: Row(
@@ -156,19 +102,16 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     // Set up a listener for changes in the database
-    userData.isUserCreatedWithin14Days().then((value) {
+    getCategories();
+    userDataProvider.isUserCreatedWithin14Days().then((value) {
       setState(() {
         showWelcomeBanner = value;
       });
     });
   }
 
-  void signOut() async {
-    await Auth().signOut();
-  }
-
   Future<String> getUserName() async {
-    String? userName = await data.getUserName();
+    String? userName = await userData.getUserName();
 
     if (userName != null) {
       return userName;
@@ -177,19 +120,26 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  void updateProductSearchList(String value) {
-    setState(() {
-      displayList = productsList
-          .where((element) => element.name
-              .toLowerCase()
-              .trim()
-              .contains(value.toLowerCase().trim()))
-          .toList();
-    });
+  Future<List<Uint8List>> loadImages(List<String> imageUrls) async {
+    List<Uint8List> loadedImages = [];
 
+    for (String imageUrl in imageUrls) {
+      final ref = FirebaseStorage.instance.ref().child(imageUrl);
+      final data = await ref.getData();
+      loadedImages.add(Uint8List.fromList(data!));
+    }
+    return loadedImages;
+  }
+
+  Future<List> getCategories() async {
+    List list = await categoryData.getAllCategories();
+    return list;
+  }
+
+  void updateProductSearchList(String value) {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (contex) => ProductSearchResult(displayList)),
+      MaterialPageRoute(builder: (contex) => ProductSearchResult(value)),
     );
   }
 
@@ -227,7 +177,7 @@ class _HomePageState extends State<HomePage> {
             SliverToBoxAdapter(
               child: Column(
                 children: [
-                  // User name and logout
+                  // User name and coupons
                   FutureBuilder<String>(
                     future: getUserName(),
                     builder: (context, snapshot) {
@@ -295,7 +245,7 @@ class _HomePageState extends State<HomePage> {
                             decoration: InputDecoration(
                               filled: true,
                               prefixIcon: const Icon(Icons.search),
-                              hintText: "Wyszukaj w sklepie, np \"tel\"",
+                              hintText: "Wyszukaj w sklepie",
                               border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(10.0),
                                   borderSide: BorderSide.none),
@@ -316,121 +266,76 @@ class _HomePageState extends State<HomePage> {
 
                   const CouponCardWidget(),
 
-                  // shop locations header
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Container(
-                          padding: const EdgeInsets.only(
-                              top: 20.0, left: 10.0, right: 10.0, bottom: 10.0),
-                          color: backgroundColor,
-                          child: Text(
-                            'Jesteśmy dostępni lokalnie:',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: textColor,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  // Store location
-                  SingleChildScrollView(
-                    child: Column(
-                      children: [
-                        ExpansionPanelList(
-                          elevation: 1,
-                          expandedHeaderPadding: const EdgeInsets.all(0),
-                          expansionCallback: (int index, bool isExpanded) {
-                            setState(() {
-                              for (var i = 0; i < locationsList.length; i++) {
-                                if (i != index) {
-                                  locationsList[i].isExpanded = false;
-                                } else {
-                                  locationsList[i].isExpanded =
-                                      !locationsList[i].isExpanded;
-                                }
-                              }
-                            });
-                          },
-                          children: locationsList.map<ExpansionPanel>(
-                            (ShopLocationModel item) {
-                              return ExpansionPanel(
-                                headerBuilder:
-                                    (BuildContext context, bool isExpanded) {
-                                  return ListTile(
-                                    title: Text(item.location),
-                                  );
-                                },
-                                body: ListTile(
-                                  title: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      buildDay('Poniedziałek:', item.monday),
-                                      buildDay('Wtorek:', item.tuesday),
-                                      buildDay('Środa:', item.wednesday),
-                                      buildDay('Czwartek:', item.thursday),
-                                      buildDay('Piątek:', item.friday),
-                                      buildDay('Sobota:', item.saturday),
-                                      buildDay('Niedziela:', item.sunday),
-                                    ],
-                                  ),
-                                ),
-                                isExpanded: item.isExpanded,
-                              );
-                            },
-                          ).toList(),
-                        ),
-                      ],
-                    ),
-                  ),
-
                   // slider with special offers, popular products etc
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 20.0),
                     child: Column(
                       children: [
-                        CarouselSlider.builder(
-                          itemCount: imagesList.length,
-                          options: CarouselOptions(
-                            height: 150,
-                            enlargeCenterPage: true,
-                            viewportFraction: 0.6,
-                          ),
-                          carouselController: _carouselController,
-                          itemBuilder:
-                              (BuildContext context, int index, int realIndex) {
-                            return SizedBox(
-                              width: double.infinity,
-                              child: Image.asset(
-                                imagesList[index].imageAsset,
-                                fit: BoxFit.cover,
-                              ),
-                            );
+                        FutureBuilder(
+                          future: loadImages(sliderImagesList),
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              return const CircularProgressIndicator();
+                            } else if (snapshot.hasError) {
+                              return const Icon(Icons.error);
+                            } else {
+                              List<Uint8List> loadedImages =
+                                  snapshot.data as List<Uint8List>;
+
+                              return CarouselSlider(
+                                items: loadedImages.map((image) {
+                                  return Image.memory(
+                                    image,
+                                    width: MediaQuery.of(context).size.width,
+                                    fit: BoxFit.cover,
+                                  );
+                                }).toList(),
+                                options: CarouselOptions(
+                                  height: 350.0,
+                                  viewportFraction: 1.0,
+                                  enlargeCenterPage: false,
+                                  autoPlay: true,
+                                  aspectRatio: 16 / 9,
+                                ),
+                              );
+                            }
                           },
                         ),
                       ],
                     ),
                   ),
 
-                  // categories
-                  GridView.builder(
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 3,
-                      crossAxisSpacing: 8.0,
-                      mainAxisSpacing: 8.0,
-                    ),
-                    itemCount: categoriesList.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      return buildGridItem(index);
+                  // categories of products
+                  FutureBuilder<List>(
+                    future: getCategories(),
+                    builder:
+                        (BuildContext context, AsyncSnapshot<List> snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        // Return a loading indicator while data is being fetched.
+                        return const CircularProgressIndicator();
+                      } else if (snapshot.hasError) {
+                        // Handle the error case.
+                        return Text('Error: ${snapshot.error}');
+                      } else {
+                        // Categories have been fetched successfully, use them in the GridView.builder.
+                        List? categoriesList = snapshot.data;
+                        return GridView.builder(
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 3,
+                            crossAxisSpacing: 8.0,
+                            mainAxisSpacing: 8.0,
+                          ),
+                          itemCount: categoriesList?.length,
+                          itemBuilder: (BuildContext context, int index) {
+                            return buildGridItem(index, categoriesList!);
+                          },
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                        );
+                      }
                     },
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
                   ),
                 ],
               ),

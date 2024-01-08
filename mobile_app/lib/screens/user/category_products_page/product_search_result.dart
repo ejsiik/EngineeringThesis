@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:mobile_app/database/product_data.dart';
-import 'package:mobile_app/database/user_data.dart';
+import 'package:mobile_app/service/database/product_data.dart';
+import 'package:mobile_app/service/database/data.dart';
 import '../../../constants/colors.dart';
 import 'dart:typed_data';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -19,7 +19,7 @@ class ProductSearchResult extends StatefulWidget {
 class _ProductSearchResultState extends State<ProductSearchResult> {
   int len = 0;
   ProductData productData = ProductData();
-  UserData userData = UserData();
+  Data userData = Data();
   static const String routeName = '/productSearchResultPage';
 
   Future<List<Map<String, dynamic>>> getProductData() async {
