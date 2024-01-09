@@ -76,7 +76,7 @@ class CouponScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Your Coupons'),
+        title: const Text('Twoje kupony'),
       ),
       body: FutureBuilder<List<Map<dynamic, dynamic>>>(
         future: data.getAllCouponData(),
@@ -84,9 +84,9 @@ class CouponScreen extends StatelessWidget {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const CircularProgressIndicator();
           } else if (snapshot.hasError) {
-            return Text('Error: ${snapshot.error}');
+            return Text('Wystąpił błąd podczas pobierania danych o kuponach');
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Text('No coupons available.');
+            return const Text('Brak dostępnych kuponów');
           } else {
             return GridView.count(
               crossAxisCount: 3,

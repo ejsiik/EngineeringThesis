@@ -1,5 +1,6 @@
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:mobile_app/service/authentication/auth.dart';
 
 class Data {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
@@ -60,10 +61,10 @@ class Data {
         if (snapshot.value != null) {
           return userId;
         } else {
-          throw Exception('Error fetching user data');
+          throw Exception('Błąd podczas pobierania danych użytkownika');
         }
       } else {
-        throw Exception('User is not signed in');
+        throw Exception('Użytkownik nie jest zalogowany');
       }
     } on FirebaseAuthException {
       rethrow;
@@ -90,9 +91,20 @@ class Data {
         }
       }
     } on FirebaseAuthException catch (e) {
-      return ('Error getting user name: ${e.message}');
+      return ('Błąd podczas pobierania nazwy użytkownika: ${e.message}');
     }
     return null;
+  }
+
+  Future<void> updateUserName(String newName) async {
+    try {
+      // Update the name for the specified user
+      await usersRef.child(Auth().userId()).update({
+        'name': newName,
+      });
+    } catch (e) {
+      print('Błąd podczas aktualizacji nazwy użytkownika: $e');
+    }
   }
 
   Future<dynamic> createUserInDatabase({
@@ -144,11 +156,11 @@ class Data {
             },
           },
         });
-        // Provide some feedback to the user (you can customize this)
-        return 'Account created successfully!';
+        // Provide some feedback to the user
+        return 'Konto zostało pomyślnie utworzone!';
       }
     } on FirebaseAuthException catch (e) {
-      return e.message;
+      return 'Błąd podczas tworzenia konta: ${e.message}';
     }
   }
 
@@ -163,7 +175,7 @@ class Data {
       if (snapshot.value != null) {
         if (welcomeBanner) {
           await usersRef.child(userId).child('couponUsed').set(true);
-          onSubmitted("Welcome coupon used");
+          onSubmitted("Kupon powitalny został użyty");
         } else {
           if (couponValue.isNotEmpty) {
             int couponValueInt = int.tryParse(couponValue) ?? 0;
@@ -222,25 +234,55 @@ class Data {
                     });
                   });
 
-                  onSubmitted('Free glass! Mean value: $meanCouponValue');
+                  onSubmitted(
+                      'Darmowy zakup! Średnia wartość: $meanCouponValue');
                 } else {
-                  onSubmitted('Coupon accepted');
+                  onSubmitted('Kupon zaakceptowany');
                 }
               } else {
-                onSubmitted('No available coupons');
+                onSubmitted('Brak dostępnych kuponów');
               }
             } else {
-              onSubmitted('No available coupons');
+              onSubmitted('Brak dostępnych kuponów');
             }
           } else {
-            onSubmitted('Provide glass price');
+            onSubmitted('Podaj cenę szkła');
           }
         }
       } else {
-        throw Exception('User not found');
+        throw Exception('Użytkownik nie znaleziony');
       }
     } catch (e) {
-      throw Exception('Error submitting data: $e');
+      throw Exception('Błąd podczas przesyłania danych: $e');
+    }
+  }
+
+  // Function to delete the current user from Firebase Authentication and Realtime Database
+  Future<String> deleteUser() async {
+    try {
+      User? currentUser = FirebaseAuth.instance.currentUser;
+
+      if (currentUser != null) {
+        // Delete user data from Realtime Database
+        await usersRef.child(currentUser.uid).remove();
+      }
+    } catch (e) {
+      return "Błąd podczas usuwania użytkownika z bazy danych: $e";
+    }
+    return "Dane użytkownika pomyślnie usunięte z bazy danych";
+  }
+
+  // Function to change the username in the Realtime Database
+  Future<void> changeUserName(String newUsername) async {
+    try {
+      User? currentUser = _firebaseAuth.currentUser;
+
+      if (currentUser != null) {
+        // Update username in Realtime Database
+        await usersRef.child(currentUser.uid).update({'name': newUsername});
+      }
+    } catch (e) {
+      throw ("Błąd podczas zmiany nazwy użytkownika: $e");
     }
   }
 }

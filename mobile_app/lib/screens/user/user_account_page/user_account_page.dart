@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mobile_app/constants/colors.dart';
 import 'package:mobile_app/screens/user/user_account_page/user_account_list_view.dart';
 import '../../../service/authentication/auth.dart';
+import 'user_settings.dart';
 
 class UserAccountPage extends StatelessWidget {
   const UserAccountPage({super.key});
@@ -74,34 +75,40 @@ class UserAccountPage extends StatelessWidget {
               child: Container(
                 color: backgroundColor,
                 child: ListView(
-                  children: const [
+                  children: [
                     UserAccountListView(
-                      text: "Aktywne zamówienia",
-                      icon: Icons.auto_stories,
-                    ),
+                        text: "Aktywne zamówienia",
+                        icon: Icons.auto_stories,
+                        onTap: () {}),
                     UserAccountListView(
-                      text: "Zamówienia zrealizowane",
-                      icon: Icons.history,
-                    ),
+                        text: "Zamówienia zrealizowane",
+                        icon: Icons.history,
+                        onTap: () {}),
                     UserAccountListView(
-                      text: "Obserwowane produkty",
-                      icon: Icons.remove_red_eye,
-                    ),
+                        text: "Obserwowane produkty",
+                        icon: Icons.remove_red_eye,
+                        onTap: () {}),
                     UserAccountListView(
-                      text: "Zakupione produkty",
-                      icon: Icons.home_repair_service,
-                    ),
+                        text: "Zakupione produkty",
+                        icon: Icons.home_repair_service,
+                        onTap: () {}),
                     UserAccountListView(
-                      text: "Kupony",
-                      icon: Icons.local_offer,
-                    ),
+                        text: "Kupony", icon: Icons.local_offer, onTap: () {}),
                     UserAccountListView(
-                      text: "Koszyk",
-                      icon: Icons.add_shopping_cart,
-                    ),
+                        text: "Koszyk",
+                        icon: Icons.add_shopping_cart,
+                        onTap: () {}),
                     UserAccountListView(
                       text: "Ustawienia konta",
                       icon: Icons.settings,
+                      onTap: () {
+                        // Navigate to user_settings.dart when the UserAccountListView is clicked
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => UserSettings()),
+                        );
+                      },
                     ),
                   ],
                 ),

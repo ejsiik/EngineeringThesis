@@ -4,21 +4,21 @@ import 'package:mobile_app/constants/colors.dart';
 import 'package:mobile_app/service/authentication/auth.dart';
 import 'package:mobile_app/service/chat/chat.dart';
 
-class ChatPage extends StatefulWidget {
+class AdminChatPage extends StatefulWidget {
   final String receiverEmail;
   final String receiverId;
 
-  const ChatPage({
+  const AdminChatPage({
     Key? key,
     required this.receiverEmail,
     required this.receiverId,
   }) : super(key: key);
 
   @override
-  State<ChatPage> createState() => _ChatPageState();
+  State<AdminChatPage> createState() => _ChatPageState();
 }
 
-class _ChatPageState extends State<ChatPage> {
+class _ChatPageState extends State<AdminChatPage> {
   final TextEditingController messageController = TextEditingController();
   final Chat chat = Chat();
 
@@ -33,7 +33,7 @@ class _ChatPageState extends State<ChatPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Chat with ${widget.receiverId}'),
+        title: Text('Czatuj z ${widget.receiverId}'),
       ),
       body: Column(
         children: [
@@ -51,7 +51,7 @@ class _ChatPageState extends State<ChatPage> {
                     } else if (!snapshot.hasData ||
                         snapshot.data!.docs.isEmpty) {
                       // If there is no data or the data is empty, show a message
-                      return const Text('No messages available.');
+                      return const Text('Brak wiadomości.');
                     } else {
                       var messages = snapshot.data!.docs.reversed;
                       List<Widget> messageWidgets = [];
@@ -78,7 +78,8 @@ class _ChatPageState extends State<ChatPage> {
                       );
                     }
                   } catch (error) {
-                    return const Text('An error occurred (catched)');
+                    return const Text(
+                        'Wystąpił błąd podczas pobierania wiadomości');
                   }
                 }),
           ),
@@ -90,7 +91,7 @@ class _ChatPageState extends State<ChatPage> {
                   child: TextField(
                     controller: messageController,
                     decoration: const InputDecoration(
-                      hintText: 'Type your message...',
+                      hintText: 'Wpisz wiadomość...',
                     ),
                   ),
                 ),
@@ -129,8 +130,8 @@ class MessageWidget extends StatelessWidget {
     const Color myChat = AppColors.chatCurrent;
     const Color otherChat = AppColors.chatOther;
 
-    // Display 'Me' instead of the sender's email for the current user's messages
-    final displayedSender = isMyMessage ? 'Me' : sender;
+    // Display 'Ja' instead of the sender's email for the current user's messages
+    final displayedSender = isMyMessage ? 'Ja' : sender;
 
     return Padding(
       padding: const EdgeInsets.all(8.0),

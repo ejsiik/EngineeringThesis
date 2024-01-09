@@ -28,10 +28,10 @@ class QRButton extends StatelessWidget {
             onScan(result.rawContent);
           }
         } catch (e) {
-          // Handle error
+          throw 'Wystąpił błąd podczas skanowania';
         }
       },
-      child: const Text('Scan QR Code'),
+      child: const Text('Skanuj kod QR'),
     );
   }
 }

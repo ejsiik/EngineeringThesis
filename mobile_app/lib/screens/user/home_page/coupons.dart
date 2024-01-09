@@ -89,7 +89,7 @@ class CouponCard extends StatelessWidget {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text(
+                        /*Text(
                           'Free',
                           style: TextStyle(
                             color: textColor,
@@ -97,9 +97,9 @@ class CouponCard extends StatelessWidget {
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        const SizedBox(height: 5),
+                        const SizedBox(height: 5),*/
                         Text(
-                          'Glass!',
+                          'Gratis',
                           style: TextStyle(
                             color: textColor,
                             fontSize: 11,

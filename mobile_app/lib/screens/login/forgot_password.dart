@@ -17,7 +17,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
 
   Future<void> passwordReset() async {
     try {
-      errorMessage = 'Password reset email has been sent';
+      errorMessage = 'Link do resetu hasła został wysłany w wiadomości email';
       String? resetError =
           await Auth().passwordReset(email: _controllerEmail.text);
       if (resetError != null) {
@@ -50,7 +50,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
         passwordReset();
         FocusScope.of(context).unfocus();
       },
-      child: const Text('Reset password'),
+      child: const Text('Zresetuj hasło'),
     );
   }
 

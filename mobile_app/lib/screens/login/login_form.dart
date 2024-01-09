@@ -93,7 +93,7 @@ class _LoginFormEntryState extends State<LoginFormEntry> {
             controller: textEditingController,
             focusNode: focusNode,
             decoration: InputDecoration(
-              hintText: 'Enter email',
+              hintText: 'Wprowadź email',
               hintStyle: TextStyle(color: iconColor),
               prefixIcon: Icon(widget.prefixIcon, color: iconColor),
             ),

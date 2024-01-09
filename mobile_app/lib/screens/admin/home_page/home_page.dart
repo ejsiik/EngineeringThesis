@@ -65,7 +65,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
         appBar: AppBar(
           backgroundColor: backgroundColor,
           title: Text(
-            'Nazwa sklepu',
+            'Shop X',
             style: TextStyle(color: primaryColor),
           ),
           actions: [
@@ -88,7 +88,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
                   ],
                 ),
                 EntryField(
-                  title: 'User ID',
+                  title: 'ID Użytkownika',
                   controller: _controllerUserID,
                   prefixIcon: Icons.person,
                   welcomeBanner: _welcomeBanner,
@@ -103,7 +103,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
                 ),
                 const SizedBox(height: 10),
                 EntryField(
-                  title: 'Value',
+                  title: 'Wartość',
                   controller: _controllerValue,
                   prefixIcon: Icons.money,
                   welcomeBanner: _welcomeBanner,
@@ -136,7 +136,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
                   }),
                 ),
                 Text(
-                  'Welcome Coupon',
+                  'Kupon powitalny',
                   style: TextStyle(color: primaryColor),
                 ),
                 const SizedBox(height: 30),
@@ -151,7 +151,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
                           builder: (context) => const AdminChatScreen()),
                     );
                   },
-                  child: const Text('Go to Admin Chat'),
+                  child: const Text('Idź do czatu'),
                 ),
               ],
             ),

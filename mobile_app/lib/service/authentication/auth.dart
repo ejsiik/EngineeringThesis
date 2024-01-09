@@ -22,6 +22,20 @@ class Auth extends GetxController {
     return currentUser!.email.toString();
   }
 
+  // Delete user account from Firebase Authentication
+  Future<String> deleteUser() async {
+    try {
+      User? currentUser = _firebaseAuth.currentUser;
+
+      if (currentUser != null) {
+        await currentUser.delete();
+      }
+    } catch (e) {
+      return "Błąd podczas usuwania użytkownika";
+    }
+    return "Użytkownik został pomyślnie usunięty";
+  }
+
   googleSignIn() async {
     try {
       final GoogleSignInAccount? gUser = await GoogleSignIn().signIn();
@@ -51,7 +65,7 @@ class Auth extends GetxController {
       // Return the UserCredential
       return authResult;
     } on FirebaseAuthException catch (e) {
-      return e.message;
+      return _mapFirebaseErrorToPolish(e.code);
     }
   }
 
@@ -66,7 +80,8 @@ class Auth extends GetxController {
       );
       return null; // Return null if the sign-in is successful
     } on FirebaseAuthException catch (e) {
-      return e.message; // Return the error message if there's an exception
+      return _mapFirebaseErrorToPolish(
+          e.code); // Return the error message if there's an exception
     }
   }
 
@@ -88,7 +103,7 @@ class Auth extends GetxController {
       await data.createUserInDatabase(email: email.trim(), name: name.trim());
       await chatData.createUserInDatabase(email: email.trim());
     } on FirebaseAuthException catch (e) {
-      return e.message;
+      return _mapFirebaseErrorToPolish(e.code);
     }
     return null;
   }
@@ -101,13 +116,13 @@ class Auth extends GetxController {
     try {
       if (currentUser != null) {
         if (currentUser!.emailVerified) {
-          return "User is already verified.";
+          return "Użytkownik jest już zweryfikowany.";
         } else {
           await currentUser!.sendEmailVerification();
         }
       }
     } catch (error) {
-      return 'Error sending verification email: $error';
+      return 'Błąd podczas wysyłania e-maila weryfikacyjnego';
     }
   }
 
@@ -116,7 +131,7 @@ class Auth extends GetxController {
       await currentUser!.reload();
       return currentUser != null ? currentUser!.emailVerified : false;
     } catch (error) {
-      throw 'Error checking email verification status: $error';
+      throw 'Błąd podczas sprawdzania statusu weryfikacji e-maila';
     }
   }
 
@@ -125,7 +140,25 @@ class Auth extends GetxController {
       await FirebaseAuth.instance.sendPasswordResetEmail(email: email.trim());
       return null; // Return null on success
     } on FirebaseAuthException catch (e) {
-      return e.message;
+      return _mapFirebaseErrorToPolish(e.code);
+    }
+  }
+
+  // Map Firebase error codes to Polish error messages
+  String _mapFirebaseErrorToPolish(String errorCode) {
+    switch (errorCode) {
+      case 'user-not-found':
+        return 'Nie znaleziono użytkownika z podanym adresem e-mail';
+      case 'wrong-password':
+        return 'Nieprawidłowe hasło';
+      case 'email-already-in-use':
+        return 'Podany adres e-mail jest już używany';
+      case 'invalid-email':
+        return 'Podany adres e-mail jest nieprawidłowy';
+      case 'weak-password':
+        return 'Hasło jest zbyt słabe';
+      default:
+        return 'Wystąpił błąd uwierzytelniania';
     }
   }
 }
