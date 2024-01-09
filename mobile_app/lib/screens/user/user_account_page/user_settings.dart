@@ -23,7 +23,7 @@ class _UserSettingsState extends State<UserSettings> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('User Settings'),
+        title: Text('Ustawienia użytkownika'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -33,7 +33,7 @@ class _UserSettingsState extends State<UserSettings> {
             // TextField for changing username
             TextField(
               controller: _nameController,
-              decoration: InputDecoration(labelText: 'Change name'),
+              decoration: InputDecoration(labelText: 'Zmień imię'),
               onChanged: (value) {
                 newName = value;
               },
@@ -45,12 +45,12 @@ class _UserSettingsState extends State<UserSettings> {
                 try {
                   Data().changeUserName(newName);
                   _nameController.clear(); // Clear the TextField
-                  _showSnackBar('Username changed successfully');
+                  _showSnackBar('Imię zostało zmienione');
                 } catch (error) {
-                  _showSnackBar('Error changing username: $error');
+                  _showSnackBar('Błąd podczas zmiany imienia');
                 }
               },
-              child: Text('Change name'),
+              child: Text('Zmień imię'),
             ),
 
             // Delete account with GestureDetector and Text
@@ -65,7 +65,7 @@ class _UserSettingsState extends State<UserSettings> {
                       _showDeleteConfirmationDialog(context);
                     },
                     child: Text(
-                      'Delete Account',
+                      'Usuń konto',
                       style: TextStyle(
                         decoration: TextDecoration.underline,
                         color: Colors.red,
@@ -94,15 +94,15 @@ class _UserSettingsState extends State<UserSettings> {
         dialogContext = context;
 
         return AlertDialog(
-          title: Text('Delete Account'),
-          content: Text('Are you sure you want to delete your account?'),
+          title: Text('Usuń konto'),
+          content: Text('Jesteś pewien, że chcesz usunąć konto?'),
           actions: [
             TextButton(
               onPressed: () {
                 // User canceled the deletion
                 Navigator.of(dialogContext).pop();
               },
-              child: Text('Cancel'),
+              child: Text('Anuluj'),
             ),
             TextButton(
               onPressed: () async {
@@ -116,7 +116,7 @@ class _UserSettingsState extends State<UserSettings> {
                 }
               },
               child: Text(
-                'Delete',
+                'Usuń',
                 style: TextStyle(color: Colors.red),
               ),
             ),

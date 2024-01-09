@@ -33,9 +33,9 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void handlePasswordMismatch() {
-    // update the UI
+    // Update the UI with a password mismatch error message
     safeSetState(() {
-      errorMessage = 'Passwords do not match';
+      errorMessage = 'Hasła nie są identyczne';
     });
   }
 
@@ -107,7 +107,7 @@ class _LoginPageState extends State<LoginPage> {
               const SizedBox(height: 80),
               if (!isLogin)
                 LoginFormEntry(
-                  'Name',
+                  'Imię',
                   _controllerName,
                   Icons.badge,
                   false,
@@ -125,7 +125,7 @@ class _LoginPageState extends State<LoginPage> {
               ),
               const SizedBox(height: 10),
               LoginFormEntry(
-                'Password',
+                'Hasło',
                 _controllerPassword,
                 Icons.lock,
                 true,
@@ -135,7 +135,7 @@ class _LoginPageState extends State<LoginPage> {
               const SizedBox(height: 10),
               if (!isLogin)
                 LoginFormEntry(
-                  'Confirm password',
+                  'Potwierdź hasło',
                   _controllerConfirmPassword,
                   Icons.lock,
                   true,
@@ -154,7 +154,7 @@ class _LoginPageState extends State<LoginPage> {
                   createUserWithEmailAndPassword();
                 } else {
                   safeSetState(() {
-                    errorMessage = 'Please fill in all required fields.';
+                    errorMessage = 'Proszę wypełnić wszystkie wymagane pola.';
                   });
                 }
               }, togglePasswordVisibility, signInWithEmailAndPassword,

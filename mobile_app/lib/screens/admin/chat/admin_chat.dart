@@ -50,7 +50,7 @@ class _AdminChatScreenState extends State<AdminChatScreen> {
                   return Text(userSnapshot.error.toString());
                 } else if (!userSnapshot.hasData ||
                     userSnapshot.data!.isEmpty) {
-                  return const Text('No users available.');
+                  return const Text('Brak wiadomości.');
                 } else {
                   List<Map<String, String>> users = userSnapshot.data!;
                   return ListView.builder(

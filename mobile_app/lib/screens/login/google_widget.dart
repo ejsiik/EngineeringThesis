@@ -25,7 +25,7 @@ class GoogleWidget extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 10.0),
                 child: Text(
-                  'Or continue with',
+                  'Lub zaloguj z',
                   style: TextStyle(color: textColor),
                 ),
               ),

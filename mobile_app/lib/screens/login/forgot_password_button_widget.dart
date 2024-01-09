@@ -25,7 +25,7 @@ class ForgotPasswordButtonWidget extends StatelessWidget {
         FocusScope.of(context).unfocus();
       },
       child: Text(
-        'Forgot Password?',
+        'Zresetuj hasło',
         style: TextStyle(
           color: textColor,
           decoration: TextDecoration.underline,
