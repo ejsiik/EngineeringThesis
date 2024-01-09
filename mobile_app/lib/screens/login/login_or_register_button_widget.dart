@@ -16,9 +16,7 @@ class LoginOrRegisterButtonWidget extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Text(
-        isLogin
-            ? 'Not a member? Register now'
-            : 'Already have an account? Login',
+        isLogin ? 'Zarejestruj się teraz' : 'Masz konto? Zaloguj się!',
         style: TextStyle(
           color: textColor,
           decoration: TextDecoration.underline,

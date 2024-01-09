@@ -34,7 +34,7 @@ class _ChatPageState extends State<ChatPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Chat with Store'),
+        title: const Text('Czatuj ze sklepem'),
       ),
       body: Column(
         children: [
@@ -52,7 +52,7 @@ class _ChatPageState extends State<ChatPage> {
                     } else if (!snapshot.hasData ||
                         snapshot.data!.docs.isEmpty) {
                       // If there is no data or the data is empty, show a message
-                      return const Text('No messages available.');
+                      return const Text('Brak wiadomości');
                     } else {
                       var messages = snapshot.data!.docs.reversed;
                       List<Widget> messageWidgets = [];
@@ -79,7 +79,8 @@ class _ChatPageState extends State<ChatPage> {
                       );
                     }
                   } catch (error) {
-                    return const Text('An error occurred (catched)');
+                    return const Text(
+                        'Wystąpił błąd podczas pobierania wiadomości');
                   }
                 }),
           ),
@@ -91,7 +92,7 @@ class _ChatPageState extends State<ChatPage> {
                   child: TextField(
                     controller: messageController,
                     decoration: const InputDecoration(
-                      hintText: 'Type your message...',
+                      hintText: 'Wpisz wiadomość...',
                     ),
                   ),
                 ),
@@ -130,9 +131,9 @@ class MessageWidget extends StatelessWidget {
     const Color myChat = AppColors.chatCurrent;
     const Color otherChat = AppColors.chatOther;
 
-    // Display 'Me' instead of the sender's email for the current user's messages
-    // Display 'Store' instead of the receiver's email for the current user's messages
-    final displayedSender = isMyMessage ? 'Me' : 'Store';
+    // Display 'Ja' instead of the sender's email for the current user's messages
+    // Display 'Sklep' instead of the receiver's email for the current user's messages
+    final displayedSender = isMyMessage ? 'Ja' : 'Sklep';
 
     return Padding(
       padding: const EdgeInsets.all(8.0),

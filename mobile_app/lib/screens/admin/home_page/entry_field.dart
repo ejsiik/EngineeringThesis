@@ -55,14 +55,14 @@ class EntryField extends StatelessWidget {
                   }),
                 ),
                 Text(
-                  'Welcome Coupon',
+                  'Kupon powitalny',
                   style: TextStyle(color: primaryColor),
                 ),
               ],
             ),
           TextField(
             controller: controller,
-            enabled: title != 'Value' || !welcomeBanner,
+            enabled: title != 'Wartość' || !welcomeBanner,
             style: TextStyle(color: primaryColor),
             decoration: InputDecoration(
               hintText: title,
@@ -70,7 +70,7 @@ class EntryField extends StatelessWidget {
               prefixIcon: Icon(prefixIcon, color: primaryColor),
             ),
             keyboardType:
-                title == 'Value' ? TextInputType.number : TextInputType.text,
+                title == 'Wartość' ? TextInputType.number : TextInputType.text,
           ),
         ],
       ),

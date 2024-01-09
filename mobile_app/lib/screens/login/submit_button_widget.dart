@@ -47,7 +47,7 @@ class SubmitButtonWidget extends StatelessWidget {
               }
               FocusScope.of(context).unfocus();
             },
-      child: Text(isLogin ? 'LOGIN' : 'REGISTER'),
+      child: Text(isLogin ? 'ZALOGUJ SIĘ' : 'ZAREJESTRUJ SIĘ'),
     );
   }
 }

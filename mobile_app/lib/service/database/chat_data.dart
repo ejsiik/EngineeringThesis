@@ -21,10 +21,27 @@ class ChatData {
           'uid': userId,
           'email': email,
         }, SetOptions(merge: true));
-        return 'Account created successfully!';
+        return 'Konto zostało pomyślnie utworzone!';
       }
-    } on FirebaseAuthException catch (e) {
-      return e.message;
+    } on FirebaseAuthException {
+      return 'Błąd podczas tworzenia konta';
+    }
+  }
+
+  Future<String> deleteUser() async {
+    try {
+      if (currentUser != null) {
+        // Get the user ID
+        String userId = currentUser!.uid;
+
+        // Delete the user document from the 'users' collection
+        await _firestore.collection('users').doc(userId).delete();
+        return 'Konto zostało pomyślnie usunięte!';
+      } else {
+        return 'Użytkownik nie jest zalogowany.';
+      }
+    } catch (e) {
+      return 'Błąd podczas usuwania konta: $e';
     }
   }
 

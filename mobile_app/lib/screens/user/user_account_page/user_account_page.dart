@@ -3,6 +3,7 @@ import 'package:mobile_app/constants/colors.dart';
 import 'package:mobile_app/screens/user/user_account_page/user_account_list_view.dart';
 import 'package:mobile_app/service/authentication/auth.dart';
 import 'package:mobile_app/service/database/data.dart';
+import 'user_settings.dart';
 
 class UserAccountPage extends StatefulWidget {
   const UserAccountPage({Key? key}) : super(key: key);
@@ -106,7 +107,7 @@ class _UserAccountPage extends State<UserAccountPage> {
               child: Container(
                 color: backgroundColor,
                 child: ListView(
-                  children: const [
+                  children: [
                     UserAccountListView(
                       text: "Aktywne zamówienia",
                       icon: Icons.auto_stories,
@@ -132,10 +133,19 @@ class _UserAccountPage extends State<UserAccountPage> {
                       icon: Icons.local_offer,
                       type: "other",
                     ),
+
                     UserAccountListView(
                       text: "Ustawienia konta",
                       type: "other",
                       icon: Icons.settings,
+                      onTap: () {
+                        // Navigate to user_settings.dart when the UserAccountListView is clicked
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => UserSettings()),
+                        );
+                      },
                     ),
                   ],
                 ),

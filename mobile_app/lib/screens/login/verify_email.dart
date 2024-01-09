@@ -53,7 +53,7 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
       });
     } catch (error) {
       safeSetState(() {
-        errorMessage = 'Error checking email verification status: $error';
+        errorMessage = 'Błąd podczas sprawdzania statusu weryfikacji e-maila';
       });
     }
   }
@@ -66,7 +66,7 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
         canResendEmail = false;
       });
 
-      await Future.delayed(const Duration(seconds: 20));
+      await Future.delayed(const Duration(seconds: 30));
 
       safeSetState(() {
         canResendEmail = true;
@@ -76,7 +76,7 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
       await checkEmailVerification();
     } catch (error) {
       safeSetState(() {
-        errorMessage = 'Error sending verification email: $error';
+        errorMessage = 'Błąd podczas wysyłania e-maila weryfikacyjnego';
       });
     }
   }
@@ -105,7 +105,7 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
         ? const MainPage()
         : Scaffold(
             appBar: AppBar(
-              title: const Text('Verify email'),
+              title: const Text('Zweryfikuj e-mail'),
               backgroundColor: backgroundColor,
             ),
             body: Center(
@@ -113,7 +113,7 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    'Email link has been sent',
+                    'E-mail z linkiem weryfikacyjnym został wysłany',
                     style: TextStyle(color: textColor),
                   ),
                   const SizedBox(height: 20),
@@ -121,7 +121,7 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
                     onPressed: canResendEmail ? sendVerificationEmail : null,
                     icon: const Icon(Icons.email, size: 32),
                     label: Text(
-                      'Resend email',
+                      'Wyślij e-mail ponownie',
                       style: TextStyle(color: buttonTextColor),
                     ),
                     style: ElevatedButton.styleFrom(
@@ -137,7 +137,7 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
                       backgroundColor: buttonBackgroundColor,
                     ),
                     child: Text(
-                      'Cancel',
+                      'Anuluj',
                       style: TextStyle(color: buttonTextColor),
                     ),
                   ),

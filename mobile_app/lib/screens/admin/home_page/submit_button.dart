@@ -28,10 +28,10 @@ class SubmitButton extends StatelessWidget {
         await Data()
             .submitData(userId, _welcomeBanner, couponValue, onSubmitted);
       } else {
-        onSubmitted('Provide user ID');
+        onSubmitted('Wprowadź ID użytkownika');
       }
     } catch (e) {
-      onSubmitted('Error submitting data: $e');
+      onSubmitted('Błąd podczas zapisu danych');
     }
   }
 
@@ -48,7 +48,7 @@ class SubmitButton extends StatelessWidget {
         backgroundColor: backgroundColor,
       ),
       onPressed: _submitData,
-      child: const Text('Register sale'),
+      child: const Text('Zarejestruj zniżkę'),
     );
   }
 }
