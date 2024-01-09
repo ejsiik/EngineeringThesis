@@ -70,7 +70,7 @@ class _AdminChatScreenState extends State<AdminChatScreen> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => ChatPage(
+                              builder: (context) => AdminChatPage(
                                 receiverEmail: userEmail,
                                 receiverId: userId,
                               ),

@@ -4,21 +4,21 @@ import 'package:mobile_app/constants/colors.dart';
 import 'package:mobile_app/service/authentication/auth.dart';
 import 'package:mobile_app/service/chat/chat.dart';
 
-class ChatPage extends StatefulWidget {
+class AdminChatPage extends StatefulWidget {
   final String receiverEmail;
   final String receiverId;
 
-  const ChatPage({
+  const AdminChatPage({
     Key? key,
     required this.receiverEmail,
     required this.receiverId,
   }) : super(key: key);
 
   @override
-  State<ChatPage> createState() => _ChatPageState();
+  State<AdminChatPage> createState() => _ChatPageState();
 }
 
-class _ChatPageState extends State<ChatPage> {
+class _ChatPageState extends State<AdminChatPage> {
   final TextEditingController messageController = TextEditingController();
   final Chat chat = Chat();
 
