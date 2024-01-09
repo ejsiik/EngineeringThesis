@@ -136,14 +136,6 @@ class _UserAccountPage extends State<UserAccountPage> {
                       text: "Ustawienia konta",
                       type: "settings",
                       icon: Icons.settings,
-                      /*onTap: () {
-                        // Navigate to user_settings.dart when the UserAccountListView is clicked
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => UserSettings()),
-                        );
-                      },*/
                     ),
                   ],
                 ),
