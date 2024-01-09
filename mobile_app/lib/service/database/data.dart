@@ -9,7 +9,10 @@ class Data {
   Stream<User?> get authStateChanges => _firebaseAuth.authStateChanges();
   // Create a reference to the "users" node in the Realtime Database
   DatabaseReference usersRef = FirebaseDatabase.instance.ref().child('users');
+  DatabaseReference productsRef =
+      FirebaseDatabase.instance.ref().child('products');
 
+  // Reference to each "coupon" node
   DatabaseReference getCouponRef(int index) {
     return FirebaseDatabase.instance
         .ref()
@@ -129,6 +132,9 @@ class Data {
           'name': name,
           'createdAt': currentDate.toString(),
           'couponUsed': false,
+          'shoppingCart': {
+            'totalPrice': 0,
+          },
           'coupons': {
             'coupon1': {
               'wasUsed': false,
@@ -161,6 +167,245 @@ class Data {
       }
     } on FirebaseAuthException catch (e) {
       return 'Błąd podczas tworzenia konta: ${e.message}';
+    }
+  }
+
+  Future<void> addToShoppingCart(String productId) async {
+    try {
+      String userId = currentUser!.uid;
+
+      DatabaseEvent productEvent = await productsRef.once();
+      DataSnapshot productSnapshot = productEvent.snapshot;
+      final allProducts = Map<dynamic, dynamic>.from(
+          productSnapshot.value! as Map<Object?, Object?>);
+
+      // Sprawdź, czy użytkownik ma aktywny koszyk
+      DatabaseEvent event = await usersRef.child('$userId/shoppingCart').once();
+      DataSnapshot snapshot = event.snapshot;
+      final shoppingCartData =
+          Map<String, dynamic>.from(snapshot.value! as Map<Object?, Object?>);
+
+      // checking if shopping list is already created
+      if (shoppingCartData.containsKey('shoppingList')) {
+        List<dynamic> currentShoppingList =
+            List.from(shoppingCartData['shoppingList'] ?? []);
+
+        bool productAlreadyInCart = false;
+
+        for (var item in currentShoppingList) {
+          // removing product from shopping cart
+          if (item['product_id'] == productId) {
+            currentShoppingList.remove(item);
+            productAlreadyInCart = true;
+            break;
+          }
+        }
+
+        // Produkt nie był wcześniej w koszyku, dodaj nowy
+        if (!productAlreadyInCart) {
+          double productPrice = 0.0;
+
+          if (allProducts.containsKey(productId)) {
+            // Pobierz cenę produktu
+            productPrice = (allProducts[productId]['price']).toDouble();
+          }
+
+          currentShoppingList.add({
+            'product_id': productId,
+            'quantity': 1,
+            'price': productPrice,
+          });
+        }
+
+        await usersRef
+            .child('$userId/shoppingCart')
+            .update({'shoppingList': currentShoppingList});
+
+        // Oblicz nową sumę cen produktów i zaktualizuj totalPrice
+        double newTotalPrice = 0.0;
+        for (var item in currentShoppingList) {
+          newTotalPrice += item['price'];
+        }
+
+        await usersRef
+            .child('$userId/shoppingCart')
+            .update({'totalPrice': newTotalPrice});
+      } else {
+        double productPrice = 0.0;
+
+        if (allProducts.containsKey(productId)) {
+          // Pobierz cenę produktu
+          productPrice = (allProducts[productId]['price']).toDouble();
+        }
+
+        // Jeśli 'shoppingList' nie istnieje, stwórz nową listę zakupów i dodaj produkt
+        await usersRef.child('$userId/shoppingCart').set({
+          'totalPrice': productPrice,
+          'shoppingList': [
+            {
+              'product_id': productId,
+              'quantity': 1,
+              'price': productPrice,
+            },
+          ],
+        });
+      }
+    } catch (error) {
+      throw Exception('Error accesing shopping cart: $error');
+    }
+  }
+
+  Future<void> deleteShoppingList() async {
+    try {
+      String userId = currentUser!.uid;
+
+      await usersRef.child('$userId/shoppingCart/shoppingList').remove();
+      await usersRef.child('$userId/shoppingCart').update({'totalPrice': 0.0});
+    } catch (error) {
+      throw Exception('Error accesing shopping cart: $error');
+    }
+  }
+
+  Future<void> changeQuantityInShoppingCart(
+      String productId, int quantity) async {
+    try {
+      String userId = currentUser!.uid;
+
+      // Sprawdź, czy użytkownik ma aktywny koszyk
+      DatabaseEvent event =
+          await usersRef.child('$userId/shoppingCart/shoppingList').once();
+      DataSnapshot snapshot = event.snapshot;
+      final shoppingCartData =
+          List<dynamic>.from(snapshot.value! as List<Object?>);
+
+      DatabaseEvent productEvent = await productsRef.once();
+      DataSnapshot productSnapshot = productEvent.snapshot;
+      final allProducts = Map<dynamic, dynamic>.from(
+          productSnapshot.value! as Map<Object?, Object?>);
+
+      for (int i = 0; i < shoppingCartData.length; i++) {
+        if (shoppingCartData[i]['product_id'] == productId) {
+          shoppingCartData[i]['quantity'] = quantity;
+
+          double productPrice = (allProducts[productId]['price']).toDouble();
+          shoppingCartData[i]['price'] = productPrice * quantity;
+          break;
+        }
+      }
+
+      await usersRef
+          .child('$userId/shoppingCart')
+          .update({'shoppingList': shoppingCartData});
+
+      // Oblicz nową sumę cen produktów i zaktualizuj totalPrice
+      double newTotalPrice = 0.0;
+      for (var item in shoppingCartData) {
+        newTotalPrice += item['price'];
+      }
+
+      await usersRef
+          .child('$userId/shoppingCart')
+          .update({'totalPrice': newTotalPrice});
+    } catch (error) {
+      throw Exception('Error accesing shopping cart: $error');
+    }
+  }
+
+  Future<int> getQuantityOfShoppingCart(String productId) async {
+    try {
+      String userId = currentUser!.uid;
+
+      // Sprawdź, czy użytkownik ma aktywny koszyk
+      DatabaseEvent event =
+          await usersRef.child('$userId/shoppingCart/shoppingList').once();
+      DataSnapshot snapshot = event.snapshot;
+      final shoppingCartData =
+          List<dynamic>.from(snapshot.value! as List<Object?>);
+      int quantity = 0;
+
+      for (int i = 0; i < shoppingCartData.length; i++) {
+        if (shoppingCartData[i]['product_id'] == productId) {
+          quantity = shoppingCartData[i]['quantity'];
+          break;
+        }
+      }
+
+      return quantity;
+    } catch (error) {
+      throw Exception('Error accesing shopping cart: $error');
+    }
+  }
+
+  Future<List<dynamic>> getShoppingListData() async {
+    try {
+      String userId = currentUser!.uid;
+
+      DatabaseEvent event = await usersRef.child('$userId/shoppingCart').once();
+      DataSnapshot snapshot = event.snapshot;
+      final shoppingCartData =
+          Map<String, dynamic>.from(snapshot.value! as Map<Object?, Object?>);
+
+      // checking if shopping list is already created
+      if (shoppingCartData.containsKey('shoppingList')) {
+        List<dynamic> currentShoppingList =
+            List.from(shoppingCartData['shoppingList'] ?? []);
+
+        return currentShoppingList;
+      } else {
+        return [];
+      }
+    } catch (error) {
+      throw Exception('Error accesing shopping cart: $error');
+    }
+  }
+
+  Future<List<dynamic>> getShoppingCartData() async {
+    try {
+      String userId = currentUser!.uid;
+
+      DatabaseEvent productEvent = await productsRef.once();
+      DataSnapshot productSnapshot = productEvent.snapshot;
+      final allProducts = Map<dynamic, dynamic>.from(
+          productSnapshot.value! as Map<Object?, Object?>);
+
+      // Sprawdź, czy użytkownik ma aktywny koszyk
+      DatabaseEvent event = await usersRef.child('$userId/shoppingCart').once();
+      DataSnapshot snapshot = event.snapshot;
+      final shoppingCartData =
+          Map<String, dynamic>.from(snapshot.value! as Map<Object?, Object?>);
+
+      // checking if shopping list is already created
+      if (shoppingCartData.containsKey('shoppingList')) {
+        List<dynamic> currentShoppingList =
+            List.from(shoppingCartData['shoppingList'] ?? []);
+
+        List<dynamic> productsInCart = currentShoppingList
+            .map((cartItem) => allProducts[cartItem['product_id']])
+            .toList();
+
+        return productsInCart;
+      } else {
+        return [];
+      }
+    } catch (error) {
+      throw Exception('Error accesing shopping cart: $error');
+    }
+  }
+
+  Future<double> getTotalPriceData() async {
+    try {
+      String userId = currentUser!.uid;
+
+      DatabaseEvent event = await usersRef.child('$userId/shoppingCart').once();
+      DataSnapshot snapshot = event.snapshot;
+      final shoppingCartData =
+          Map<String, dynamic>.from(snapshot.value! as Map<Object?, Object?>);
+
+      double totalPrice = (shoppingCartData['totalPrice']).toDouble();
+
+      return totalPrice;
+    } catch (error) {
+      throw Exception('Error accesing shopping cart: $error');
     }
   }
 

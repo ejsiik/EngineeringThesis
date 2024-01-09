@@ -1,17 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_app/constants/colors.dart';
+import 'package:mobile_app/screens/user/orders_page/orders_list_page.dart';
 
 class UserAccountListView extends StatelessWidget {
   final String text;
   final IconData icon;
-  final VoidCallback onTap;
+  final String type;
 
-  const UserAccountListView({
-    Key? key,
-    required this.text,
-    required this.icon,
-    required this.onTap,
-  }) : super(key: key);
+  const UserAccountListView(
+      {super.key, required this.text, required this.icon, required this.type});
 
   @override
   Widget build(BuildContext context) {
@@ -21,10 +18,24 @@ class UserAccountListView extends StatelessWidget {
         ? AppColors.primaryLight
         : AppColors.primaryDark;
 
-    return Padding(
-      padding: const EdgeInsets.all(10.0),
-      child: GestureDetector(
-        onTap: onTap,
+    return GestureDetector(
+      onTap: () {
+        // Navigate to the new screen
+        if (type == 'activeOrders' ||
+            type == 'completedOrders' ||
+            type == 'allOrders') {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => OrdersListPage(
+                type: type,
+              ),
+            ),
+          );
+        }
+      },
+      child: Padding(
+        padding: const EdgeInsets.all(10.0),
         child: Container(
           height: 100,
           decoration: BoxDecoration(

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_app/constants/colors.dart';
 import 'package:mobile_app/screens/user/home_page/chat_page.dart';
+import 'package:mobile_app/screens/user/shopping_cart_page/shopping_cart_page.dart';
 import '../../service/authentication/auth.dart';
 import 'package:mobile_app/screens/user/user_account_page/user_account_page.dart';
 import 'package:mobile_app/screens/user/home_page/home_page.dart';
@@ -22,7 +23,7 @@ class _MainPageState extends State<MainPage> {
       receiverId: receiverId,
       receiverEmail: receiverEmail,
     ),
-    const HomePage(),
+    const ShoppingCartPage(),
     const UserAccountPage(),
   ];
 

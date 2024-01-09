@@ -1,14 +1,34 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_app/constants/colors.dart';
 import 'package:mobile_app/screens/user/user_account_page/user_account_list_view.dart';
-import '../../../service/authentication/auth.dart';
+import 'package:mobile_app/service/authentication/auth.dart';
+import 'package:mobile_app/service/database/data.dart';
 import 'user_settings.dart';
 
-class UserAccountPage extends StatelessWidget {
-  const UserAccountPage({super.key});
+class UserAccountPage extends StatefulWidget {
+  const UserAccountPage({Key? key}) : super(key: key);
+
+  @override
+  State<UserAccountPage> createState() {
+    return _UserAccountPage();
+  }
+}
+
+class _UserAccountPage extends State<UserAccountPage> {
+  Data data = Data();
 
   void signOut() async {
     await Auth().signOut();
+  }
+
+  Future<String> getUserName() async {
+    String? userName = await data.getUserName();
+
+    if (userName != null) {
+      return userName;
+    } else {
+      return 'Unknown User';
+    }
   }
 
   @override
@@ -29,45 +49,57 @@ class UserAccountPage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // User name and logout
-            Row(
-              children: [
-                Expanded(
-                  child: Container(
-                    padding: const EdgeInsets.all(10.0),
-                    color: backgroundColor,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Row(
-                          children: [
-                            Text(
-                              'Witaj UserName ',
-                              style: TextStyle(
-                                fontSize: 20,
-                                color: textColor,
+            FutureBuilder<String>(
+              future: getUserName(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const CircularProgressIndicator();
+                } else if (snapshot.hasError) {
+                  return Text('Error: ${snapshot.error}');
+                } else {
+                  String userName = snapshot.data ?? 'Unknown User';
+                  return Row(
+                    children: [
+                      Expanded(
+                        child: Container(
+                          padding: const EdgeInsets.all(10.0),
+                          color: backgroundColor,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Row(
+                                children: [
+                                  Text(
+                                    'Witaj $userName ',
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                      color: textColor,
+                                    ),
+                                  ),
+                                  Icon(
+                                    Icons.waving_hand,
+                                    size: 20,
+                                    color: primaryColor,
+                                  ),
+                                ],
                               ),
-                            ),
-                            Icon(
-                              Icons.waving_hand,
-                              size: 20,
-                              color: primaryColor,
-                            ),
-                          ],
-                        ),
-                        IconButton(
-                          icon: const Icon(
-                            Icons.exit_to_app,
-                            color: logoutColor,
+                              IconButton(
+                                icon: const Icon(
+                                  Icons.exit_to_app,
+                                  color: logoutColor,
+                                ),
+                                onPressed: () {
+                                  signOut();
+                                },
+                              ),
+                            ],
                           ),
-                          onPressed: () {
-                            signOut();
-                          },
                         ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
+                      ),
+                    ],
+                  );
+                }
+              },
             ),
 
             // ListView
@@ -77,29 +109,34 @@ class UserAccountPage extends StatelessWidget {
                 child: ListView(
                   children: [
                     UserAccountListView(
-                        text: "Aktywne zamówienia",
-                        icon: Icons.auto_stories,
-                        onTap: () {}),
+                      text: "Aktywne zamówienia",
+                      icon: Icons.auto_stories,
+                      type: "activeOrders",
+                    ),
                     UserAccountListView(
-                        text: "Zamówienia zrealizowane",
-                        icon: Icons.history,
-                        onTap: () {}),
+                      text: "Zamówienia zrealizowane",
+                      icon: Icons.history,
+                      type: "completedOrders",
+                    ),
                     UserAccountListView(
-                        text: "Obserwowane produkty",
-                        icon: Icons.remove_red_eye,
-                        onTap: () {}),
+                      text: "Obserwowane produkty",
+                      icon: Icons.remove_red_eye,
+                      type: "other",
+                    ),
                     UserAccountListView(
-                        text: "Zakupione produkty",
-                        icon: Icons.home_repair_service,
-                        onTap: () {}),
+                      text: "Zakupione produkty",
+                      icon: Icons.home_repair_service,
+                      type: "other",
+                    ),
                     UserAccountListView(
-                        text: "Kupony", icon: Icons.local_offer, onTap: () {}),
-                    UserAccountListView(
-                        text: "Koszyk",
-                        icon: Icons.add_shopping_cart,
-                        onTap: () {}),
+                      text: "Kupony",
+                      icon: Icons.local_offer,
+                      type: "other",
+                    ),
+
                     UserAccountListView(
                       text: "Ustawienia konta",
+                      type: "other",
                       icon: Icons.settings,
                       onTap: () {
                         // Navigate to user_settings.dart when the UserAccountListView is clicked

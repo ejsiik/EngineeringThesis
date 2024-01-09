@@ -43,6 +43,8 @@ dependencies:
   barcode_scan2: ^4.3.0
   carousel_slider: ^4.2.1
   google_sign_in: ^6.1.6
+  firebase_storage: ^11.5.5
+  intl: ^0.17.0
   cloud_firestore: ^4.14.0
   firebase_messaging: ^14.7.10
 
