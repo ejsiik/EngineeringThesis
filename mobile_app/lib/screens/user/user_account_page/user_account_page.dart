@@ -133,11 +133,11 @@ class _UserAccountPage extends State<UserAccountPage> {
                       icon: Icons.local_offer,
                       type: "other",
                     ),
-
                     UserAccountListView(
                       text: "Ustawienia konta",
-                      type: "other",
                       icon: Icons.settings,
+                      type: "other",
+                      /*
                       onTap: () {
                         // Navigate to user_settings.dart when the UserAccountListView is clicked
                         Navigator.push(
@@ -146,6 +146,7 @@ class _UserAccountPage extends State<UserAccountPage> {
                               builder: (context) => UserSettings()),
                         );
                       },
+                      */
                     ),
                   ],
                 ),
