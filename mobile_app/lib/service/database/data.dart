@@ -22,6 +22,14 @@ class Data {
         .child('coupon${index + 1}');
   }
 
+  DatabaseReference getCouponUsedReference(String userId) {
+    return FirebaseDatabase.instance
+        .ref()
+        .child('users')
+        .child(userId)
+        .child('couponUsed');
+  }
+
   Future<List<Map<dynamic, dynamic>>> getAllCouponData() async {
     try {
       if (currentUser != null) {
