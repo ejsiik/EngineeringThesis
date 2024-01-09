@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:mobile_app/constants/colors.dart';
 import 'package:mobile_app/screens/user/orders_page/orders_list_page.dart';
 
+import 'user_settings.dart';
+
 class UserAccountListView extends StatelessWidget {
   final String text;
   final IconData icon;
@@ -31,6 +33,11 @@ class UserAccountListView extends StatelessWidget {
                 type: type,
               ),
             ),
+          );
+        } else if (type == 'settings') {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => UserSettings()),
           );
         }
       },

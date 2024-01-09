@@ -3,7 +3,6 @@ import 'package:mobile_app/constants/colors.dart';
 import 'package:mobile_app/screens/user/user_account_page/user_account_list_view.dart';
 import 'package:mobile_app/service/authentication/auth.dart';
 import 'package:mobile_app/service/database/data.dart';
-import 'user_settings.dart';
 
 class UserAccountPage extends StatefulWidget {
   const UserAccountPage({Key? key}) : super(key: key);
@@ -57,7 +56,7 @@ class _UserAccountPage extends State<UserAccountPage> {
                 } else if (snapshot.hasError) {
                   return Text('Error: ${snapshot.error}');
                 } else {
-                  String userName = snapshot.data ?? 'Unknown User';
+                  String userName = snapshot.data ?? 'Brak danych';
                   return Row(
                     children: [
                       Expanded(
@@ -135,18 +134,8 @@ class _UserAccountPage extends State<UserAccountPage> {
                     ),
                     UserAccountListView(
                       text: "Ustawienia konta",
+                      type: "settings",
                       icon: Icons.settings,
-                      type: "other",
-                      /*
-                      onTap: () {
-                        // Navigate to user_settings.dart when the UserAccountListView is clicked
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => UserSettings()),
-                        );
-                      },
-                      */
                     ),
                   ],
                 ),
