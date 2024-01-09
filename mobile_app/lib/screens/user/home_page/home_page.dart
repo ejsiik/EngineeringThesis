@@ -116,7 +116,7 @@ class _HomePageState extends State<HomePage> {
     if (userName != null) {
       return userName;
     } else {
-      return 'Unknown User';
+      return 'Nieznany użytkownik';
     }
   }
 
