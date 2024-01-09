@@ -89,15 +89,6 @@ class CouponCard extends StatelessWidget {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        /*Text(
-                          'Free',
-                          style: TextStyle(
-                            color: textColor,
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 5),*/
                         Text(
                           'Gratis',
                           style: TextStyle(

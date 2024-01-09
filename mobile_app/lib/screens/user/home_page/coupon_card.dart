@@ -1,6 +1,6 @@
-import 'dart:async';
-
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:mobile_app/service/authentication/auth.dart';
 import '../../../constants/colors.dart';
 import '../../../service/database/data.dart';
 import 'coupons.dart';
@@ -79,18 +79,8 @@ class CouponScreen extends StatefulWidget {
 }
 
 class _CouponScreenState extends State<CouponScreen> {
-  late StreamController<bool> _refreshController;
-
-  @override
-  void initState() {
-    super.initState();
-    _refreshController = StreamController<bool>();
-  }
-
-  @override
-  void dispose() {
-    _refreshController.close();
-    super.dispose();
+  DatabaseReference getCouponReference(int index) {
+    return widget.data.getCouponReference(Auth().userId(), index);
   }
 
   @override
@@ -99,38 +89,37 @@ class _CouponScreenState extends State<CouponScreen> {
       appBar: AppBar(
         title: const Text('Twoje kupony'),
       ),
-      body: StreamBuilder<bool>(
-        stream: _refreshController.stream,
+      body: FutureBuilder<List<Map<dynamic, dynamic>>>(
+        future: widget.data.getAllCouponData(),
         builder: (context, snapshot) {
-          return FutureBuilder<List<Map<dynamic, dynamic>>>(
-            future: widget.data.getAllCouponData(),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const CircularProgressIndicator();
-              } else if (snapshot.hasError) {
-                return Text(
-                    'Wystąpił błąd podczas pobierania danych o kuponach');
-              } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                return const Text('Brak dostępnych kuponów');
-              } else {
-                return GridView.count(
-                  crossAxisCount: 3,
-                  children: snapshot.data!.asMap().entries.map((entry) {
-                    int index = entry.key;
-                    Map<dynamic, dynamic> couponData = entry.value;
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const CircularProgressIndicator();
+          } else if (snapshot.hasError) {
+            return Text('Wystąpił błąd podczas pobierania danych o kuponach');
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return const Text('Brak dostępnych kuponów');
+          } else {
+            return GridView.count(
+              crossAxisCount: 3,
+              children: snapshot.data!.asMap().entries.map((entry) {
+                int index = entry.key;
+                Map<dynamic, dynamic> couponData = entry.value;
 
-                    bool isFree = index == 5;
+                bool isFree = index == 5;
 
-                    return CouponCard(
-                      isFree: isFree,
-                      wasUsed: couponData['wasUsed'] ?? false,
-                      couponValue: couponData['couponValue'] ?? 0,
-                    );
-                  }).toList(),
+                /*return CouponCard(
+                  isFree: isFree,
+                  wasUsed: couponData['wasUsed'] ?? false,
+                  couponValue: couponData['couponValue'] ?? 0,
                 );
-              }
-            },
-          );
+              }).toList(),*/
+                return CouponCardWithFirebaseData(
+                  getCouponReference(index),
+                  isFree: isFree,
+                );
+              }).toList(),
+            );
+          }
         },
       ),
     );

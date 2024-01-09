@@ -22,12 +22,23 @@ class Data {
         .child('coupon${index + 1}');
   }
 
+  // for the listener on welcome banner
   DatabaseReference getCouponUsedReference(String userId) {
     return FirebaseDatabase.instance
         .ref()
         .child('users')
         .child(userId)
         .child('couponUsed');
+  }
+
+  // for the listener on coupons
+  DatabaseReference getCouponReference(String userId, int couponIndex) {
+    return FirebaseDatabase.instance
+        .ref()
+        .child('users')
+        .child(userId)
+        .child('coupons')
+        .child('coupon${couponIndex + 1}');
   }
 
   Future<List<Map<dynamic, dynamic>>> getAllCouponData() async {
