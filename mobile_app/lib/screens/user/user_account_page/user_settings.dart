@@ -151,7 +151,7 @@ class _UserSettingsState extends State<UserSettings> {
       // Show a Snackbar for successful deletion
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Account successfully deleted'),
+          content: Text('Konto zostało usunięte'),
           duration: Duration(seconds: 2),
         ),
       );

@@ -33,7 +33,7 @@ class _ChatPageState extends State<AdminChatPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Czatuj z ${widget.receiverId}'),
+        title: Text('Czatuj z ${widget.receiverEmail}'),
       ),
       body: Column(
         children: [

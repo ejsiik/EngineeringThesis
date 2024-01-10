@@ -1,8 +1,10 @@
 import 'dart:typed_data';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_app/constants/colors.dart';
+import 'package:mobile_app/service/authentication/auth.dart';
 //import 'package:mobile_app/database/add_product_data.dart';
 import 'package:mobile_app/service/database/shop_location_data.dart';
 import 'package:mobile_app/service/database/category_data.dart';
@@ -32,6 +34,7 @@ class _HomePageState extends State<HomePage> {
   ShopLocationData shopLocationData = ShopLocationData();
   //AddProduct addProductData = AddProduct();
   List<ProductSearchModel> displayList = [];
+  late DatabaseReference? couponUsedRef;
 
   final List<String> sliderImagesList = [
     "0_1.jpg",
@@ -107,6 +110,14 @@ class _HomePageState extends State<HomePage> {
       setState(() {
         showWelcomeBanner = value;
       });
+    });
+    couponUsedRef = Data().getCouponUsedReference(Auth().userId());
+    couponUsedRef!.onValue.listen((event) {
+      if (event.snapshot.value is bool) {
+        setState(() {
+          showWelcomeBanner = event.snapshot.value == false;
+        });
+      }
     });
   }
 
