@@ -103,16 +103,9 @@ class _CouponScreenState extends State<CouponScreen> {
               crossAxisCount: 3,
               children: snapshot.data!.asMap().entries.map((entry) {
                 int index = entry.key;
-                Map<dynamic, dynamic> couponData = entry.value;
 
                 bool isFree = index == 5;
 
-                /*return CouponCard(
-                  isFree: isFree,
-                  wasUsed: couponData['wasUsed'] ?? false,
-                  couponValue: couponData['couponValue'] ?? 0,
-                );
-              }).toList(),*/
                 return CouponCardWithFirebaseData(
                   getCouponReference(index),
                   isFree: isFree,

@@ -444,14 +444,21 @@ class Data {
           if (couponValue.isNotEmpty) {
             int couponValueInt = int.tryParse(couponValue) ?? 0;
 
-            // Example: Check for available coupons and update the database
+            // Check for available coupons and update the database
             Map<dynamic, dynamic>? userData = snapshot.value as Map?;
             Map<dynamic, dynamic>? couponsData = userData?['coupons'] as Map?;
 
             if (couponsData != null) {
+              // Convert the map keys to a list
+              List<String> couponKeys =
+                  couponsData.keys.toList().cast<String>();
+
+              // Sort the keys to ensure they are in order
+              couponKeys.sort();
+
               // Find an unused coupon
               String? unusedCouponKey;
-              for (String key in couponsData.keys) {
+              for (String key in couponKeys) {
                 if (couponsData[key]['wasUsed'] == false) {
                   unusedCouponKey = key;
                   break;
