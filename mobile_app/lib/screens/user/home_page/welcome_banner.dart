@@ -21,7 +21,10 @@ class WelcomeBanner extends StatelessWidget {
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-      color: primaryColor,
+      decoration: BoxDecoration(
+        color: primaryColor,
+        borderRadius: BorderRadius.circular(15.0),
+      ),
       child: Column(
         children: [
           Text(

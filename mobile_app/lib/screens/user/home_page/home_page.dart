@@ -197,7 +197,8 @@ class _HomePageState extends State<HomePage> {
                       } else if (snapshot.hasError) {
                         return Text('Error: ${snapshot.error}');
                       } else {
-                        String userName = snapshot.data ?? 'Unknown User';
+                        String userName =
+                            snapshot.data ?? 'Nieznany użytkownik';
                         return Row(
                           children: [
                             Expanded(
@@ -225,9 +226,10 @@ class _HomePageState extends State<HomePage> {
                                       ],
                                     ),
                                     IconButton(
-                                      icon: const Icon(
+                                      icon: Icon(
                                         Icons.credit_score,
-                                        color: logoutColor,
+                                        color: primaryColor,
+                                        size: 30,
                                       ),
                                       onPressed: () {
                                         openPopupScreen(context);
@@ -242,6 +244,14 @@ class _HomePageState extends State<HomePage> {
                       }
                     },
                   ),
+
+                  // Show the WelcomeBanner only if conditions are met
+                  if (showWelcomeBanner)
+                    WelcomeBanner(
+                      onButtonPressed: () {
+                        openPopupScreen(context);
+                      },
+                    ),
 
                   // product searching bar
                   Row(
@@ -266,14 +276,6 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ],
                   ),
-
-                  // Show the WelcomeBanner only if conditions are met
-                  if (showWelcomeBanner)
-                    WelcomeBanner(
-                      onButtonPressed: () {
-                        openPopupScreen(context);
-                      },
-                    ),
 
                   const CouponCardWidget(),
 
