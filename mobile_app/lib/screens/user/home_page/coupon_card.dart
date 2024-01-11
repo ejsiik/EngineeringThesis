@@ -148,13 +148,18 @@ class _CouponScreenState extends State<CouponScreen> {
   }
 
   Widget _buildQRCodeWidget(String data) {
+    final Color backgroundQRColor = AppColors.white;
     return Center(
-      child: Container(
-        padding: const EdgeInsets.all(16.0),
-        child: QrImageView(
-          data: data,
-          size: 200,
-          padding: const EdgeInsets.all(10.0),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(10.0),
+        child: Container(
+          padding: const EdgeInsets.all(16.0),
+          color: backgroundQRColor,
+          child: QrImageView(
+            data: data,
+            size: 200,
+            padding: const EdgeInsets.all(10.0),
+          ),
         ),
       ),
     );
