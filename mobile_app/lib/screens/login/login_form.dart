@@ -16,13 +16,17 @@ class LoginFormEntry extends StatefulWidget {
   @override
   State<LoginFormEntry> createState() {
     // Avoid using private types in public APIs.
-    return _LoginFormEntryState();
+    return _LoginFormEntryState(controller);
   }
 }
 
 class _LoginFormEntryState extends State<LoginFormEntry> {
+  final TextEditingController _controllerEmail;
+  _LoginFormEntryState(this._controllerEmail);
+
   List<String> emailSuggestions = ['gmail.com', 'wp.pl', 'onet.pl'];
   FocusNode focusNode = FocusNode();
+  bool wasSelectedFromSuggestions = false;
 
   // Helper method to safely call safeSetState
   void safeSetState(VoidCallback fn) {
@@ -44,7 +48,7 @@ class _LoginFormEntryState extends State<LoginFormEntry> {
       final prefix = text.substring(0, text.indexOf('@') + 1);
       return emailSuggestions
           .map((domain) => '$prefix$domain')
-          .where((domain) => domain.startsWith(text))
+          .where((domain) => domain.contains(text))
           .toList();
     } else {
       return [];
@@ -83,7 +87,8 @@ class _LoginFormEntryState extends State<LoginFormEntry> {
           return suggestions;
         },
         onSelected: (String selectedEmail) {
-          widget.controller.text = selectedEmail;
+          wasSelectedFromSuggestions = true;
+          widget.controller.text = selectedEmail; //!!!!
         },
         fieldViewBuilder: (BuildContext context,
             TextEditingController textEditingController,
@@ -92,6 +97,13 @@ class _LoginFormEntryState extends State<LoginFormEntry> {
           return TextField(
             controller: textEditingController,
             focusNode: focusNode,
+            onChanged: (text) {
+              if (!wasSelectedFromSuggestions) {
+                // Update the controller value if not selected from suggestions
+                _controllerEmail.text = text;
+              }
+              wasSelectedFromSuggestions = false;
+            },
             decoration: InputDecoration(
               hintText: 'Wprowadź email',
               hintStyle: TextStyle(color: iconColor),
