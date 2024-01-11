@@ -14,7 +14,6 @@ import 'package:mobile_app/screens/user/home_page/qr_code_popup.dart';
 import 'welcome_banner.dart';
 import '../category_products_page/product_search_model.dart';
 import '../category_products_page/product_search_result.dart';
-//import 'package:mobile_app/database/add_product_data.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -34,7 +33,6 @@ class _HomePageState extends State<HomePage> {
   Data userData = Data();
   CategoryData categoryData = CategoryData();
   ShopLocationData shopLocationData = ShopLocationData();
-  //AddProduct addProductData = AddProduct();
 
   final List<String> sliderImagesList = [
     "0_1.jpg",
