@@ -29,8 +29,10 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  late DatabaseReference? couponUsedRef;
   bool isListVisible = false;
   bool showWelcomeBanner = false;
+  List<ProductSearchModel> displayList = [];
   UserDataProvider userDataProvider = UserDataProvider();
   Data userData = Data();
   CategoryData categoryData = CategoryData();
@@ -38,6 +40,7 @@ class _HomePageState extends State<HomePage> {
   //AddProduct addProductData = AddProduct();
   //List<ProductSearchModel> displayList = [];
   late DatabaseReference? couponUsedRef;
+
 
   void _showSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -47,8 +50,11 @@ class _HomePageState extends State<HomePage> {
 
   final List<String> sliderImagesList = [
     "0_1.jpg",
-    "1_2.jpg",
-    "2_3.jpg",
+    "12_1.jpg",
+    "24_1.jpg",
+    "36_1.jpg",
+    "41_1.jpg",
+    "53_1.jpg"
   ];
 
   Widget buildGridItem(int index, List categoriesList) {
