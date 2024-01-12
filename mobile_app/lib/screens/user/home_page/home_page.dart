@@ -293,7 +293,7 @@ class _HomePageState extends State<HomePage> {
                     children: [
                       Expanded(
                         child: Container(
-                          padding: const EdgeInsets.all(10.0),
+                          padding: const EdgeInsets.symmetric(vertical: 10.0),
                           color: backgroundColor,
                           child: TextField(
                             controller: searchController,
@@ -303,11 +303,19 @@ class _HomePageState extends State<HomePage> {
                             },
                             decoration: InputDecoration(
                               filled: true,
-                              prefixIcon: const Icon(Icons.search),
                               hintText: "Wyszukaj w sklepie",
+                              suffixIcon: IconButton(
+                                icon: const Icon(Icons.search),
+                                onPressed: () {
+                                  String searchValue = searchController.text;
+                                  searchController.clear();
+                                  updateProductSearchList(searchValue);
+                                },
+                              ),
                               border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10.0),
-                                  borderSide: BorderSide.none),
+                                borderRadius: BorderRadius.circular(10.0),
+                                borderSide: BorderSide.none,
+                              ),
                             ),
                           ),
                         ),

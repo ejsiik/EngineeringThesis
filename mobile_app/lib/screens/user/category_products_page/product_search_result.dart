@@ -150,22 +150,30 @@ class _ProductSearchResultState extends State<ProductSearchResult> {
                 children: [
                   Row(
                     children: [
-                      Text(
-                        'Znaleziono produktów: $len',
-                        style: TextStyle(
-                          fontSize: 20,
-                          color: textColor,
+                      Container(
+                        padding: EdgeInsets.all(8.0),
+                        child: Text(
+                          'Znaleziono produktów: $len',
+                          style: TextStyle(
+                            fontSize: 20,
+                            color: textColor,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ],
                   ),
                   Row(
                     children: [
-                      Text(
-                        'Wyszukiwana fraza: ${widget.value}',
-                        style: TextStyle(
-                          fontSize: 20,
-                          color: textColor,
+                      Container(
+                        padding: EdgeInsets.all(8.0),
+                        child: Text(
+                          'Wyszukiwana fraza: ${widget.value}',
+                          style: TextStyle(
+                            fontSize: 20,
+                            color: textColor,
+                            fontStyle: FontStyle.italic,
+                          ),
                         ),
                       ),
                     ],
