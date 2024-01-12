@@ -4,16 +4,18 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_app/constants/colors.dart';
+//import 'package:mobile_app/constants/text_strings.dart';
 import 'package:mobile_app/service/authentication/auth.dart';
 //import 'package:mobile_app/database/add_product_data.dart';
-import 'package:mobile_app/service/database/shop_location_data.dart';
+//import 'package:mobile_app/service/database/shop_location_data.dart';
 import 'package:mobile_app/service/database/category_data.dart';
 import 'package:mobile_app/service/database/data.dart';
 import 'package:mobile_app/screens/user/category_products_page/category_products_page.dart';
 import 'package:mobile_app/screens/user/home_page/coupon_card.dart';
 import 'package:mobile_app/screens/user/home_page/qr_code_popup.dart';
+import '../../../service/connection/connection_check.dart';
 import 'welcome_banner.dart';
-import '../category_products_page/product_search_model.dart';
+//import '../category_products_page/product_search_model.dart';
 import '../category_products_page/product_search_result.dart';
 
 class HomePage extends StatefulWidget {
@@ -31,10 +33,16 @@ class _HomePageState extends State<HomePage> {
   UserDataProvider userDataProvider = UserDataProvider();
   Data userData = Data();
   CategoryData categoryData = CategoryData();
-  ShopLocationData shopLocationData = ShopLocationData();
+  //ShopLocationData shopLocationData = ShopLocationData();
   //AddProduct addProductData = AddProduct();
-  List<ProductSearchModel> displayList = [];
+  //List<ProductSearchModel> displayList = [];
   late DatabaseReference? couponUsedRef;
+
+  void _showSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(message),
+    ));
+  }
 
   final List<String> sliderImagesList = [
     "0_1.jpg",
@@ -70,7 +78,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget buildDay(String day, Map<dynamic, dynamic> dayData) {
+  /*Widget buildDay(String day, Map<dynamic, dynamic> dayData) {
     String openTime = dayData['open']!.toString();
     String closedTime = dayData['closed']!.toString();
     String hours = "";
@@ -99,7 +107,7 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
     );
-  }
+  }*/
 
   @override
   void initState() {
@@ -122,11 +130,11 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<String> getUserName() async {
-    String? userName = await userData.getUserName();
-
-    if (userName != null) {
-      return userName;
-    } else {
+    try {
+      String? userName = await userData.getUserName();
+      return userName ?? '';
+    } catch (error) {
+      _showSnackBar('Błąd podczas pobierania nazwy użytkownika');
       return 'Nieznany użytkownik';
     }
   }
@@ -134,17 +142,27 @@ class _HomePageState extends State<HomePage> {
   Future<List<Uint8List>> loadImages(List<String> imageUrls) async {
     List<Uint8List> loadedImages = [];
 
-    for (String imageUrl in imageUrls) {
-      final ref = FirebaseStorage.instance.ref().child(imageUrl);
-      final data = await ref.getData();
-      loadedImages.add(Uint8List.fromList(data!));
+    if (!await checkInternetConnectivity()) {
+      return loadedImages;
     }
+
+    await Future.wait(
+      imageUrls.map((imageUrl) async {
+        final ref = FirebaseStorage.instance.ref().child(imageUrl);
+        final data = await ref.getData();
+        loadedImages.add(Uint8List.fromList(data!));
+      }),
+    );
+
     return loadedImages;
   }
 
   Future<List> getCategories() async {
-    List list = await categoryData.getAllCategories();
-    return list;
+    if (!await checkInternetConnectivity()) {
+      return [];
+    }
+
+    return categoryData.getAllCategories();
   }
 
   void updateProductSearchList(String value) {
@@ -191,13 +209,10 @@ class _HomePageState extends State<HomePage> {
                   FutureBuilder<String>(
                     future: getUserName(),
                     builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const CircularProgressIndicator();
-                      } else if (snapshot.hasError) {
+                      if (snapshot.hasError) {
                         return Text('Error: ${snapshot.error}');
                       } else {
-                        String userName =
-                            snapshot.data ?? 'Nieznany użytkownik';
+                        String userName = snapshot.data ?? '';
                         return Row(
                           children: [
                             Expanded(

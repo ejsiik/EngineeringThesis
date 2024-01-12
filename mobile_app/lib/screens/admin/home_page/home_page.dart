@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_app/screens/admin/home_page/qr_button.dart';
+import '../../../constants/text_strings.dart';
 import '../../../service/authentication/auth.dart';
 import '../../../constants/colors.dart';
+import '../../../service/connection/connection_check.dart';
 import '../chat/admin_chat.dart';
 import 'entry_field.dart';
 import 'submit_button.dart';
@@ -41,6 +43,13 @@ class _AdminHomePageState extends State<AdminHomePage> {
   }
 
   void signOut() async {
+    bool isInternetConnected = await checkInternetConnectivity();
+    if (!isInternetConnected) {
+      setState(() {
+        errorMessage = connection;
+      });
+      return;
+    }
     await Auth().signOut();
   }
 
@@ -144,11 +153,21 @@ class _AdminHomePageState extends State<AdminHomePage> {
                 _buildSubmitButton(),
                 const SizedBox(height: 30),
                 ElevatedButton(
-                  onPressed: () {
+                  onPressed: () async {
+                    bool isInternetConnected =
+                        await checkInternetConnectivity();
+                    if (!isInternetConnected) {
+                      setState(() {
+                        errorMessage = connection;
+                      });
+                      return;
+                    }
+
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => const AdminChatScreen()),
+                        builder: (context) => const AdminChatScreen(),
+                      ),
                     );
                   },
                   child: const Text('Idź do czatu'),

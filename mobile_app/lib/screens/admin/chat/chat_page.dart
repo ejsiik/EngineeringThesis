@@ -4,6 +4,8 @@ import 'package:mobile_app/constants/colors.dart';
 import 'package:mobile_app/service/authentication/auth.dart';
 import 'package:mobile_app/service/chat/chat.dart';
 
+import '../../../service/connection/connection_check.dart';
+
 class AdminChatPage extends StatefulWidget {
   final String receiverEmail;
   final String receiverId;
@@ -24,6 +26,10 @@ class _ChatPageState extends State<AdminChatPage> {
 
   void sendMessage() async {
     if (messageController.text.isNotEmpty) {
+      bool isInternetConnected = await checkInternetConnectivity();
+      if (!isInternetConnected) {
+        return;
+      }
       await Chat().sendMessage(widget.receiverId, messageController.text);
       messageController.clear();
     }

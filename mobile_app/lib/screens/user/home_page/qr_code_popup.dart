@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_app/constants/colors.dart';
+import 'package:mobile_app/constants/text_strings.dart';
 import 'package:mobile_app/constants/theme.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
+import '../../../service/connection/connection_check.dart';
 import '../../../service/database/data.dart';
 
 class QRCodePopup extends StatelessWidget {
@@ -64,6 +66,10 @@ class QRCodePopup extends StatelessWidget {
   // Future method to generate QR code data
   Future<String> _generateQRCode() async {
     try {
+      bool isInternetConnected = await checkInternetConnectivity();
+      if (!isInternetConnected) {
+        return connection;
+      }
       return await Data().generateQRCodeData();
     } catch (e) {
       rethrow;

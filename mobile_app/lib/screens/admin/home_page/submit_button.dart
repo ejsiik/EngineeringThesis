@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mobile_app/service/database/data.dart';
 
 import '../../../constants/colors.dart';
+import '../../../service/connection/connection_check.dart';
 
 class SubmitButton extends StatelessWidget {
   final TextEditingController _controllerUserID;
@@ -24,7 +25,10 @@ class SubmitButton extends StatelessWidget {
       if (_controllerUserID.text.isNotEmpty) {
         String userId = _controllerUserID.text.trim();
         String couponValue = _controllerValue.text.trim();
-
+        bool isInternetConnected = await checkInternetConnectivity();
+        if (!isInternetConnected) {
+          return;
+        }
         await Data()
             .submitData(userId, _welcomeBanner, couponValue, onSubmitted);
       } else {

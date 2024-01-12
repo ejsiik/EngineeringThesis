@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_app/constants/text_strings.dart';
 import 'package:mobile_app/screens/login/login_page.dart';
 import 'package:mobile_app/service/authentication/auth.dart';
 import 'package:mobile_app/service/database/chat_data.dart';
+import '../../../service/connection/connection_check.dart';
 import '../../../service/database/data.dart';
 
 class UserSettings extends StatefulWidget {
@@ -41,7 +43,13 @@ class _UserSettingsState extends State<UserSettings> {
             SizedBox(height: 16.0),
 
             ElevatedButton(
-              onPressed: () {
+              onPressed: () async {
+                bool isInternetConnected = await checkInternetConnectivity();
+                if (!isInternetConnected) {
+                  _showSnackBar(connection);
+
+                  return;
+                }
                 try {
                   Data().changeUserName(newName);
                   _nameController.clear(); // Clear the TextField
@@ -107,6 +115,11 @@ class _UserSettingsState extends State<UserSettings> {
             TextButton(
               onPressed: () async {
                 try {
+                  bool isInternetConnected = await checkInternetConnectivity();
+                  if (!isInternetConnected) {
+                    _showSnackBar(connection);
+                    return;
+                  }
                   // Close the dialog using the stored context
                   Navigator.of(context).pop(); // Close the dialog
                   // Call an async function to handle deletion
