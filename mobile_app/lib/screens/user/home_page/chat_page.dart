@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_app/service/authentication/auth.dart';
 import 'package:mobile_app/service/chat/chat.dart';
+import 'package:shimmer/shimmer.dart';
 
 import '../../../constants/colors.dart';
 
@@ -32,6 +33,13 @@ class _ChatPageState extends State<ChatPage> {
 
   @override
   Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    final Color shimmerBaseColor = theme.brightness == Brightness.light
+        ? AppColors.shimmerBaseColorLight
+        : AppColors.shimmerBaseColorDark;
+    final Color shimmerHighlightColor = theme.brightness == Brightness.light
+        ? AppColors.shimmerHighlightColorLight
+        : AppColors.shimmerHighlightColorDark;
     return Scaffold(
       appBar: AppBar(
         title: const Text('Czatuj ze sklepem'),
@@ -44,8 +52,43 @@ class _ChatPageState extends State<ChatPage> {
                 builder: (context, snapshot) {
                   try {
                     if (snapshot.connectionState == ConnectionState.waiting) {
-                      // If the stream is still waiting for data, show a loading indicator
-                      return const CircularProgressIndicator();
+                      return ListView.builder(
+                        reverse: true,
+                        itemCount: 8, // Number of shimmer placeholders
+                        itemBuilder: (context, index) {
+                          final isMyMessage = index % 2 ==
+                              0; // Alternate between left and right
+
+                          return Shimmer.fromColors(
+                            baseColor: shimmerBaseColor,
+                            highlightColor: shimmerHighlightColor,
+                            child: ListTile(
+                              title: Container(
+                                height: 20.0,
+                                width: isMyMessage
+                                    ? 100.0
+                                    : 150.0, // Customize width based on message direction
+                                margin: isMyMessage
+                                    ? EdgeInsets.only(left: 4.0, right: 40.0)
+                                    : EdgeInsets.only(left: 40.0, right: 4.0),
+                                color: Colors.white,
+                              ),
+                              subtitle: Container(
+                                height: 15.0,
+                                width: isMyMessage
+                                    ? 50.0
+                                    : 120.0, // Customize width based on message direction
+                                margin: isMyMessage
+                                    ? EdgeInsets.only(
+                                        left: 8.0,
+                                        right: 40.0) // Adjust margins
+                                    : EdgeInsets.only(left: 40.0, right: 8.0),
+                                color: Colors.white,
+                              ),
+                            ),
+                          );
+                        },
+                      );
                     } else if (snapshot.hasError) {
                       // If there is an error, show an error message
                       return Text(snapshot.error.toString());

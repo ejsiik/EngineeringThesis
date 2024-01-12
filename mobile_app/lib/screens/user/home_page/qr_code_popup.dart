@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_app/constants/colors.dart';
+import 'package:mobile_app/constants/text_strings.dart';
 import 'package:mobile_app/constants/theme.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import 'package:shimmer/shimmer.dart';
 
+import '../../../service/connection/connection_check.dart';
 import '../../../service/database/data.dart';
 
 class QRCodePopup extends StatelessWidget {
@@ -16,6 +19,12 @@ class QRCodePopup extends StatelessWidget {
         ? AppColors.textLight
         : AppColors.textDark;
     const Color blackColor = AppColors.black;
+    final Color shimmerBaseColor = theme.brightness == Brightness.light
+        ? AppColors.shimmerBaseColorLight
+        : AppColors.shimmerBaseColorDark;
+    final Color shimmerHighlightColor = theme.brightness == Brightness.light
+        ? AppColors.shimmerHighlightColorLight
+        : AppColors.shimmerHighlightColorDark;
 
     return Scaffold(
       backgroundColor: backgroundColor,
@@ -37,8 +46,13 @@ class QRCodePopup extends StatelessWidget {
                             snapshot.data!, backgroundColor);
                       }
                     } else {
-                      // Display a loading indicator while generating QR code
-                      return _buildLoadingWidget();
+                      return Shimmer.fromColors(
+                        baseColor: shimmerBaseColor,
+                        highlightColor: shimmerHighlightColor,
+                        child: Container(
+                          color: Colors.white,
+                        ),
+                      );
                     }
                   },
                 ),
@@ -64,6 +78,10 @@ class QRCodePopup extends StatelessWidget {
   // Future method to generate QR code data
   Future<String> _generateQRCode() async {
     try {
+      bool isInternetConnected = await checkInternetConnectivity();
+      if (!isInternetConnected) {
+        return connection;
+      }
       return await Data().generateQRCodeData();
     } catch (e) {
       rethrow;
@@ -80,12 +98,6 @@ class QRCodePopup extends StatelessWidget {
           data: data,
         ),
       ),
-    );
-  }
-
-  Widget _buildLoadingWidget() {
-    return const Center(
-      child: CircularProgressIndicator(),
     );
   }
 

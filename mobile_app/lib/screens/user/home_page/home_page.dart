@@ -4,15 +4,19 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_app/constants/colors.dart';
+//import 'package:mobile_app/constants/text_strings.dart';
 import 'package:mobile_app/service/authentication/auth.dart';
-import 'package:mobile_app/service/database/shop_location_data.dart';
+//import 'package:mobile_app/database/add_product_data.dart';
+//import 'package:mobile_app/service/database/shop_location_data.dart';
 import 'package:mobile_app/service/database/category_data.dart';
 import 'package:mobile_app/service/database/data.dart';
 import 'package:mobile_app/screens/user/category_products_page/category_products_page.dart';
 import 'package:mobile_app/screens/user/home_page/coupon_card.dart';
 import 'package:mobile_app/screens/user/home_page/qr_code_popup.dart';
+import 'package:shimmer/shimmer.dart';
+import '../../../service/connection/connection_check.dart';
 import 'welcome_banner.dart';
-import '../category_products_page/product_search_model.dart';
+//import '../category_products_page/product_search_model.dart';
 import '../category_products_page/product_search_result.dart';
 
 class HomePage extends StatefulWidget {
@@ -32,7 +36,17 @@ class _HomePageState extends State<HomePage> {
   UserDataProvider userDataProvider = UserDataProvider();
   Data userData = Data();
   CategoryData categoryData = CategoryData();
-  ShopLocationData shopLocationData = ShopLocationData();
+  //ShopLocationData shopLocationData = ShopLocationData();
+  //AddProduct addProductData = AddProduct();
+  //List<ProductSearchModel> displayList = [];
+  late DatabaseReference? couponUsedRef;
+
+
+  void _showSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(message),
+    ));
+  }
 
   final List<String> sliderImagesList = [
     "0_1.jpg",
@@ -71,7 +85,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget buildDay(String day, Map<dynamic, dynamic> dayData) {
+  /*Widget buildDay(String day, Map<dynamic, dynamic> dayData) {
     String openTime = dayData['open']!.toString();
     String closedTime = dayData['closed']!.toString();
     String hours = "";
@@ -100,7 +114,7 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
     );
-  }
+  }*/
 
   @override
   void initState() {
@@ -123,11 +137,11 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<String> getUserName() async {
-    String? userName = await userData.getUserName();
-
-    if (userName != null) {
-      return userName;
-    } else {
+    try {
+      String? userName = await userData.getUserName();
+      return userName ?? '';
+    } catch (error) {
+      _showSnackBar('Błąd podczas pobierania nazwy użytkownika');
       return 'Nieznany użytkownik';
     }
   }
@@ -135,17 +149,27 @@ class _HomePageState extends State<HomePage> {
   Future<List<Uint8List>> loadImages(List<String> imageUrls) async {
     List<Uint8List> loadedImages = [];
 
-    for (String imageUrl in imageUrls) {
-      final ref = FirebaseStorage.instance.ref().child(imageUrl);
-      final data = await ref.getData();
-      loadedImages.add(Uint8List.fromList(data!));
+    if (!await checkInternetConnectivity()) {
+      return loadedImages;
     }
+
+    await Future.wait(
+      imageUrls.map((imageUrl) async {
+        final ref = FirebaseStorage.instance.ref().child(imageUrl);
+        final data = await ref.getData();
+        loadedImages.add(Uint8List.fromList(data!));
+      }),
+    );
+
     return loadedImages;
   }
 
   Future<List> getCategories() async {
-    List list = await categoryData.getAllCategories();
-    return list;
+    if (!await checkInternetConnectivity()) {
+      return [];
+    }
+
+    return categoryData.getAllCategories();
   }
 
   void updateProductSearchList(String value) {
@@ -174,13 +198,18 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
     final Color backgroundColor = theme.scaffoldBackgroundColor;
-    const Color logoutColor = AppColors.logout;
     final Color primaryColor = theme.brightness == Brightness.light
         ? AppColors.primaryLight
         : AppColors.primaryDark;
     final Color textColor = theme.brightness == Brightness.light
         ? AppColors.textLight
         : AppColors.textDark;
+    final Color shimmerBaseColor = theme.brightness == Brightness.light
+        ? AppColors.shimmerBaseColorLight
+        : AppColors.shimmerBaseColorDark;
+    final Color shimmerHighlightColor = theme.brightness == Brightness.light
+        ? AppColors.shimmerHighlightColorLight
+        : AppColors.shimmerHighlightColorDark;
 
     return Scaffold(
       body: SafeArea(
@@ -194,11 +223,18 @@ class _HomePageState extends State<HomePage> {
                     future: getUserName(),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const CircularProgressIndicator();
-                      } else if (snapshot.hasError) {
-                        return Text('Error: ${snapshot.error}');
+                        // Use shimmer effect while loading
+                        return Shimmer.fromColors(
+                          baseColor: shimmerBaseColor,
+                          highlightColor: shimmerHighlightColor,
+                          child: Container(
+                              width: double.infinity,
+                              height: 60.0,
+                              color: backgroundColor),
+                        );
                       } else {
-                        String userName = snapshot.data ?? 'Unknown User';
+                        String userName =
+                            snapshot.data ?? 'Nieznany użytkownik';
                         return Row(
                           children: [
                             Expanded(
@@ -226,9 +262,10 @@ class _HomePageState extends State<HomePage> {
                                       ],
                                     ),
                                     IconButton(
-                                      icon: const Icon(
+                                      icon: Icon(
                                         Icons.credit_score,
-                                        color: logoutColor,
+                                        color: primaryColor,
+                                        size: 30,
                                       ),
                                       onPressed: () {
                                         openPopupScreen(context);
@@ -243,6 +280,14 @@ class _HomePageState extends State<HomePage> {
                       }
                     },
                   ),
+
+                  // Show the WelcomeBanner only if conditions are met
+                  if (showWelcomeBanner)
+                    WelcomeBanner(
+                      onButtonPressed: () {
+                        openPopupScreen(context);
+                      },
+                    ),
 
                   // product searching bar
                   Row(
@@ -268,14 +313,6 @@ class _HomePageState extends State<HomePage> {
                     ],
                   ),
 
-                  // Show the WelcomeBanner only if conditions are met
-                  if (showWelcomeBanner)
-                    WelcomeBanner(
-                      onButtonPressed: () {
-                        openPopupScreen(context);
-                      },
-                    ),
-
                   const CouponCardWidget(),
 
                   // slider with special offers, popular products etc
@@ -288,7 +325,16 @@ class _HomePageState extends State<HomePage> {
                           builder: (context, snapshot) {
                             if (snapshot.connectionState ==
                                 ConnectionState.waiting) {
-                              return const CircularProgressIndicator();
+                              // Use shimmer effect while loading
+                              return Shimmer.fromColors(
+                                baseColor: shimmerBaseColor,
+                                highlightColor: shimmerHighlightColor,
+                                child: Container(
+                                  width: double.infinity,
+                                  height: 350.0,
+                                  color: backgroundColor,
+                                ),
+                              );
                             } else if (snapshot.hasError) {
                               return const Icon(Icons.error);
                             } else {
@@ -324,8 +370,36 @@ class _HomePageState extends State<HomePage> {
                     builder:
                         (BuildContext context, AsyncSnapshot<List> snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
-                        // Return a loading indicator while data is being fetched.
-                        return const CircularProgressIndicator();
+                        // Use shimmer effect while loading
+                        return Shimmer.fromColors(
+                          baseColor: shimmerBaseColor,
+                          highlightColor: shimmerHighlightColor,
+                          child: GridView.builder(
+                            gridDelegate:
+                                const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 3,
+                              crossAxisSpacing: 8.0,
+                              mainAxisSpacing: 8.0,
+                            ),
+                            itemCount: 6, // Adjust the itemCount as needed
+                            itemBuilder: (BuildContext context, int index) {
+                              return Card(
+                                elevation: 2.0,
+                                child: Padding(
+                                  padding: const EdgeInsets.all(16.0),
+                                  child: Center(
+                                    child: Container(
+                                        width: 50.0,
+                                        height: 20.0,
+                                        color: backgroundColor),
+                                  ),
+                                ),
+                              );
+                            },
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                          ),
+                        );
                       } else if (snapshot.hasError) {
                         // Handle the error case.
                         return Text('Error: ${snapshot.error}');

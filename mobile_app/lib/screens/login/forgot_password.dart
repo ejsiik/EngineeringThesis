@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_app/constants/colors.dart';
+import '../../constants/text_strings.dart';
 import '../../service/authentication/auth.dart';
+import '../../service/connection/connection_check.dart';
 import 'error_message_widget.dart';
 import 'login_form.dart';
 
@@ -17,6 +19,12 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
 
   Future<void> passwordReset() async {
     try {
+      bool isInternetConnected = await checkInternetConnectivity();
+      if (!isInternetConnected) {
+        errorMessage = connection;
+
+        return;
+      }
       errorMessage = 'Link do resetu hasła został wysłany w wiadomości email';
       String? resetError =
           await Auth().passwordReset(email: _controllerEmail.text);

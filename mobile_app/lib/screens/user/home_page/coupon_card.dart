@@ -1,6 +1,8 @@
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_app/service/authentication/auth.dart';
+import 'package:qr_flutter/qr_flutter.dart';
+import 'package:shimmer/shimmer.dart';
 import '../../../constants/colors.dart';
 import '../../../service/database/data.dart';
 import 'coupons.dart';
@@ -11,7 +13,6 @@ class CouponCardWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
-    final Color backgroundColor = theme.scaffoldBackgroundColor;
     final Color primaryColor = theme.brightness == Brightness.light
         ? AppColors.primaryLight
         : AppColors.primaryDark;
@@ -27,8 +28,12 @@ class CouponCardWidget extends StatelessWidget {
         children: [
           Expanded(
             child: Container(
-              padding: const EdgeInsets.all(10.0),
-              color: backgroundColor,
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
+              decoration: BoxDecoration(
+                color: primaryColor,
+                borderRadius: BorderRadius.circular(15.0),
+              ),
               child: Row(
                 children: [
                   Container(
@@ -36,6 +41,7 @@ class CouponCardWidget extends StatelessWidget {
                     height: 60,
                     decoration: BoxDecoration(
                       color: primaryColor,
+                      borderRadius: BorderRadius.circular(15.0),
                     ),
                     child: const Center(
                       child: Icon(
@@ -93,27 +99,127 @@ class _CouponScreenState extends State<CouponScreen> {
         future: widget.data.getAllCouponData(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const CircularProgressIndicator();
+            return _buildShimmerPlaceholder();
           } else if (snapshot.hasError) {
             return Text('Wystąpił błąd podczas pobierania danych o kuponach');
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
             return const Text('Brak dostępnych kuponów');
           } else {
-            return GridView.count(
-              crossAxisCount: 3,
-              children: snapshot.data!.asMap().entries.map((entry) {
-                int index = entry.key;
+            return Column(
+              children: [
+                Expanded(
+                  child: GridView.count(
+                    crossAxisCount: 3,
+                    children: snapshot.data!.asMap().entries.map((entry) {
+                      int index = entry.key;
 
-                bool isFree = index == 5;
+                      bool isFree = index == 5;
 
-                return CouponCardWithFirebaseData(
-                  getCouponReference(index),
-                  isFree: isFree,
-                );
-              }).toList(),
+                      return CouponCardWithFirebaseData(
+                        getCouponReference(index),
+                        isFree: isFree,
+                      );
+                    }).toList(),
+                  ),
+                ),
+                // Display the generated QR code below the GridView
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: FutureBuilder<String>(
+                    future: widget.data.generateQRCodeData(),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.done) {
+                        if (snapshot.hasError) {
+                          return _buildErrorWidget();
+                        } else {
+                          return _buildQRCodeWidget(snapshot.data!);
+                        }
+                      } else {
+                        return _buildLoadingWidget();
+                      }
+                    },
+                  ),
+                ),
+              ],
             );
           }
         },
+      ),
+    );
+  }
+
+  Widget _buildShimmerPlaceholder() {
+    final ThemeData theme = Theme.of(context);
+    final Color shimmerBaseColor = theme.brightness == Brightness.light
+        ? AppColors.shimmerBaseColorLight
+        : AppColors.shimmerBaseColorDark;
+    final Color shimmerHighlightColor = theme.brightness == Brightness.light
+        ? AppColors.shimmerHighlightColorLight
+        : AppColors.shimmerHighlightColorDark;
+    return Shimmer.fromColors(
+      baseColor: shimmerBaseColor,
+      highlightColor: shimmerHighlightColor,
+      child: Column(
+        children: [
+          Expanded(
+            child: GridView.count(
+              crossAxisCount: 3,
+              children: List.generate(6, (index) {
+                return Container(
+                  margin: const EdgeInsets.all(8.0),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                );
+              }),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Container(
+              height: 200,
+              width: 200,
+              decoration: BoxDecoration(
+                color: AppColors.white,
+                borderRadius: BorderRadius.circular(10.0),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildQRCodeWidget(String data) {
+    final Color backgroundQRColor = AppColors.white;
+    return Center(
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(10.0),
+        child: Container(
+          padding: const EdgeInsets.all(16.0),
+          color: backgroundQRColor,
+          child: QrImageView(
+            data: data,
+            size: 200,
+            padding: const EdgeInsets.all(10.0),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLoadingWidget() {
+    return const Center(
+      child: CircularProgressIndicator(),
+    );
+  }
+
+  Widget _buildErrorWidget() {
+    return Center(
+      child: Text(
+        'Error generating QR code',
+        style: TextStyle(color: Colors.red),
       ),
     );
   }

@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_app/screens/login/forgot_password_button_widget.dart';
 import 'package:mobile_app/screens/login/google_widget.dart';
+import '../../constants/colors.dart';
+import '../../constants/text_strings.dart';
 import '../../service/authentication/auth.dart';
+import '../../service/connection/connection_check.dart';
 import 'login_form.dart';
 import 'error_message_widget.dart';
 import 'submit_button_widget.dart';
@@ -62,7 +65,27 @@ class _LoginPageState extends State<LoginPage> {
     });
   }
 
+  Future<void> googleSignIn() async {
+    bool isInternetConnected = await checkInternetConnectivity();
+    if (!isInternetConnected) {
+      safeSetState(() {
+        errorMessage = connection;
+      });
+      return;
+    }
+
+    Auth().googleSignIn();
+  }
+
   Future<void> signInWithEmailAndPassword() async {
+    bool isInternetConnected = await checkInternetConnectivity();
+    if (!isInternetConnected) {
+      safeSetState(() {
+        errorMessage = connection;
+      });
+      return;
+    }
+
     // Call the signInWithEmailAndPassword function from Auth
     String? signInErrorMessage = await Auth().signInWithEmailAndPassword(
       email: _controllerEmail.text.trim(),
@@ -75,6 +98,14 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<void> createUserWithEmailAndPassword() async {
+    bool isInternetConnected = await checkInternetConnectivity();
+    if (!isInternetConnected) {
+      safeSetState(() {
+        errorMessage = connection;
+      });
+      return;
+    }
+
     String? createUserErrorMessage =
         await Auth().createUserWithEmailAndPassword(
       email: _controllerEmail.text.trim(),
@@ -95,6 +126,12 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
     final Color primaryColor = theme.scaffoldBackgroundColor;
+    final Color buttonBackgroundColor = theme.brightness == Brightness.light
+        ? AppColors.primaryLight
+        : AppColors.primaryDark;
+    final Color buttonTextColor = theme.brightness == Brightness.light
+        ? AppColors.backgroundLight
+        : AppColors.backgroundDark;
 
     return Scaffold(
       backgroundColor: primaryColor,
@@ -146,22 +183,44 @@ class _LoginPageState extends State<LoginPage> {
               if (isLogin) const ForgotPasswordButtonWidget(),
               const SizedBox(height: 30),
               ErrorMessageWidget(errorMessage ?? ''),
-              SubmitButtonWidget(
-                  isLogin, _controllerPassword, _controllerConfirmPassword, () {
-                if (isControllerNotEmpty(_controllerName) &&
-                    isControllerNotEmpty(_controllerEmail) &&
-                    isControllerNotEmpty(_controllerPassword)) {
-                  createUserWithEmailAndPassword();
-                } else {
-                  safeSetState(() {
-                    errorMessage = 'Proszę wypełnić wszystkie wymagane pola.';
-                  });
-                }
-              }, togglePasswordVisibility, signInWithEmailAndPassword,
-                  handlePasswordMismatch),
+              // Retry button when there's an error
+              if (errorMessage != null && errorMessage == connection)
+                ElevatedButton(
+                  onPressed: () {
+                    safeSetState(() {
+                      errorMessage = null;
+                    });
+                    if (isLogin) {
+                      signInWithEmailAndPassword();
+                    } else {
+                      createUserWithEmailAndPassword();
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: buttonBackgroundColor,
+                  ),
+                  child: Text('SPRÓBUJ PONOWNIE',
+                      style: TextStyle(color: buttonTextColor)),
+                ),
+
+              if (errorMessage == null || !errorMessage!.contains(connection))
+                SubmitButtonWidget(
+                    isLogin, _controllerPassword, _controllerConfirmPassword,
+                    () {
+                  if (isControllerNotEmpty(_controllerName) &&
+                      isControllerNotEmpty(_controllerEmail) &&
+                      isControllerNotEmpty(_controllerPassword)) {
+                    createUserWithEmailAndPassword();
+                  } else {
+                    safeSetState(() {
+                      errorMessage = 'Proszę wypełnić wszystkie wymagane pola.';
+                    });
+                  }
+                }, togglePasswordVisibility, signInWithEmailAndPassword,
+                    handlePasswordMismatch),
               const SizedBox(height: 20),
               GestureDetector(
-                onTap: () => Auth().googleSignIn(),
+                onTap: () => googleSignIn(),
                 child: const GoogleWidget(),
               ),
               const SizedBox(height: 20),

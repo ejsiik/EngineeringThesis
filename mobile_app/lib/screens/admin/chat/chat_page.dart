@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:mobile_app/constants/colors.dart';
 import 'package:mobile_app/service/authentication/auth.dart';
 import 'package:mobile_app/service/chat/chat.dart';
+import 'package:shimmer/shimmer.dart';
+
+import '../../../service/connection/connection_check.dart';
 
 class AdminChatPage extends StatefulWidget {
   final String receiverEmail;
@@ -24,6 +27,10 @@ class _ChatPageState extends State<AdminChatPage> {
 
   void sendMessage() async {
     if (messageController.text.isNotEmpty) {
+      bool isInternetConnected = await checkInternetConnectivity();
+      if (!isInternetConnected) {
+        return;
+      }
       await Chat().sendMessage(widget.receiverId, messageController.text);
       messageController.clear();
     }
@@ -31,6 +38,13 @@ class _ChatPageState extends State<AdminChatPage> {
 
   @override
   Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    final Color shimmerBaseColor = theme.brightness == Brightness.light
+        ? AppColors.shimmerBaseColorLight
+        : AppColors.shimmerBaseColorDark;
+    final Color shimmerHighlightColor = theme.brightness == Brightness.light
+        ? AppColors.shimmerHighlightColorLight
+        : AppColors.shimmerHighlightColorDark;
     return Scaffold(
       appBar: AppBar(
         title: Text('Czatuj z ${widget.receiverEmail}'),
@@ -43,8 +57,30 @@ class _ChatPageState extends State<AdminChatPage> {
                 builder: (context, snapshot) {
                   try {
                     if (snapshot.connectionState == ConnectionState.waiting) {
-                      // If the stream is still waiting for data, show a loading indicator
-                      return const CircularProgressIndicator();
+                      return Shimmer.fromColors(
+                        baseColor: shimmerBaseColor,
+                        highlightColor: shimmerHighlightColor,
+                        child: ListView.builder(
+                          reverse: true,
+                          itemCount:
+                              5, // You can adjust the number of shimmer loading items
+                          itemBuilder: (context, index) {
+                            return Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: [
+                                  Container(
+                                    width: 200.0,
+                                    height: 16.0,
+                                    color: Colors.white,
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        ),
+                      );
                     } else if (snapshot.hasError) {
                       // If there is an error, show an error message
                       return Text(snapshot.error.toString());
