@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_app/service/database/product_data.dart';
 import 'package:mobile_app/service/database/data.dart';
+import 'package:shimmer/shimmer.dart';
 import '../../../constants/colors.dart';
 import 'dart:typed_data';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -52,6 +53,14 @@ class _ProductSearchResultState extends State<ProductSearchResult> {
       await userData.addToShoppingCart(productId);
     }
 
+    final ThemeData theme = Theme.of(context);
+    final Color shimmerBaseColor = theme.brightness == Brightness.light
+        ? AppColors.shimmerBaseColorLight
+        : AppColors.shimmerBaseColorDark;
+    final Color shimmerHighlightColor = theme.brightness == Brightness.light
+        ? AppColors.shimmerHighlightColorLight
+        : AppColors.shimmerHighlightColorDark;
+
     Map<String, dynamic> details =
         (product['details'] as Map<dynamic, dynamic>).cast<String, dynamic>();
     Map<String, dynamic> images =
@@ -64,7 +73,15 @@ class _ProductSearchResultState extends State<ProductSearchResult> {
           future: loadImage(images['img_1']),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return const CircularProgressIndicator();
+              return Shimmer.fromColors(
+                baseColor: shimmerBaseColor,
+                highlightColor: shimmerHighlightColor,
+                child: Container(
+                  width: 100,
+                  height: 100,
+                  color: Colors.white,
+                ),
+              );
             } else if (snapshot.hasError) {
               return const Icon(Icons.error);
             } else {
@@ -114,6 +131,12 @@ class _ProductSearchResultState extends State<ProductSearchResult> {
     final Color textColor = theme.brightness == Brightness.light
         ? AppColors.textLight
         : AppColors.textDark;
+    final Color shimmerBaseColor = theme.brightness == Brightness.light
+        ? AppColors.shimmerBaseColorLight
+        : AppColors.shimmerBaseColorDark;
+    final Color shimmerHighlightColor = theme.brightness == Brightness.light
+        ? AppColors.shimmerHighlightColorLight
+        : AppColors.shimmerHighlightColorDark;
 
     return Scaffold(
       appBar: AppBar(
@@ -155,9 +178,24 @@ class _ProductSearchResultState extends State<ProductSearchResult> {
               future: getProductData(),
               builder: (BuildContext context, AsyncSnapshot<List> snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const SliverToBoxAdapter(
+                  return SliverToBoxAdapter(
                     child: Center(
-                      child: CircularProgressIndicator(),
+                      child: Shimmer.fromColors(
+                        baseColor: shimmerBaseColor,
+                        highlightColor: shimmerHighlightColor,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: List.generate(
+                            5,
+                            (index) => Container(
+                              margin: EdgeInsets.all(15.0),
+                              width: MediaQuery.of(context).size.width * 0.9,
+                              height: 100,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
                   );
                 } else if (snapshot.hasError) {

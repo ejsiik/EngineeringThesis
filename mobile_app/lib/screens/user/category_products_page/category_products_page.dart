@@ -4,6 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:mobile_app/service/database/product_data.dart';
 import 'package:mobile_app/service/database/data.dart';
 import 'package:mobile_app/screens/user/category_products_page/product_details_page.dart';
+import 'package:shimmer/shimmer.dart';
+
+import '../../../constants/colors.dart';
 
 class CategoryProductsPage extends StatefulWidget {
   final int categoryId;
@@ -52,7 +55,7 @@ class _CategoryProductsPageState extends State<CategoryProductsPage> {
           future: loadImage(images['img_1']),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return const CircularProgressIndicator();
+              return ShimmerLoadingProductImage();
             } else if (snapshot.hasError) {
               return const Icon(Icons.error);
             } else {
@@ -106,7 +109,7 @@ class _CategoryProductsPageState extends State<CategoryProductsPage> {
         future: getProductData(),
         builder: (BuildContext context, AsyncSnapshot<List> snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const CircularProgressIndicator();
+            return ShimmerLoadingProducts();
           } else if (snapshot.hasError) {
             return Text('Error: ${snapshot.error}');
           } else {
@@ -118,6 +121,81 @@ class _CategoryProductsPageState extends State<CategoryProductsPage> {
               },
             );
           }
+        },
+      ),
+    );
+  }
+}
+
+class ShimmerLoadingProductImage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    final Color shimmerBaseColor = theme.brightness == Brightness.light
+        ? AppColors.shimmerBaseColorLight
+        : AppColors.shimmerBaseColorDark;
+    final Color shimmerHighlightColor = theme.brightness == Brightness.light
+        ? AppColors.shimmerHighlightColorLight
+        : AppColors.shimmerHighlightColorDark;
+    return Shimmer.fromColors(
+      baseColor: shimmerBaseColor,
+      highlightColor: shimmerHighlightColor,
+      child: Container(
+        width: 100,
+        height: 100,
+        color: Colors.white,
+      ),
+    );
+  }
+}
+
+class ShimmerLoadingProducts extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    final Color shimmerBaseColor = theme.brightness == Brightness.light
+        ? AppColors.shimmerBaseColorLight
+        : AppColors.shimmerBaseColorDark;
+    final Color shimmerHighlightColor = theme.brightness == Brightness.light
+        ? AppColors.shimmerHighlightColorLight
+        : AppColors.shimmerHighlightColorDark;
+    return Shimmer.fromColors(
+      baseColor: shimmerBaseColor,
+      highlightColor: shimmerHighlightColor,
+      child: ListView.builder(
+        itemCount: 5,
+        itemBuilder: (context, index) {
+          return Card(
+            margin: const EdgeInsets.all(8.0),
+            child: ListTile(
+              contentPadding: const EdgeInsets.all(16.0),
+              leading: Container(
+                width: 100,
+                height: 100,
+                color: Colors.white,
+              ),
+              title: Container(
+                width: 150,
+                height: 16,
+                color: Colors.white,
+              ),
+              subtitle: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    width: 100,
+                    height: 16,
+                    color: Colors.white,
+                  ),
+                ],
+              ),
+              trailing: Container(
+                width: 24,
+                height: 24,
+                color: Colors.white,
+              ),
+            ),
+          );
         },
       ),
     );

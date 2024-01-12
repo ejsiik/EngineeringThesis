@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_app/service/database/order_data.dart';
 import 'package:mobile_app/screens/user/category_products_page/product_details_page.dart';
+import 'package:shimmer/shimmer.dart';
+
+import '../../../constants/colors.dart';
 
 class OrderDetailsPage extends StatelessWidget {
   final List<Object?> order;
@@ -29,9 +32,10 @@ class OrderDetailsPage extends StatelessWidget {
             future: getProductData(product['product_id']),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
-                return ListTile(
+                /*return ListTile(
                   title: Text('Produkt #${index + 1} - Wczytywanie...'),
-                );
+                );*/
+                return ShimmerLoadingTile();
               } else if (snapshot.hasError) {
                 return ListTile(
                   title: Text('Produkt #${index + 1} - Błąd wczytywania'),
@@ -83,6 +87,34 @@ class OrderDetailsPage extends StatelessWidget {
             },
           );
         },
+      ),
+    );
+  }
+}
+
+class ShimmerLoadingTile extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    final Color shimmerBaseColor = theme.brightness == Brightness.light
+        ? AppColors.shimmerBaseColorLight
+        : AppColors.shimmerBaseColorDark;
+    final Color shimmerHighlightColor = theme.brightness == Brightness.light
+        ? AppColors.shimmerHighlightColorLight
+        : AppColors.shimmerHighlightColorDark;
+    return Column(
+      children: List.generate(
+        4,
+        (index) => Shimmer.fromColors(
+          baseColor: shimmerBaseColor,
+          highlightColor: shimmerHighlightColor,
+          child: ListTile(
+            title: Container(
+              height: 60,
+              color: Colors.white,
+            ),
+          ),
+        ),
       ),
     );
   }

@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:mobile_app/service/database/order_data.dart';
 import 'package:mobile_app/screens/user/orders_page/orders_detailed_page.dart';
+import 'package:shimmer/shimmer.dart';
+
+import '../../../constants/colors.dart';
 
 class OrdersListPage extends StatefulWidget {
   final String type;
@@ -38,7 +41,7 @@ class _OrdersListState extends State<OrdersListPage> {
         future: orders,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const CircularProgressIndicator();
+            return ShimmerLoadingOrdersList();
           } else if (snapshot.hasError) {
             return Text('Error: ${snapshot.error}');
           } else {
@@ -106,6 +109,57 @@ class _OrdersListState extends State<OrdersListPage> {
               },
             );
           }
+        },
+      ),
+    );
+  }
+}
+
+class ShimmerLoadingOrdersList extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    final Color shimmerBaseColor = theme.brightness == Brightness.light
+        ? AppColors.shimmerBaseColorLight
+        : AppColors.shimmerBaseColorDark;
+    final Color shimmerHighlightColor = theme.brightness == Brightness.light
+        ? AppColors.shimmerHighlightColorLight
+        : AppColors.shimmerHighlightColorDark;
+    return Shimmer.fromColors(
+      baseColor: shimmerBaseColor,
+      highlightColor: shimmerHighlightColor,
+      child: ListView.builder(
+        itemCount: 4,
+        itemBuilder: (context, index) {
+          return Card(
+            elevation: 5,
+            margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+            child: ListTile(
+              title: Container(
+                height: 18,
+                color: Colors.white,
+              ),
+              subtitle: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 5),
+                  Container(
+                    height: 14,
+                    color: Colors.white,
+                  ),
+                  Container(
+                    height: 16,
+                    color: Colors.white,
+                  ),
+                  const SizedBox(height: 8),
+                  Container(
+                    height: 14,
+                    color: Colors.white,
+                  ),
+                ],
+              ),
+            ),
+          );
         },
       ),
     );

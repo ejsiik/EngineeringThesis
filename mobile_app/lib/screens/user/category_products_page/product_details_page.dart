@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:mobile_app/service/database/data.dart';
+import 'package:shimmer/shimmer.dart';
+
+import '../../../constants/colors.dart';
 
 class ProductDetailsPage extends StatefulWidget {
   final int categoryId;
@@ -105,6 +108,14 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
       await userData.addToShoppingCart(productId);
     }
 
+    final ThemeData theme = Theme.of(context);
+    final Color shimmerBaseColor = theme.brightness == Brightness.light
+        ? AppColors.shimmerBaseColorLight
+        : AppColors.shimmerBaseColorDark;
+    final Color shimmerHighlightColor = theme.brightness == Brightness.light
+        ? AppColors.shimmerHighlightColorLight
+        : AppColors.shimmerHighlightColorDark;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.name),
@@ -121,7 +132,15 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                     future: loadImages(widget.images),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const CircularProgressIndicator();
+                        return Shimmer.fromColors(
+                          baseColor: shimmerBaseColor,
+                          highlightColor: shimmerHighlightColor,
+                          child: Container(
+                            width: double.infinity,
+                            height: 350.0,
+                            color: Colors.white,
+                          ),
+                        );
                       } else if (snapshot.hasError) {
                         return const Icon(Icons.error);
                       } else {

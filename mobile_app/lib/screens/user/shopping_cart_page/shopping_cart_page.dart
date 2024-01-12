@@ -5,6 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:mobile_app/service/database/data.dart';
 import 'package:mobile_app/screens/user/category_products_page/product_details_page.dart';
 import 'package:mobile_app/screens/user/orders_page/orders_page.dart';
+import 'package:shimmer/shimmer.dart';
+
+import '../../../constants/colors.dart';
 
 class ShoppingCartPage extends StatefulWidget {
   const ShoppingCartPage({Key? key}) : super(key: key);
@@ -76,7 +79,7 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
           future: loadImage(images['img_1']),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return const CircularProgressIndicator();
+              return ShimmerLoadingProductImage();
             } else if (snapshot.hasError) {
               return const Icon(Icons.error);
             } else {
@@ -113,7 +116,7 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
                   future: getQuantityOfShoppingCart(productMap['id']),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const CircularProgressIndicator();
+                      return ShimmerLoadingQuantity();
                     } else if (snapshot.hasError) {
                       return const Icon(Icons.error);
                     } else {
@@ -140,7 +143,7 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
               future: getQuantityOfShoppingCart(productMap['id']),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const CircularProgressIndicator();
+                  return ShimmerLoadingQuantity();
                 } else if (snapshot.hasError) {
                   return const Icon(Icons.error);
                 } else {
@@ -190,7 +193,7 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
               future: getShoppingCartData(),
               builder: (BuildContext context, AsyncSnapshot<List> snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const CircularProgressIndicator();
+                  return ShimmerLoadingShoppingCart();
                 } else if (snapshot.hasError) {
                   return Text('Error: ${snapshot.error}');
                 } else {
@@ -226,6 +229,82 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class ShimmerLoadingQuantity extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    final Color shimmerBaseColor = theme.brightness == Brightness.light
+        ? AppColors.shimmerBaseColorLight
+        : AppColors.shimmerBaseColorDark;
+    final Color shimmerHighlightColor = theme.brightness == Brightness.light
+        ? AppColors.shimmerHighlightColorLight
+        : AppColors.shimmerHighlightColorDark;
+    return Shimmer.fromColors(
+      baseColor: shimmerBaseColor,
+      highlightColor: shimmerHighlightColor,
+      child: Container(
+        width: 40,
+        height: 24,
+        color: Colors.white,
+      ),
+    );
+  }
+}
+
+class ShimmerLoadingProductImage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    final Color shimmerBaseColor = theme.brightness == Brightness.light
+        ? AppColors.shimmerBaseColorLight
+        : AppColors.shimmerBaseColorDark;
+    final Color shimmerHighlightColor = theme.brightness == Brightness.light
+        ? AppColors.shimmerHighlightColorLight
+        : AppColors.shimmerHighlightColorDark;
+    return Shimmer.fromColors(
+      baseColor: shimmerBaseColor,
+      highlightColor: shimmerHighlightColor,
+      child: Container(
+        width: 80,
+        height: 80,
+        color: Colors.white,
+      ),
+    );
+  }
+}
+
+class ShimmerLoadingShoppingCart extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    final Color shimmerBaseColor = theme.brightness == Brightness.light
+        ? AppColors.shimmerBaseColorLight
+        : AppColors.shimmerBaseColorDark;
+    final Color shimmerHighlightColor = theme.brightness == Brightness.light
+        ? AppColors.shimmerHighlightColorLight
+        : AppColors.shimmerHighlightColorDark;
+    return Shimmer.fromColors(
+      baseColor: shimmerBaseColor,
+      highlightColor: shimmerHighlightColor,
+      child: ListView.builder(
+        itemCount: 5, // Adjust the count as needed
+        itemBuilder: (context, index) {
+          return Card(
+            margin: const EdgeInsets.all(8.0),
+            child: ListTile(
+              contentPadding: const EdgeInsets.all(16.0),
+              title: Container(
+                height: 18,
+                color: Colors.white,
+              ),
+            ),
+          );
+        },
       ),
     );
   }
