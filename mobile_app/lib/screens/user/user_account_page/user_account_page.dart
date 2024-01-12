@@ -3,6 +3,7 @@ import 'package:mobile_app/constants/colors.dart';
 import 'package:mobile_app/screens/user/user_account_page/user_account_list_view.dart';
 import 'package:mobile_app/service/authentication/auth.dart';
 import 'package:mobile_app/service/database/data.dart';
+import 'package:shimmer/shimmer.dart';
 
 class UserAccountPage extends StatefulWidget {
   const UserAccountPage({Key? key}) : super(key: key);
@@ -41,6 +42,12 @@ class _UserAccountPage extends State<UserAccountPage> {
     final Color textColor = theme.brightness == Brightness.light
         ? AppColors.textLight
         : AppColors.textDark;
+    final Color shimmerBaseColor = theme.brightness == Brightness.light
+        ? AppColors.shimmerBaseColorLight
+        : AppColors.shimmerBaseColorDark;
+    final Color shimmerHighlightColor = theme.brightness == Brightness.light
+        ? AppColors.shimmerHighlightColorLight
+        : AppColors.shimmerHighlightColorDark;
 
     return Scaffold(
       body: SafeArea(
@@ -52,7 +59,15 @@ class _UserAccountPage extends State<UserAccountPage> {
               future: getUserName(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const CircularProgressIndicator();
+                  // Use shimmer effect while loading
+                  return Shimmer.fromColors(
+                    baseColor: shimmerBaseColor,
+                    highlightColor: shimmerHighlightColor,
+                    child: Container(
+                        width: double.infinity,
+                        height: 60.0,
+                        color: backgroundColor),
+                  );
                 } else if (snapshot.hasError) {
                   return Text('Error: ${snapshot.error}');
                 } else {

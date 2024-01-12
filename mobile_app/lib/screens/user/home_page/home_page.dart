@@ -198,6 +198,12 @@ class _HomePageState extends State<HomePage> {
     final Color textColor = theme.brightness == Brightness.light
         ? AppColors.textLight
         : AppColors.textDark;
+    final Color shimmerBaseColor = theme.brightness == Brightness.light
+        ? AppColors.shimmerBaseColorLight
+        : AppColors.shimmerBaseColorDark;
+    final Color shimmerHighlightColor = theme.brightness == Brightness.light
+        ? AppColors.shimmerHighlightColorLight
+        : AppColors.shimmerHighlightColorDark;
 
     return Scaffold(
       body: SafeArea(
@@ -213,8 +219,8 @@ class _HomePageState extends State<HomePage> {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         // Use shimmer effect while loading
                         return Shimmer.fromColors(
-                          baseColor: Colors.grey[300]!,
-                          highlightColor: Colors.grey[100]!,
+                          baseColor: shimmerBaseColor,
+                          highlightColor: shimmerHighlightColor,
                           child: Container(
                               width: double.infinity,
                               height: 60.0,
@@ -315,8 +321,8 @@ class _HomePageState extends State<HomePage> {
                                 ConnectionState.waiting) {
                               // Use shimmer effect while loading
                               return Shimmer.fromColors(
-                                baseColor: Colors.grey[300]!,
-                                highlightColor: Colors.grey[100]!,
+                                baseColor: shimmerBaseColor,
+                                highlightColor: shimmerHighlightColor,
                                 child: Container(
                                   width: double.infinity,
                                   height: 350.0,
@@ -360,8 +366,8 @@ class _HomePageState extends State<HomePage> {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         // Use shimmer effect while loading
                         return Shimmer.fromColors(
-                          baseColor: Colors.grey[300]!,
-                          highlightColor: Colors.grey[100]!,
+                          baseColor: shimmerBaseColor,
+                          highlightColor: shimmerHighlightColor,
                           child: GridView.builder(
                             gridDelegate:
                                 const SliverGridDelegateWithFixedCrossAxisCount(

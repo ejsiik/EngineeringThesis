@@ -2,6 +2,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_app/service/authentication/auth.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import 'package:shimmer/shimmer.dart';
 import '../../../constants/colors.dart';
 import '../../../service/database/data.dart';
 import 'coupons.dart';
@@ -98,7 +99,7 @@ class _CouponScreenState extends State<CouponScreen> {
         future: widget.data.getAllCouponData(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const CircularProgressIndicator();
+            return _buildShimmerPlaceholder();
           } else if (snapshot.hasError) {
             return Text('Wystąpił błąd podczas pobierania danych o kuponach');
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
@@ -143,6 +144,49 @@ class _CouponScreenState extends State<CouponScreen> {
             );
           }
         },
+      ),
+    );
+  }
+
+  Widget _buildShimmerPlaceholder() {
+    final ThemeData theme = Theme.of(context);
+    final Color shimmerBaseColor = theme.brightness == Brightness.light
+        ? AppColors.shimmerBaseColorLight
+        : AppColors.shimmerBaseColorDark;
+    final Color shimmerHighlightColor = theme.brightness == Brightness.light
+        ? AppColors.shimmerHighlightColorLight
+        : AppColors.shimmerHighlightColorDark;
+    return Shimmer.fromColors(
+      baseColor: shimmerBaseColor,
+      highlightColor: shimmerHighlightColor,
+      child: Column(
+        children: [
+          Expanded(
+            child: GridView.count(
+              crossAxisCount: 3,
+              children: List.generate(6, (index) {
+                return Container(
+                  margin: const EdgeInsets.all(8.0),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                );
+              }),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Container(
+              height: 200,
+              width: 200,
+              decoration: BoxDecoration(
+                color: AppColors.white,
+                borderRadius: BorderRadius.circular(10.0),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

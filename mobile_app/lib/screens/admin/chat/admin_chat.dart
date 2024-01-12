@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_app/service/chat/chat.dart';
 import 'package:mobile_app/service/database/chat_data.dart';
+import 'package:shimmer/shimmer.dart';
 
+import '../../../constants/colors.dart';
 import 'chat_page.dart';
 
 class AdminChatScreen extends StatefulWidget {
@@ -25,6 +27,13 @@ class _AdminChatScreenState extends State<AdminChatScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    final Color shimmerBaseColor = theme.brightness == Brightness.light
+        ? AppColors.shimmerBaseColorLight
+        : AppColors.shimmerBaseColorDark;
+    final Color shimmerHighlightColor = theme.brightness == Brightness.light
+        ? AppColors.shimmerHighlightColorLight
+        : AppColors.shimmerHighlightColorDark;
     return Scaffold(
       appBar: AppBar(
         title: const Text('Admin Chat'),
@@ -45,7 +54,23 @@ class _AdminChatScreenState extends State<AdminChatScreen> {
               stream: usersStream,
               builder: (context, userSnapshot) {
                 if (userSnapshot.connectionState == ConnectionState.waiting) {
-                  return const CircularProgressIndicator();
+                  return Shimmer.fromColors(
+                    baseColor: shimmerBaseColor,
+                    highlightColor: shimmerHighlightColor,
+                    child: ListView.builder(
+                      itemCount:
+                          5, // You can adjust the number of shimmer loading items
+                      itemBuilder: (context, index) {
+                        return ListTile(
+                          title: Container(
+                            width: 200.0,
+                            height: 16.0,
+                            color: Colors.white,
+                          ),
+                        );
+                      },
+                    ),
+                  );
                 } else if (userSnapshot.hasError) {
                   return Text(userSnapshot.error.toString());
                 } else if (!userSnapshot.hasData ||
