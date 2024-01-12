@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:mobile_app/constants/colors.dart';
 //import 'package:mobile_app/constants/text_strings.dart';
 import 'package:mobile_app/service/authentication/auth.dart';
-//import 'package:mobile_app/database/add_product_data.dart';
 //import 'package:mobile_app/service/database/shop_location_data.dart';
 import 'package:mobile_app/service/database/category_data.dart';
 import 'package:mobile_app/service/database/data.dart';
@@ -34,11 +33,11 @@ class _HomePageState extends State<HomePage> {
   bool isListVisible = false;
   bool showWelcomeBanner = false;
   List<ProductSearchModel> displayList = [];
+  TextEditingController searchController = TextEditingController();
   UserDataProvider userDataProvider = UserDataProvider();
   Data userData = Data();
   CategoryData categoryData = CategoryData();
   //ShopLocationData shopLocationData = ShopLocationData();
-  //AddProduct addProductData = AddProduct();
   //List<ProductSearchModel> displayList = [];
 
   void _showSnackBar(String message) {
@@ -119,6 +118,7 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     // Set up a listener for changes in the database
+    searchController = TextEditingController();
     getCategories();
     userDataProvider.isUserCreatedWithin14Days().then((value) {
       setState(() {
@@ -296,8 +296,11 @@ class _HomePageState extends State<HomePage> {
                           padding: const EdgeInsets.all(10.0),
                           color: backgroundColor,
                           child: TextField(
-                            onSubmitted: (value) =>
-                                updateProductSearchList(value),
+                            controller: searchController,
+                            onSubmitted: (value) {
+                              searchController.clear();
+                              updateProductSearchList(value);
+                            },
                             decoration: InputDecoration(
                               filled: true,
                               prefixIcon: const Icon(Icons.search),

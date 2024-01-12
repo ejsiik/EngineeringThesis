@@ -8,7 +8,6 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:mobile_app/screens/user/category_products_page/product_details_page.dart';
 
 class ProductSearchResult extends StatefulWidget {
-  //final List<ProductSearchModel> displayList;
   final String value;
 
   const ProductSearchResult(this.value, {super.key});
