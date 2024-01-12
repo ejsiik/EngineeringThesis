@@ -1,8 +1,11 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:mobile_app/constants/text_strings.dart';
 import 'package:mobile_app/screens/user/main_page.dart';
 import '../../service/authentication/auth.dart';
 import 'package:mobile_app/constants/colors.dart';
+
+import '../../service/connection/connection_check.dart';
 
 class VerifyEmailPage extends StatefulWidget {
   const VerifyEmailPage({super.key});
@@ -47,6 +50,13 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
 
   Future<void> checkEmailVerification() async {
     try {
+      bool isInternetConnected = await checkInternetConnectivity();
+      if (!isInternetConnected) {
+        safeSetState(() {
+          errorMessage = connection;
+        });
+        return;
+      }
       bool verified = await Auth().checkEmailVerified();
       safeSetState(() {
         isEmailVerified = verified;
@@ -60,6 +70,13 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
 
   Future<void> sendVerificationEmail() async {
     try {
+      bool isInternetConnected = await checkInternetConnectivity();
+      if (!isInternetConnected) {
+        safeSetState(() {
+          errorMessage = connection;
+        });
+        return;
+      }
       await Auth().sendVerificationEmail();
 
       safeSetState(() {
@@ -82,6 +99,13 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
   }
 
   Future<void> signOut() async {
+    bool isInternetConnected = await checkInternetConnectivity();
+    if (!isInternetConnected) {
+      safeSetState(() {
+        errorMessage = connection;
+      });
+      return;
+    }
     await Auth().signOut();
   }
 

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mobile_app/screens/login/forgot_password_button_widget.dart';
 import 'package:mobile_app/screens/login/google_widget.dart';
 import '../../constants/colors.dart';
+import '../../constants/text_strings.dart';
 import '../../service/authentication/auth.dart';
 import '../../service/connection/connection_check.dart';
 import 'login_form.dart';
@@ -68,8 +69,7 @@ class _LoginPageState extends State<LoginPage> {
     bool isInternetConnected = await checkInternetConnectivity();
     if (!isInternetConnected) {
       safeSetState(() {
-        errorMessage =
-            'Brak połączenia internetowego. Sprawdź swoje połączenie i spróbuj ponownie.';
+        errorMessage = connection;
       });
       return;
     }
@@ -81,8 +81,7 @@ class _LoginPageState extends State<LoginPage> {
     bool isInternetConnected = await checkInternetConnectivity();
     if (!isInternetConnected) {
       safeSetState(() {
-        errorMessage =
-            'Brak połączenia internetowego. Sprawdź swoje połączenie i spróbuj ponownie.';
+        errorMessage = connection;
       });
       return;
     }
@@ -102,8 +101,7 @@ class _LoginPageState extends State<LoginPage> {
     bool isInternetConnected = await checkInternetConnectivity();
     if (!isInternetConnected) {
       safeSetState(() {
-        errorMessage =
-            'Brak połączenia internetowego. Sprawdź swoje połączenie i spróbuj ponownie.';
+        errorMessage = connection;
       });
       return;
     }
@@ -186,9 +184,7 @@ class _LoginPageState extends State<LoginPage> {
               const SizedBox(height: 30),
               ErrorMessageWidget(errorMessage ?? ''),
               // Retry button when there's an error
-              if (errorMessage != null &&
-                  errorMessage ==
-                      'Brak połączenia internetowego. Sprawdź swoje połączenie i spróbuj ponownie.')
+              if (errorMessage != null && errorMessage == connection)
                 ElevatedButton(
                   onPressed: () {
                     safeSetState(() {
@@ -207,9 +203,7 @@ class _LoginPageState extends State<LoginPage> {
                       style: TextStyle(color: buttonTextColor)),
                 ),
 
-              if (errorMessage == null ||
-                  !errorMessage!.contains(
-                      'Brak połączenia internetowego. Sprawdź swoje połączenie i spróbuj ponownie.'))
+              if (errorMessage == null || !errorMessage!.contains(connection))
                 SubmitButtonWidget(
                     isLogin, _controllerPassword, _controllerConfirmPassword,
                     () {
