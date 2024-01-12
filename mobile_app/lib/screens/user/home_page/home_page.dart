@@ -15,6 +15,7 @@ import 'package:mobile_app/screens/user/home_page/coupon_card.dart';
 import 'package:mobile_app/screens/user/home_page/qr_code_popup.dart';
 import 'package:shimmer/shimmer.dart';
 import '../../../service/connection/connection_check.dart';
+import '../category_products_page/product_search_model.dart';
 import 'welcome_banner.dart';
 //import '../category_products_page/product_search_model.dart';
 import '../category_products_page/product_search_result.dart';
@@ -39,8 +40,6 @@ class _HomePageState extends State<HomePage> {
   //ShopLocationData shopLocationData = ShopLocationData();
   //AddProduct addProductData = AddProduct();
   //List<ProductSearchModel> displayList = [];
-  late DatabaseReference? couponUsedRef;
-
 
   void _showSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
