@@ -13,6 +13,7 @@ import 'package:mobile_app/service/database/data.dart';
 import 'package:mobile_app/screens/user/category_products_page/category_products_page.dart';
 import 'package:mobile_app/screens/user/home_page/coupon_card.dart';
 import 'package:mobile_app/screens/user/home_page/qr_code_popup.dart';
+import 'package:shimmer/shimmer.dart';
 import '../../../service/connection/connection_check.dart';
 import 'welcome_banner.dart';
 //import '../category_products_page/product_search_model.dart';
@@ -209,10 +210,19 @@ class _HomePageState extends State<HomePage> {
                   FutureBuilder<String>(
                     future: getUserName(),
                     builder: (context, snapshot) {
-                      if (snapshot.hasError) {
-                        return Text('Error: ${snapshot.error}');
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        // Use shimmer effect while loading
+                        return Shimmer.fromColors(
+                          baseColor: Colors.grey[300]!,
+                          highlightColor: Colors.grey[100]!,
+                          child: Container(
+                              width: double.infinity,
+                              height: 60.0,
+                              color: backgroundColor),
+                        );
                       } else {
-                        String userName = snapshot.data ?? '';
+                        String userName =
+                            snapshot.data ?? 'Nieznany użytkownik';
                         return Row(
                           children: [
                             Expanded(
@@ -303,7 +313,16 @@ class _HomePageState extends State<HomePage> {
                           builder: (context, snapshot) {
                             if (snapshot.connectionState ==
                                 ConnectionState.waiting) {
-                              return const CircularProgressIndicator();
+                              // Use shimmer effect while loading
+                              return Shimmer.fromColors(
+                                baseColor: Colors.grey[300]!,
+                                highlightColor: Colors.grey[100]!,
+                                child: Container(
+                                  width: double.infinity,
+                                  height: 350.0,
+                                  color: backgroundColor,
+                                ),
+                              );
                             } else if (snapshot.hasError) {
                               return const Icon(Icons.error);
                             } else {
@@ -339,8 +358,36 @@ class _HomePageState extends State<HomePage> {
                     builder:
                         (BuildContext context, AsyncSnapshot<List> snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
-                        // Return a loading indicator while data is being fetched.
-                        return const CircularProgressIndicator();
+                        // Use shimmer effect while loading
+                        return Shimmer.fromColors(
+                          baseColor: Colors.grey[300]!,
+                          highlightColor: Colors.grey[100]!,
+                          child: GridView.builder(
+                            gridDelegate:
+                                const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 3,
+                              crossAxisSpacing: 8.0,
+                              mainAxisSpacing: 8.0,
+                            ),
+                            itemCount: 6, // Adjust the itemCount as needed
+                            itemBuilder: (BuildContext context, int index) {
+                              return Card(
+                                elevation: 2.0,
+                                child: Padding(
+                                  padding: const EdgeInsets.all(16.0),
+                                  child: Center(
+                                    child: Container(
+                                        width: 50.0,
+                                        height: 20.0,
+                                        color: backgroundColor),
+                                  ),
+                                ),
+                              );
+                            },
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                          ),
+                        );
                       } else if (snapshot.hasError) {
                         // Handle the error case.
                         return Text('Error: ${snapshot.error}');
