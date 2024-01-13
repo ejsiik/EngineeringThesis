@@ -2,6 +2,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:mobile_app/service/connection/connection_check.dart';
 import 'package:mobile_app/service/database/data.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -31,6 +32,10 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
 
   Future<List<Uint8List>> loadImages(Map<String, dynamic> images) async {
     List<Uint8List> loadedImages = [];
+
+    if (!await checkInternetConnectivity()) {
+      return loadedImages;
+    }
 
     for (String imageUrl in images.values) {
       final ref = FirebaseStorage.instance.ref().child(imageUrl);

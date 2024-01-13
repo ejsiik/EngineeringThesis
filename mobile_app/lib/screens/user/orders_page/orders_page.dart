@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_app/service/connection/connection_check.dart';
 import 'package:mobile_app/service/database/order_data.dart';
 import 'package:mobile_app/service/database/shop_location_data.dart';
 import 'package:mobile_app/service/database/data.dart';
@@ -39,6 +40,9 @@ class _OrdersState extends State<OrdersPage> {
   }
 
   Future<double> getTotalPrice() async {
+    if (!await checkInternetConnectivity()) {
+      return 0.0;
+    }
     double totalPrice = await userData.getTotalPriceData();
     return totalPrice;
   }

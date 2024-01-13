@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:mobile_app/service/connection/connection_check.dart';
 import 'package:mobile_app/service/database/data.dart';
 import 'package:mobile_app/screens/user/category_products_page/product_details_page.dart';
 import 'package:mobile_app/screens/user/orders_page/orders_page.dart';
@@ -36,11 +37,19 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
   }
 
   Future<List<dynamic>> getShoppingCartData() async {
+    if (!await checkInternetConnectivity()) {
+      return [];
+    }
+
     List<dynamic> data = await userData.getShoppingCartData();
     return data;
   }
 
   Future<Uint8List?> loadImage(String imageUrl) async {
+    if (!await checkInternetConnectivity()) {
+      return null;
+    }
+
     final ref = FirebaseStorage.instance.ref().child(imageUrl);
     final data = await ref.getData();
     return data;
@@ -61,6 +70,10 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
     }
 
     Future<int> getQuantityOfShoppingCart(String productId) async {
+      if (!await checkInternetConnectivity()) {
+        return 0;
+      }
+
       final data = await userData.getQuantityOfShoppingCart(productId);
       return data;
     }

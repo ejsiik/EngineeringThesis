@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:mobile_app/service/connection/connection_check.dart';
 import 'package:mobile_app/service/database/product_data.dart';
 import 'package:mobile_app/service/database/data.dart';
 import 'package:mobile_app/screens/user/category_products_page/product_details_page.dart';
@@ -26,6 +27,10 @@ class _CategoryProductsPageState extends State<CategoryProductsPage> {
   static const String routeName = '/categoryProductsPage';
 
   Future<List<Map<String, dynamic>>> getProductData() async {
+    if (!await checkInternetConnectivity()) {
+      return [];
+    }
+
     List<Map<String, dynamic>> data =
         await productData.getProductData(widget.categoryId);
 
@@ -33,6 +38,10 @@ class _CategoryProductsPageState extends State<CategoryProductsPage> {
   }
 
   Future<Uint8List?> loadImage(String imageUrl) async {
+    if (!await checkInternetConnectivity()) {
+      return null;
+    }
+
     final ref = FirebaseStorage.instance.ref().child(imageUrl);
     final data = await ref.getData();
     return data;

@@ -2,12 +2,12 @@ import 'package:firebase_database/firebase_database.dart';
 
 class ProductData {
   // Reference to each "product" node
-  DatabaseReference getShopsLocationsRef() {
+  DatabaseReference getProductsRef() {
     return FirebaseDatabase.instance.ref().child('products');
   }
 
   Future<List<Map<String, dynamic>>> getProductData(int categoryId) async {
-    DatabaseReference ref = getShopsLocationsRef();
+    DatabaseReference ref = getProductsRef();
 
     // Pobierz dane z bazy danych
     DatabaseEvent event = await ref.once();
@@ -37,7 +37,7 @@ class ProductData {
   }
 
   Future<List<Map<String, dynamic>>> getProductDataByName(String name) async {
-    DatabaseReference ref = getShopsLocationsRef();
+    DatabaseReference ref = getProductsRef();
 
     // Pobierz dane z bazy danych
     DatabaseEvent event = await ref.once();
@@ -69,8 +69,25 @@ class ProductData {
     }
   }
 
+  Future<Map<String, dynamic>> getProductDataById(String id) async {
+    DatabaseReference ref = getProductsRef();
+
+    // Pobierz dane z bazy danych
+    DatabaseEvent event = await ref.child(id).once();
+    DataSnapshot snapshot = event.snapshot;
+
+    if (snapshot.value == null) {
+      return {};
+    } else {
+      final product =
+          Map<String, dynamic>.from(snapshot.value! as Map<Object?, Object?>);
+
+      return product;
+    }
+  }
+
   Future<int> getProductDataByNameLength(String name) async {
-    DatabaseReference ref = getShopsLocationsRef();
+    DatabaseReference ref = getProductsRef();
 
     // Pobierz dane z bazy danych
     DatabaseEvent event = await ref.once();

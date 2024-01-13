@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_app/service/connection/connection_check.dart';
 import 'package:mobile_app/service/database/product_data.dart';
 import 'package:mobile_app/service/database/data.dart';
 import 'package:shimmer/shimmer.dart';
@@ -23,6 +24,10 @@ class _ProductSearchResultState extends State<ProductSearchResult> {
   static const String routeName = '/productSearchResultPage';
 
   Future<List<Map<String, dynamic>>> getProductData() async {
+    if (!await checkInternetConnectivity()) {
+      return [];
+    }
+
     List<Map<String, dynamic>> data =
         await productData.getProductDataByName(widget.value);
 
@@ -30,6 +35,10 @@ class _ProductSearchResultState extends State<ProductSearchResult> {
   }
 
   Future<Uint8List?> loadImage(String imageUrl) async {
+    if (!await checkInternetConnectivity()) {
+      return null;
+    }
+
     final ref = FirebaseStorage.instance.ref().child(imageUrl);
     final data = await ref.getData();
 

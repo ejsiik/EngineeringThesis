@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_app/service/connection/connection_check.dart';
 import 'package:mobile_app/service/database/order_data.dart';
 import 'package:mobile_app/screens/user/category_products_page/product_details_page.dart';
 import 'package:shimmer/shimmer.dart';
@@ -11,6 +12,9 @@ class OrderDetailsPage extends StatelessWidget {
   const OrderDetailsPage({Key? key, required this.order}) : super(key: key);
 
   Future<Map<dynamic, dynamic>> getProductData(String id) async {
+    if (!await checkInternetConnectivity()) {
+      return {};
+    }
     OrderData orderData = OrderData();
     Map<dynamic, dynamic> data = await orderData.getProductData(id);
     return data;
