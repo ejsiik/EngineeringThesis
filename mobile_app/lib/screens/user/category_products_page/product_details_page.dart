@@ -308,7 +308,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
           if (widget.routeName != '/shoppingCartPage' &&
               widget.routeName != '/ordersPage')
             Container(
-              padding: EdgeInsets.all(12.0), // Dodaj Padding dookoła
+              padding: EdgeInsets.all(16.0),
               color: Colors.orange,
               child: GestureDetector(
                 onTap: () {
