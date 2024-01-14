@@ -157,14 +157,17 @@ class MessageWidget extends StatelessWidget {
   const MessageWidget(this.sender, this.text, this.isMyMessage, {Key? key})
       : super(key: key);
 
-  @override
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
-    final Color textColor = theme.brightness == Brightness.light
+    final Color textColor = theme.brightness == Brightness.dark
         ? AppColors.textLight
         : AppColors.textDark;
-    const Color myChat = AppColors.chatCurrent;
-    const Color otherChat = AppColors.chatOther;
+    final Color myChat = theme.brightness == Brightness.light
+        ? AppColors.navbarSelectedLight
+        : AppColors.navbarSelectedDark;
+    final Color otherChat = theme.brightness == Brightness.light
+        ? AppColors.navbarUnselectedLight
+        : AppColors.navbarUnselectedDark;
 
     // Display 'Ja' instead of the sender's email for the current user's messages
     final displayedSender = isMyMessage ? 'Ja' : sender;

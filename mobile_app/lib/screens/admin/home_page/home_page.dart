@@ -4,7 +4,6 @@ import '../../../constants/text_strings.dart';
 import '../../../service/authentication/auth.dart';
 import '../../../constants/colors.dart';
 import '../../../service/connection/connection_check.dart';
-import '../chat/admin_chat.dart';
 import 'entry_field.dart';
 import 'submit_button.dart';
 import 'error_message.dart';
@@ -53,20 +52,48 @@ class _AdminHomePageState extends State<AdminHomePage> {
     await Auth().signOut();
   }
 
+  Widget _buildWelcomeBannerCheckbox() {
+    final ThemeData theme = Theme.of(context);
+    final Color backgroundColor = theme.scaffoldBackgroundColor;
+    final Color primaryColor = theme.brightness == Brightness.light
+        ? AppColors.primaryLight
+        : AppColors.primaryDark;
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Checkbox(
+          value: _welcomeBanner,
+          onChanged: (value) {
+            setState(() {
+              _welcomeBanner = value!;
+              if (_welcomeBanner) {
+                _controllerValue.clear();
+              }
+            });
+          },
+          activeColor: primaryColor,
+          checkColor: backgroundColor,
+        ),
+        Text(
+          'Kupon powitalny',
+          style: TextStyle(color: primaryColor),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
     final Color backgroundColor = theme.scaffoldBackgroundColor;
-    const Color logoutColor = AppColors.logout;
+    final Color logoutColor = theme.brightness == Brightness.light
+        ? AppColors.primaryLight
+        : AppColors.primaryDark;
     final Color primaryColor = theme.brightness == Brightness.light
         ? AppColors.primaryLight
         : AppColors.primaryDark;
-    final Color navbarSelectedColor = theme.brightness == Brightness.light
-        ? AppColors.navbarSelectedLight
-        : AppColors.navbarSelectedDark;
-    final Color navbarUnselectedColor = theme.brightness == Brightness.light
-        ? AppColors.navbarUnselectedLight
-        : AppColors.navbarUnselectedDark;
+
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
@@ -80,7 +107,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
           actions: [
             IconButton(
               onPressed: signOut,
-              icon: const Icon(Icons.logout, color: logoutColor),
+              icon: Icon(Icons.logout, color: logoutColor),
             ),
           ],
         ),
@@ -125,53 +152,10 @@ class _AdminHomePageState extends State<AdminHomePage> {
                     });
                   },
                 ),
-                Checkbox(
-                  value: _welcomeBanner,
-                  onChanged: (value) {
-                    setState(() {
-                      _welcomeBanner = value!;
-                      if (_welcomeBanner) {
-                        _controllerValue.clear();
-                      }
-                    });
-                  },
-                  activeColor: navbarSelectedColor,
-                  checkColor: navbarUnselectedColor,
-                  fillColor: MaterialStateColor.resolveWith((states) {
-                    if (states.contains(MaterialState.selected)) {
-                      return primaryColor;
-                    }
-                    return primaryColor;
-                  }),
-                ),
-                Text(
-                  'Kupon powitalny',
-                  style: TextStyle(color: primaryColor),
-                ),
+                _buildWelcomeBannerCheckbox(),
                 const SizedBox(height: 30),
                 ErrorMessage(message: errorMessage as String),
                 _buildSubmitButton(),
-                const SizedBox(height: 30),
-                ElevatedButton(
-                  onPressed: () async {
-                    bool isInternetConnected =
-                        await checkInternetConnectivity();
-                    if (!isInternetConnected) {
-                      setState(() {
-                        errorMessage = connection;
-                      });
-                      return;
-                    }
-
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const AdminChatScreen(),
-                      ),
-                    );
-                  },
-                  child: const Text('Idź do czatu'),
-                ),
               ],
             ),
           ),

@@ -63,7 +63,7 @@ class EntryField extends StatelessWidget {
           TextField(
             controller: controller,
             enabled: title != 'Wartość' || !welcomeBanner,
-            style: TextStyle(color: primaryColor),
+            style: TextStyle(color: AppColors.primaryLight),
             decoration: InputDecoration(
               hintText: title,
               hintStyle: TextStyle(color: primaryColor),
