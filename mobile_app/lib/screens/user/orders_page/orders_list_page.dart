@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:mobile_app/service/connection/connection_check.dart';
 import 'package:mobile_app/service/database/order_data.dart';
 import 'package:mobile_app/screens/user/orders_page/orders_detailed_page.dart';
 import 'package:shimmer/shimmer.dart';
@@ -27,6 +28,9 @@ class _OrdersListState extends State<OrdersListPage> {
   }
 
   Future<List<Map<String, dynamic>>> getOrdersData(String type) async {
+    if (!await checkInternetConnectivity()) {
+      return [];
+    }
     OrderData orderData = OrderData();
     return orderData.getOrderList(type);
   }

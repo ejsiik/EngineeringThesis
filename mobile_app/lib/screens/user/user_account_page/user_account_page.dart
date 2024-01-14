@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mobile_app/constants/colors.dart';
 import 'package:mobile_app/screens/user/user_account_page/user_account_list_view.dart';
 import 'package:mobile_app/service/authentication/auth.dart';
+import 'package:mobile_app/service/connection/connection_check.dart';
 import 'package:mobile_app/service/database/data.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -22,6 +23,10 @@ class _UserAccountPage extends State<UserAccountPage> {
   }
 
   Future<String> getUserName() async {
+    if (!await checkInternetConnectivity()) {
+      return "";
+    }
+
     String? userName = await data.getUserName();
 
     if (userName != null) {

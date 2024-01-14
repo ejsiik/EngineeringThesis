@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:mobile_app/service/connection/connection_check.dart';
 import 'package:mobile_app/service/database/data.dart';
 import 'package:mobile_app/screens/user/category_products_page/product_details_page.dart';
 import 'package:mobile_app/screens/user/orders_page/orders_page.dart';
@@ -26,7 +27,7 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
   @override
   void initState() {
     super.initState();
-    // Set up a listener for changes in the database
+    setState(() {});
     getTotalPrice();
   }
 
@@ -36,11 +37,19 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
   }
 
   Future<List<dynamic>> getShoppingCartData() async {
+    if (!await checkInternetConnectivity()) {
+      return [];
+    }
+
     List<dynamic> data = await userData.getShoppingCartData();
     return data;
   }
 
   Future<Uint8List?> loadImage(String imageUrl) async {
+    if (!await checkInternetConnectivity()) {
+      return null;
+    }
+
     final ref = FirebaseStorage.instance.ref().child(imageUrl);
     final data = await ref.getData();
     return data;
@@ -61,6 +70,10 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
     }
 
     Future<int> getQuantityOfShoppingCart(String productId) async {
+      if (!await checkInternetConnectivity()) {
+        return 0;
+      }
+
       final data = await userData.getQuantityOfShoppingCart(productId);
       return data;
     }
@@ -182,53 +195,122 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
 
   @override
   Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    final Color primaryColor = theme.brightness == Brightness.light
+        ? AppColors.primaryLight
+        : AppColors.primaryDark;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Koszyk'),
+        automaticallyImplyLeading: false,
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: FutureBuilder<List>(
-              future: getShoppingCartData(),
-              builder: (BuildContext context, AsyncSnapshot<List> snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return ShimmerLoadingShoppingCart();
-                } else if (snapshot.hasError) {
-                  return Text('Error: ${snapshot.error}');
-                } else {
-                  List? productsList = snapshot.data;
-                  return ListView.builder(
-                    itemCount: productsList?.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      return buildProductItem(productsList![index]);
-                    },
-                  );
-                }
-              },
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.all(8.0),
-            color: Colors.orange,
-            child: GestureDetector(
-              onTap: () {
-                if (totalPrice != 0) {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const OrdersPage(),
+      body: FutureBuilder<double>(
+        future: userData.getTotalPriceData(),
+        builder:
+            (BuildContext context, AsyncSnapshot<double> totalPriceSnapshot) {
+          if (totalPriceSnapshot.connectionState == ConnectionState.waiting) {
+            return ShimmerLoadingShoppingCart();
+          } else if (totalPriceSnapshot.hasError) {
+            return Text('Error: ${totalPriceSnapshot.error}');
+          } else {
+            double totalPrice = totalPriceSnapshot.data ?? 0.0;
+
+            return Column(
+              children: [
+                if (totalPrice > 0)
+                  Container(
+                    padding: EdgeInsets.all(12.0),
+                    color: Colors.grey,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          'Wartość całkowita: ${totalPrice.toStringAsFixed(2)} zł',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16.0,
+                          ),
+                        ),
+                      ],
                     ),
-                  );
-                }
-              },
-              child: const ListTile(
-                leading: Icon(Icons.shopping_cart),
-                title: Text('Składanie zamówienia'),
-              ),
-            ),
-          ),
-        ],
+                  ),
+                Expanded(
+                  child: FutureBuilder<List>(
+                    future: getShoppingCartData(),
+                    builder:
+                        (BuildContext context, AsyncSnapshot<List> snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return ShimmerLoadingShoppingCart();
+                      } else if (snapshot.hasError) {
+                        return Text('Error: ${snapshot.error}');
+                      } else {
+                        List? productsList = snapshot.data;
+                        if (productsList?.length == 0) {
+                          return Container(
+                            padding: EdgeInsets.all(16.0),
+                            child: Center(
+                              child: Text(
+                                "Twój koszyk jest pusty",
+                                style: TextStyle(
+                                  fontSize: 32.0,
+                                  fontWeight: FontWeight.bold,
+                                  color: primaryColor,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          );
+                        } else {
+                          return ListView.builder(
+                            itemCount: productsList?.length,
+                            itemBuilder: (BuildContext context, int index) {
+                              return buildProductItem(productsList![index]);
+                            },
+                          );
+                        }
+                      }
+                    },
+                  ),
+                ),
+                if (totalPrice > 0)
+                  Container(
+                    padding: EdgeInsets.all(16.0),
+                    color: Colors.orange,
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const OrdersPage(),
+                          ),
+                        );
+                      },
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.shopping_cart,
+                            color: Colors.white,
+                          ),
+                          SizedBox(width: 8.0),
+                          Text(
+                            'Składanie zamówienia',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16.0,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+              ],
+            );
+          }
+        },
       ),
     );
   }
@@ -292,7 +374,7 @@ class ShimmerLoadingShoppingCart extends StatelessWidget {
       baseColor: shimmerBaseColor,
       highlightColor: shimmerHighlightColor,
       child: ListView.builder(
-        itemCount: 5, // Adjust the count as needed
+        itemCount: 1,
         itemBuilder: (context, index) {
           return Card(
             margin: const EdgeInsets.all(8.0),

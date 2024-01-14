@@ -4,15 +4,16 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_app/constants/colors.dart';
+import 'package:mobile_app/screens/user/category_products_page/product_details_page.dart';
 //import 'package:mobile_app/constants/text_strings.dart';
 import 'package:mobile_app/service/authentication/auth.dart';
-//import 'package:mobile_app/database/add_product_data.dart';
 //import 'package:mobile_app/service/database/shop_location_data.dart';
 import 'package:mobile_app/service/database/category_data.dart';
 import 'package:mobile_app/service/database/data.dart';
 import 'package:mobile_app/screens/user/category_products_page/category_products_page.dart';
 import 'package:mobile_app/screens/user/home_page/coupon_card.dart';
 import 'package:mobile_app/screens/user/home_page/qr_code_popup.dart';
+import 'package:mobile_app/service/database/product_data.dart';
 import 'package:shimmer/shimmer.dart';
 import '../../../service/connection/connection_check.dart';
 import '../category_products_page/product_search_model.dart';
@@ -34,11 +35,12 @@ class _HomePageState extends State<HomePage> {
   bool isListVisible = false;
   bool showWelcomeBanner = false;
   List<ProductSearchModel> displayList = [];
+  TextEditingController searchController = TextEditingController();
   UserDataProvider userDataProvider = UserDataProvider();
   Data userData = Data();
   CategoryData categoryData = CategoryData();
+  ProductData productData = ProductData();
   //ShopLocationData shopLocationData = ShopLocationData();
-  //AddProduct addProductData = AddProduct();
   //List<ProductSearchModel> displayList = [];
 
   void _showSnackBar(String message) {
@@ -47,13 +49,24 @@ class _HomePageState extends State<HomePage> {
     ));
   }
 
-  final List<String> sliderImagesList = [
-    "0_1.jpg",
-    "12_1.jpg",
-    "24_1.jpg",
-    "36_1.jpg",
-    "41_1.jpg",
-    "53_1.jpg"
+  Future<Map<String, dynamic>> getProductDataById(String id) async {
+    Map<String, dynamic> data = {};
+
+    if (!await checkInternetConnectivity()) {
+      return data;
+    }
+
+    data = await productData.getProductDataById(id);
+    return data;
+  }
+
+  final List<Map<String, String>> sliderImagesList = [
+    {"banner_01.png": "-NlKz08IwkCWjiUPq_vV"},
+    {"banner_02.png": "-NnkrnO46WOlGE2llt3b"},
+    {"banner_03.png": "-NnovmFR5RscyjV_gRpR"},
+    {"banner_04.png": "-NnqQYS7qv4O_KiSvPkK"},
+    {"banner_05.png": "-NnpsJka0bbsJc7iHTfn"},
+    {"banner_06.png": "-NnqpRiaLLNP25t0iuvs"},
   ];
 
   Widget buildGridItem(int index, List categoriesList) {
@@ -119,6 +132,8 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     // Set up a listener for changes in the database
+    searchController = TextEditingController();
+    productData.getProductDataById("-NlKz08Km4JPp9smAewM");
     getCategories();
     userDataProvider.isUserCreatedWithin14Days().then((value) {
       setState(() {
@@ -137,6 +152,9 @@ class _HomePageState extends State<HomePage> {
 
   Future<String> getUserName() async {
     try {
+      if (!await checkInternetConnectivity()) {
+        return "";
+      }
       String? userName = await userData.getUserName();
       return userName ?? '';
     } catch (error) {
@@ -195,6 +213,8 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    List<String> imageUrls =
+        sliderImagesList.map((map) => map.keys.first).toList();
     final ThemeData theme = Theme.of(context);
     final Color backgroundColor = theme.scaffoldBackgroundColor;
     final Color primaryColor = theme.brightness == Brightness.light
@@ -293,18 +313,29 @@ class _HomePageState extends State<HomePage> {
                     children: [
                       Expanded(
                         child: Container(
-                          padding: const EdgeInsets.all(10.0),
+                          padding: const EdgeInsets.symmetric(vertical: 15.0),
                           color: backgroundColor,
                           child: TextField(
-                            onSubmitted: (value) =>
-                                updateProductSearchList(value),
+                            controller: searchController,
+                            onSubmitted: (value) {
+                              searchController.clear();
+                              updateProductSearchList(value);
+                            },
                             decoration: InputDecoration(
                               filled: true,
-                              prefixIcon: const Icon(Icons.search),
                               hintText: "Wyszukaj w sklepie",
+                              suffixIcon: IconButton(
+                                icon: const Icon(Icons.search),
+                                onPressed: () {
+                                  String searchValue = searchController.text;
+                                  searchController.clear();
+                                  updateProductSearchList(searchValue);
+                                },
+                              ),
                               border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10.0),
-                                  borderSide: BorderSide.none),
+                                borderRadius: BorderRadius.circular(10.0),
+                                borderSide: BorderSide.none,
+                              ),
                             ),
                           ),
                         ),
@@ -320,7 +351,7 @@ class _HomePageState extends State<HomePage> {
                     child: Column(
                       children: [
                         FutureBuilder(
-                          future: loadImages(sliderImagesList),
+                          future: loadImages(imageUrls),
                           builder: (context, snapshot) {
                             if (snapshot.connectionState ==
                                 ConnectionState.waiting) {
@@ -341,11 +372,54 @@ class _HomePageState extends State<HomePage> {
                                   snapshot.data as List<Uint8List>;
 
                               return CarouselSlider(
-                                items: loadedImages.map((image) {
-                                  return Image.memory(
-                                    image,
-                                    width: MediaQuery.of(context).size.width,
-                                    fit: BoxFit.cover,
+                                items:
+                                    loadedImages.asMap().entries.map((entry) {
+                                  int index = entry.key;
+                                  Uint8List image = entry.value;
+                                  String productId =
+                                      sliderImagesList[index].values.first;
+
+                                  return GestureDetector(
+                                    onTap: () async {
+                                      // Pobierz dane produktu po kliknięciu
+                                      Map<String, dynamic> productData =
+                                          await getProductDataById(productId);
+
+                                      final categoryId =
+                                          productData['category_id'];
+                                      final name = productData['name'];
+                                      final price = productData['price'];
+                                      //final details = productData['details'];
+                                      //final images = productData['images'];
+                                      Map<String, dynamic> details =
+                                          (productData['details']
+                                                  as Map<dynamic, dynamic>)
+                                              .cast<String, dynamic>();
+                                      Map<String, dynamic> images =
+                                          (productData['images']
+                                                  as Map<dynamic, dynamic>)
+                                              .cast<String, dynamic>();
+
+                                      // Przejdź do nowego widoku i przekaż dane produktu
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                ProductDetailsPage(
+                                                    categoryId,
+                                                    productId,
+                                                    name,
+                                                    price,
+                                                    details,
+                                                    images,
+                                                    '/bannerLink')),
+                                      );
+                                    },
+                                    child: Image.memory(
+                                      image,
+                                      width: MediaQuery.of(context).size.width,
+                                      fit: BoxFit.cover,
+                                    ),
                                   );
                                 }).toList(),
                                 options: CarouselOptions(

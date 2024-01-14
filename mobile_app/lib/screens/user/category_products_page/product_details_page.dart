@@ -2,6 +2,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:mobile_app/service/connection/connection_check.dart';
 import 'package:mobile_app/service/database/data.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -29,8 +30,17 @@ class ProductDetailsPage extends StatefulWidget {
 class _ProductDetailsPageState extends State<ProductDetailsPage> {
   Data userData = Data();
 
+  Future<bool> isProductInShoppingCart(id) async {
+    bool data = await userData.isProductInShoppingCart(id);
+    return data;
+  }
+
   Future<List<Uint8List>> loadImages(Map<String, dynamic> images) async {
     List<Uint8List> loadedImages = [];
+
+    if (!await checkInternetConnectivity()) {
+      return loadedImages;
+    }
 
     for (String imageUrl in images.values) {
       final ref = FirebaseStorage.instance.ref().child(imageUrl);
@@ -106,6 +116,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
   Widget build(BuildContext context) {
     Future<void> addToShoppingCart(String productId) async {
       await userData.addToShoppingCart(productId);
+      setState(() {});
     }
 
     final ThemeData theme = Theme.of(context);
@@ -303,11 +314,13 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
           if (widget.routeName != '/shoppingCartPage' &&
               widget.routeName != '/ordersPage')
             Container(
-              padding: EdgeInsets.all(12.0), // Dodaj Padding dookoła
+              padding: EdgeInsets.all(16.0),
               color: Colors.orange,
               child: GestureDetector(
-                onTap: () {
-                  addToShoppingCart(widget.productId);
+                onTap: () async {
+                  await addToShoppingCart(widget.productId);
+                  // Aktualizuj tekst bez odświeżania całego widoku
+                  setState(() {});
                 },
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -317,13 +330,22 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                       color: Colors.white,
                     ),
                     SizedBox(width: 8.0),
-                    Text(
-                      'Dodaj do koszyka',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16.0,
-                      ),
+                    FutureBuilder<bool>(
+                      future:
+                          userData.isProductInShoppingCart(widget.productId),
+                      builder: (context, snapshot) {
+                        bool isProductInCart = snapshot.data ?? false;
+                        return Text(
+                          isProductInCart
+                              ? 'Usuń z koszyka'
+                              : 'Dodaj do koszyka',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16.0,
+                          ),
+                        );
+                      },
                     ),
                   ],
                 ),

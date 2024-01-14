@@ -189,6 +189,32 @@ class Data {
     }
   }
 
+  Future<bool> isProductInShoppingCart(String productId) async {
+    try {
+      String userId = currentUser!.uid;
+
+      DatabaseEvent event =
+          await usersRef.child('$userId/shoppingCart/shoppingList').once();
+      DataSnapshot snapshot = event.snapshot;
+
+      if (snapshot.value != null) {
+        final shoppingList =
+            List<dynamic>.from(snapshot.value as List<Object?>);
+
+        bool isProductInCart = shoppingList.any((product) =>
+            product is Map &&
+            product['product_id'] != null &&
+            product['product_id'] == productId);
+
+        return isProductInCart;
+      } else {
+        return false;
+      }
+    } catch (error) {
+      throw Exception('Error accesing shopping cart: $error');
+    }
+  }
+
   Future<void> addToShoppingCart(String productId) async {
     try {
       String userId = currentUser!.uid;

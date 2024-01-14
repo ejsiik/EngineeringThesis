@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:mobile_app/service/connection/connection_check.dart';
 import 'package:mobile_app/service/database/product_data.dart';
 import 'package:mobile_app/service/database/data.dart';
 import 'package:mobile_app/screens/user/category_products_page/product_details_page.dart';
@@ -26,23 +27,37 @@ class _CategoryProductsPageState extends State<CategoryProductsPage> {
   static const String routeName = '/categoryProductsPage';
 
   Future<List<Map<String, dynamic>>> getProductData() async {
+    if (!await checkInternetConnectivity()) {
+      return [];
+    }
+
     List<Map<String, dynamic>> data =
         await productData.getProductData(widget.categoryId);
 
     return data;
   }
 
+  Future<bool> isProductInShoppingCart(id) async {
+    bool data = await userData.isProductInShoppingCart(id);
+    return data;
+  }
+
   Future<Uint8List?> loadImage(String imageUrl) async {
+    if (!await checkInternetConnectivity()) {
+      return null;
+    }
+
     final ref = FirebaseStorage.instance.ref().child(imageUrl);
     final data = await ref.getData();
     return data;
   }
 
-  Widget buildProductItem(Map product) {
-    Future<void> addToShoppingCart(String productId) async {
-      await userData.addToShoppingCart(productId);
-    }
+  Future<void> addToShoppingCart(String productId) async {
+    await userData.addToShoppingCart(productId);
+    setState(() {});
+  }
 
+  Widget buildProductItem(Map product) {
     Map<String, dynamic> details =
         (product['details'] as Map<dynamic, dynamic>).cast<String, dynamic>();
     Map<String, dynamic> images =
@@ -74,11 +89,31 @@ class _CategoryProductsPageState extends State<CategoryProductsPage> {
             Text('Cena: ${product['price']} zł'),
           ],
         ),
-        trailing: GestureDetector(
-          onTap: () {
-            addToShoppingCart(product['id']);
+        trailing: FutureBuilder<bool>(
+          future: userData.isProductInShoppingCart(product['id']),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return CircularProgressIndicator();
+            } else if (snapshot.hasError) {
+              return Icon(Icons.error, color: Colors.red);
+            } else {
+              bool isProductInCart = snapshot.data ?? false;
+              return GestureDetector(
+                onTap: () {
+                  addToShoppingCart(product['id']);
+                },
+                child: isProductInCart
+                    ? Icon(
+                        Icons.shopping_cart,
+                        color: Colors.green,
+                      )
+                    : Icon(
+                        Icons.shopping_cart,
+                        color: Colors.grey,
+                      ),
+              );
+            }
           },
-          child: const Icon(Icons.shopping_cart),
         ),
         onTap: () {
           Navigator.push(
