@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:barcode_scan2/barcode_scan2.dart' as scanner;
+import 'package:url_launcher/url_launcher.dart';
+
 
 import '../../../constants/colors.dart';
 
 class QRButton extends StatelessWidget {
   final Function(String) onScan;
 
-  const QRButton({super.key, required this.onScan});
+  const QRButton({Key? key, required this.onScan}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -28,10 +30,39 @@ class QRButton extends StatelessWidget {
             onScan(result.rawContent);
           }
         } catch (e) {
-          throw 'Wystąpił błąd podczas skanowania';
+          // cammera access denied
+          if (e.toString().contains("PERMISSION_NOT_GRANTED")) {
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  title: Text('Błąd'),
+                  content: Text('Aby skanować kody QR, udziel dostępu do aparatu w ustawieniach aplikacji.'),
+                  actions: <Widget>[
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        _openAppSettings();
+                      },
+                      child: Text('OK'),
+                    ),
+                  ],
+                );
+              },
+            );
+          } else {
+            throw 'Wystąpił błąd podczas skanowania: $e';
+          }
         }
       },
       child: const Text('Skanuj kod QR'),
     );
+  }
+void _openAppSettings() async {
+    // Use the url_launcher package to open the app settings
+    final Uri url = Uri.parse('app-settings:');
+    if (await canLaunchUrl(url)) {
+      await launchUrl(url);
+    }
   }
 }
