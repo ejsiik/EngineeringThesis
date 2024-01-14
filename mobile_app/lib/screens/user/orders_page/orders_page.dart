@@ -153,6 +153,7 @@ class _OrdersState extends State<OrdersPage> {
                 fontWeight: FontWeight.bold,
               ),
             ),
+            const SizedBox(height: 8),
             ExpansionPanelList(
               expandedHeaderPadding: const EdgeInsets.all(0),
               elevation: 1,

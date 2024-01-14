@@ -37,6 +37,11 @@ class _CategoryProductsPageState extends State<CategoryProductsPage> {
     return data;
   }
 
+  Future<bool> isProductInShoppingCart(id) async {
+    bool data = await userData.isProductInShoppingCart(id);
+    return data;
+  }
+
   Future<Uint8List?> loadImage(String imageUrl) async {
     if (!await checkInternetConnectivity()) {
       return null;
@@ -47,11 +52,12 @@ class _CategoryProductsPageState extends State<CategoryProductsPage> {
     return data;
   }
 
-  Widget buildProductItem(Map product) {
-    Future<void> addToShoppingCart(String productId) async {
-      await userData.addToShoppingCart(productId);
-    }
+  Future<void> addToShoppingCart(String productId) async {
+    await userData.addToShoppingCart(productId);
+    setState(() {});
+  }
 
+  Widget buildProductItem(Map product) {
     Map<String, dynamic> details =
         (product['details'] as Map<dynamic, dynamic>).cast<String, dynamic>();
     Map<String, dynamic> images =
@@ -83,11 +89,31 @@ class _CategoryProductsPageState extends State<CategoryProductsPage> {
             Text('Cena: ${product['price']} zł'),
           ],
         ),
-        trailing: GestureDetector(
-          onTap: () {
-            addToShoppingCart(product['id']);
+        trailing: FutureBuilder<bool>(
+          future: userData.isProductInShoppingCart(product['id']),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return CircularProgressIndicator();
+            } else if (snapshot.hasError) {
+              return Icon(Icons.error, color: Colors.red);
+            } else {
+              bool isProductInCart = snapshot.data ?? false;
+              return GestureDetector(
+                onTap: () {
+                  addToShoppingCart(product['id']);
+                },
+                child: isProductInCart
+                    ? Icon(
+                        Icons.shopping_cart,
+                        color: Colors.green,
+                      )
+                    : Icon(
+                        Icons.shopping_cart,
+                        color: Colors.grey,
+                      ),
+              );
+            }
           },
-          child: const Icon(Icons.shopping_cart),
         ),
         onTap: () {
           Navigator.push(
