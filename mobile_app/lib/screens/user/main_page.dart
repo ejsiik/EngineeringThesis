@@ -39,10 +39,7 @@ class _MainPageState extends State<MainPage> {
 
     return SafeArea(
       child: Scaffold(
-        body: IndexedStack(
-          index: _currentIndex,
-          children: pages,
-        ),
+        body: pages[_currentIndex],
         bottomNavigationBar: BottomNavigationBar(
           backgroundColor: backgroundColor,
           showSelectedLabels: false,
@@ -68,7 +65,7 @@ class _MainPageState extends State<MainPage> {
             ),
             BottomNavigationBarItem(
               icon: const Icon(Icons.add_shopping_cart),
-              label: 'Trolley',
+              label: 'Shopping Cart',
               backgroundColor: backgroundColor,
             ),
             BottomNavigationBarItem(

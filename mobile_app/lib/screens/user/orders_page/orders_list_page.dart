@@ -37,6 +37,11 @@ class _OrdersListState extends State<OrdersListPage> {
 
   @override
   Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    final Color primaryColor = theme.brightness == Brightness.light
+        ? AppColors.primaryLight
+        : AppColors.primaryDark;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Zamówienia'),
@@ -51,67 +56,84 @@ class _OrdersListState extends State<OrdersListPage> {
           } else {
             List<Map<String, dynamic>> ordersList = snapshot.data ?? [];
 
-            return ListView.builder(
-              itemCount: ordersList.length,
-              itemBuilder: (context, index) {
-                MapEntry<String, dynamic> orderEntry =
-                    ordersList[index].entries.first;
-                final orderData = Map<String, dynamic>.from(
-                    (orderEntry.value) as Map<Object?, Object?>);
-
-                String city = orderData['order']['city'];
-                String street = orderData['order']['street'];
-                String streetNumber = orderData['order']['street_number'];
-
-                String formattedDate = DateFormat('yyyy-MM-dd HH:mm')
-                    .format(DateTime.parse(orderData['order']['order_date']));
-
-                return Card(
-                  elevation: 5,
-                  margin:
-                      const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
-                  child: ListTile(
-                    title: Text(
-                      'Zamówienie #${index + 1}',
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18,
-                      ),
+            if (ordersList.length == 0) {
+              return Container(
+                padding: EdgeInsets.all(16.0),
+                child: Center(
+                  child: Text(
+                    "Brak zamówień",
+                    style: TextStyle(
+                      fontSize: 32.0,
+                      fontWeight: FontWeight.bold,
+                      color: primaryColor,
                     ),
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const SizedBox(height: 5),
-                        Text(
-                          'Data: $formattedDate',
-                          style:
-                              TextStyle(fontSize: 14, color: Colors.grey[600]),
-                        ),
-                        Text(
-                          'Cena całkowita: ${orderData['order']['total_price']} zł',
-                          style: const TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.bold),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'Adres: $city, $street $streetNumber',
-                          style: const TextStyle(fontSize: 14),
-                        ),
-                      ],
-                    ),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => OrderDetailsPage(
-                              order: orderData['order']['shopping_list']),
-                        ),
-                      );
-                    },
+                    textAlign: TextAlign.center,
                   ),
-                );
-              },
-            );
+                ),
+              );
+            } else {
+              return ListView.builder(
+                itemCount: ordersList.length,
+                itemBuilder: (context, index) {
+                  MapEntry<String, dynamic> orderEntry =
+                      ordersList[index].entries.first;
+                  final orderData = Map<String, dynamic>.from(
+                      (orderEntry.value) as Map<Object?, Object?>);
+
+                  String city = orderData['order']['city'];
+                  String street = orderData['order']['street'];
+                  String streetNumber = orderData['order']['street_number'];
+
+                  String formattedDate = DateFormat('yyyy-MM-dd HH:mm')
+                      .format(DateTime.parse(orderData['order']['order_date']));
+
+                  return Card(
+                    elevation: 5,
+                    margin: const EdgeInsets.symmetric(
+                        vertical: 10, horizontal: 15),
+                    child: ListTile(
+                      title: Text(
+                        'Zamówienie #${index + 1}',
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                        ),
+                      ),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const SizedBox(height: 5),
+                          Text(
+                            'Data: $formattedDate',
+                            style: TextStyle(
+                                fontSize: 14, color: Colors.grey[600]),
+                          ),
+                          Text(
+                            'Cena całkowita: ${orderData['order']['total_price']} zł',
+                            style: const TextStyle(
+                                fontSize: 16, fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Adres: $city, $street $streetNumber',
+                            style: const TextStyle(fontSize: 14),
+                          ),
+                        ],
+                      ),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => OrderDetailsPage(
+                                order: orderData['order']['shopping_list']),
+                          ),
+                        );
+                      },
+                    ),
+                  );
+                },
+              );
+            }
           }
         },
       ),
