@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:mobile_app/constants/colors.dart';
 import 'package:mobile_app/screens/user/home_page/chat_page.dart';
 import 'package:mobile_app/screens/user/shopping_cart_page/shopping_cart_page.dart';
-import '../../service/authentication/auth.dart';
 import 'package:mobile_app/screens/user/user_account_page/user_account_page.dart';
 import 'package:mobile_app/screens/user/home_page/home_page.dart';
 import '/constants/config.dart';
@@ -17,7 +16,7 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> {
   int _currentIndex = 0;
 
-  final pages = [
+  final List<Widget> pages = [
     const HomePage(),
     const ChatPage(
       receiverId: receiverId,
@@ -26,10 +25,6 @@ class _MainPageState extends State<MainPage> {
     const ShoppingCartPage(),
     const UserAccountPage(),
   ];
-
-  void signOut() async {
-    await Auth().signOut();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,14 +39,10 @@ class _MainPageState extends State<MainPage> {
 
     return SafeArea(
       child: Scaffold(
-        /*
-        // remember state of each page
         body: IndexedStack(
           index: _currentIndex,
-          children: _pages,
+          children: pages,
         ),
-        */
-        body: pages[_currentIndex],
         bottomNavigationBar: BottomNavigationBar(
           backgroundColor: backgroundColor,
           showSelectedLabels: false,
