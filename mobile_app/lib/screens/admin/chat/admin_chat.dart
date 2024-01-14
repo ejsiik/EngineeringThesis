@@ -37,14 +37,6 @@ class _AdminChatScreenState extends State<AdminChatScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Admin Chat'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.exit_to_app),
-            onPressed: () {
-              Navigator.pop(context);
-            },
-          ),
-        ],
       ),
       body: Column(
         children: [

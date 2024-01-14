@@ -120,7 +120,7 @@ class _ChatPageState extends State<AdminChatPage> {
                 }),
           ),
           Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.all(15.0),
             child: Row(
               children: [
                 Expanded(

@@ -37,7 +37,6 @@ class _NavigationPageState extends State<NavigationPage> {
             icon: Icon(Icons.chat),
             label: 'Chat',
           ),
-          // Add more items as needed
         ],
       ),
     );
