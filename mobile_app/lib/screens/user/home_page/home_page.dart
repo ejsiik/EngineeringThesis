@@ -61,9 +61,12 @@ class _HomePageState extends State<HomePage> {
   }
 
   final List<Map<String, String>> sliderImagesList = [
-    {"1_1.jpg": "-NlKz08Km4JPp9smAewM"},
-    {"22_1.jpg": "-NnkrnObbCvhppzVm1yL"},
-    {"35_1.jpg": "-NnovmGFOQhoDO8BTaI6"},
+    {"banner_01.png": "-NlKz08IwkCWjiUPq_vV"},
+    {"banner_02.png": "-NnkrnO46WOlGE2llt3b"},
+    {"banner_03.png": "-NnovmFR5RscyjV_gRpR"},
+    {"banner_04.png": "-NnqQYS7qv4O_KiSvPkK"},
+    {"banner_05.png": "-NnpsJka0bbsJc7iHTfn"},
+    {"banner_06.png": "-NnqpRiaLLNP25t0iuvs"},
   ];
 
   Widget buildGridItem(int index, List categoriesList) {

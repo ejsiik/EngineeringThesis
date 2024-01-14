@@ -27,7 +27,7 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
   @override
   void initState() {
     super.initState();
-
+    setState(() {});
     getTotalPrice();
   }
 
@@ -203,6 +203,7 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Koszyk'),
+        automaticallyImplyLeading: false,
       ),
       body: FutureBuilder<double>(
         future: userData.getTotalPriceData(),
@@ -273,40 +274,39 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
                     },
                   ),
                 ),
-                Container(
-                  padding: EdgeInsets.all(16.0),
-                  color: Colors.orange,
-                  child: GestureDetector(
-                    onTap: () {
-                      if (totalPrice > 0) {
-                        Navigator.pushReplacement(
+                if (totalPrice > 0)
+                  Container(
+                    padding: EdgeInsets.all(16.0),
+                    color: Colors.orange,
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (context) => const OrdersPage(),
                           ),
                         );
-                      }
-                    },
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.shopping_cart,
-                          color: Colors.white,
-                        ),
-                        SizedBox(width: 8.0),
-                        Text(
-                          'Składanie zamówienia',
-                          style: TextStyle(
+                      },
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.shopping_cart,
                             color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16.0,
                           ),
-                        ),
-                      ],
+                          SizedBox(width: 8.0),
+                          Text(
+                            'Składanie zamówienia',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16.0,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ),
               ],
             );
           }

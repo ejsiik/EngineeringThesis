@@ -10,7 +10,7 @@ class OrderData {
 
   DatabaseReference ordersRef = FirebaseDatabase.instance.ref().child('orders');
 
-  Future<void> addOrder(String name, String surname, String phone,
+  Future<void> addOrder(String name, String surname,
       Map<String, dynamic> location, double totalPrice) async {
     try {
       String userId = currentUser!.uid;
@@ -32,7 +32,6 @@ class OrderData {
           'user_id': userId,
           'user_name': name,
           'user_surname': surname,
-          'user_phone': phone,
           'city': city,
           'street': street,
           'street_number': streetNumber,
