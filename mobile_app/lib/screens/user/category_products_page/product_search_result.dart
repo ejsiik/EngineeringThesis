@@ -176,91 +176,89 @@ class _ProductSearchResultState extends State<ProductSearchResult> {
       appBar: AppBar(
         title: const Text('Wyniki wyszukiwania'),
       ),
-      body: SafeArea(
-        child: CustomScrollView(
-          slivers: [
-            SliverToBoxAdapter(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Container(
-                        padding: EdgeInsets.all(8.0),
-                        child: Text(
-                          'Znaleziono produktów: $len',
-                          style: TextStyle(
-                            fontSize: 20,
-                            color: textColor,
-                            fontWeight: FontWeight.bold,
-                          ),
+      body: CustomScrollView(
+        slivers: [
+          SliverToBoxAdapter(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: EdgeInsets.all(8.0),
+                      child: Text(
+                        'Znaleziono produktów: $len',
+                        style: TextStyle(
+                          fontSize: 20,
+                          color: textColor,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      Container(
-                        padding: EdgeInsets.all(8.0),
-                        child: Text(
-                          'Wyszukiwana fraza: ${widget.value}',
-                          style: TextStyle(
-                            fontSize: 20,
-                            color: textColor,
-                            fontStyle: FontStyle.italic,
-                          ),
+                    ),
+                  ],
+                ),
+                Row(
+                  children: [
+                    Container(
+                      padding: EdgeInsets.all(8.0),
+                      child: Text(
+                        'Wyszukiwana fraza: ${widget.value}',
+                        style: TextStyle(
+                          fontSize: 20,
+                          color: textColor,
+                          fontStyle: FontStyle.italic,
                         ),
                       ),
-                    ],
-                  ),
-                ],
-              ),
+                    ),
+                  ],
+                ),
+              ],
             ),
-            FutureBuilder<List>(
-              future: getProductData(),
-              builder: (BuildContext context, AsyncSnapshot<List> snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return SliverToBoxAdapter(
-                    child: Center(
-                      child: Shimmer.fromColors(
-                        baseColor: shimmerBaseColor,
-                        highlightColor: shimmerHighlightColor,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: List.generate(
-                            5,
-                            (index) => Container(
-                              margin: EdgeInsets.all(15.0),
-                              width: MediaQuery.of(context).size.width * 0.9,
-                              height: 100,
-                              color: Colors.white,
-                            ),
+          ),
+          FutureBuilder<List>(
+            future: getProductData(),
+            builder: (BuildContext context, AsyncSnapshot<List> snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return SliverToBoxAdapter(
+                  child: Center(
+                    child: Shimmer.fromColors(
+                      baseColor: shimmerBaseColor,
+                      highlightColor: shimmerHighlightColor,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: List.generate(
+                          5,
+                          (index) => Container(
+                            margin: EdgeInsets.all(15.0),
+                            width: MediaQuery.of(context).size.width * 0.9,
+                            height: 100,
+                            color: Colors.white,
                           ),
                         ),
                       ),
                     ),
-                  );
-                } else if (snapshot.hasError) {
-                  return SliverToBoxAdapter(
-                    child: Center(
-                      child: Text('Error: ${snapshot.error}'),
-                    ),
-                  );
-                } else {
-                  List? productsList = snapshot.data;
-                  return SliverList(
-                    delegate: SliverChildBuilderDelegate(
-                      (BuildContext context, int index) {
-                        return buildProductItem(productsList![index]);
-                      },
-                      childCount: productsList?.length ?? 0,
-                    ),
-                  );
-                }
-              },
-            ),
-          ],
-        ),
+                  ),
+                );
+              } else if (snapshot.hasError) {
+                return SliverToBoxAdapter(
+                  child: Center(
+                    child: Text('Error: ${snapshot.error}'),
+                  ),
+                );
+              } else {
+                List? productsList = snapshot.data;
+                return SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                    (BuildContext context, int index) {
+                      return buildProductItem(productsList![index]);
+                    },
+                    childCount: productsList?.length ?? 0,
+                  ),
+                );
+              }
+            },
+          ),
+        ],
       ),
     );
   }

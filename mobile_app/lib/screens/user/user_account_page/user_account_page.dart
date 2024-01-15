@@ -55,114 +55,107 @@ class _UserAccountPage extends State<UserAccountPage> {
         : AppColors.shimmerHighlightColorDark;
 
     return Scaffold(
-      body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // User name and logout
-            FutureBuilder<String>(
-              future: getUserName(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  // Use shimmer effect while loading
-                  return Shimmer.fromColors(
-                    baseColor: shimmerBaseColor,
-                    highlightColor: shimmerHighlightColor,
-                    child: Container(
-                        width: double.infinity,
-                        height: 60.0,
-                        color: backgroundColor),
-                  );
-                } else if (snapshot.hasError) {
-                  return Text('Error: ${snapshot.error}');
-                } else {
-                  String userName = snapshot.data ?? 'Brak danych';
-                  return Row(
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // User name and logout
+          FutureBuilder<String>(
+            future: getUserName(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                // Use shimmer effect while loading
+                return Shimmer.fromColors(
+                  baseColor: shimmerBaseColor,
+                  highlightColor: shimmerHighlightColor,
+                  child: Container(
+                      width: double.infinity,
+                      height: 60.0,
+                      color: backgroundColor),
+                );
+              } else if (snapshot.hasError) {
+                return Text('Error: ${snapshot.error}');
+              } else {
+                String userName = snapshot.data ?? 'Brak danych';
+                return AppBar(
+                  backgroundColor: backgroundColor,
+                  elevation: 0, // Remove shadow
+                  title: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Expanded(
-                        child: Container(
-                          padding: const EdgeInsets.all(10.0),
-                          color: backgroundColor,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Row(
-                                children: [
-                                  Text(
-                                    'Witaj $userName ',
-                                    style: TextStyle(
-                                      fontSize: 20,
-                                      color: textColor,
-                                    ),
-                                  ),
-                                  Icon(
-                                    Icons.waving_hand,
-                                    size: 20,
-                                    color: primaryColor,
-                                  ),
-                                ],
-                              ),
-                              IconButton(
-                                icon: const Icon(
-                                  Icons.exit_to_app,
-                                  color: logoutColor,
-                                ),
-                                onPressed: () {
-                                  signOut();
-                                },
-                              ),
-                            ],
+                      Row(
+                        children: [
+                          Text(
+                            'Witaj $userName ',
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: textColor,
+                            ),
                           ),
+                          Icon(
+                            Icons.waving_hand,
+                            size: 24,
+                            color: primaryColor,
+                          ),
+                        ],
+                      ),
+                      IconButton(
+                        icon: const Icon(
+                          Icons.exit_to_app,
+                          color: logoutColor,
                         ),
+                        onPressed: () {
+                          signOut();
+                        },
                       ),
                     ],
-                  );
-                }
-              },
-            ),
+                  ),
+                );
+              }
+            },
+          ),
 
-            // ListView
-            Flexible(
-              child: Container(
-                color: backgroundColor,
-                child: ListView(
-                  children: [
-                    UserAccountListView(
-                      text: "Aktywne zamówienia",
-                      icon: Icons.auto_stories,
-                      type: "activeOrders",
-                    ),
-                    UserAccountListView(
-                      text: "Zamówienia zrealizowane",
-                      icon: Icons.history,
-                      type: "completedOrders",
-                    ),
-                    UserAccountListView(
-                      text: "Obserwowane produkty",
-                      icon: Icons.remove_red_eye,
-                      type: "other",
-                    ),
-                    UserAccountListView(
-                      text: "Zakupione produkty",
-                      icon: Icons.home_repair_service,
-                      type: "other",
-                    ),
-                    UserAccountListView(
-                      text: "Kupony",
-                      icon: Icons.local_offer,
-                      type: "other",
-                    ),
-                    UserAccountListView(
-                      text: "Ustawienia konta",
-                      type: "settings",
-                      icon: Icons.settings,
-                    ),
-                  ],
-                ),
+          // ListView
+          Flexible(
+            child: Container(
+              color: backgroundColor,
+              child: ListView(
+                children: [
+                  UserAccountListView(
+                    text: "Aktywne zamówienia",
+                    icon: Icons.auto_stories,
+                    type: "activeOrders",
+                  ),
+                  UserAccountListView(
+                    text: "Zamówienia zrealizowane",
+                    icon: Icons.history,
+                    type: "completedOrders",
+                  ),
+                  UserAccountListView(
+                    text: "Obserwowane produkty",
+                    icon: Icons.remove_red_eye,
+                    type: "other",
+                  ),
+                  UserAccountListView(
+                    text: "Zakupione produkty",
+                    icon: Icons.home_repair_service,
+                    type: "other",
+                  ),
+                  UserAccountListView(
+                    text: "Kupony",
+                    icon: Icons.local_offer,
+                    type: "other",
+                  ),
+                  UserAccountListView(
+                    text: "Ustawienia konta",
+                    type: "settings",
+                    icon: Icons.settings,
+                  ),
+                ],
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

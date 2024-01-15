@@ -239,274 +239,265 @@ class _HomePageState extends State<HomePage> {
         : AppColors.shimmerHighlightColorDark;
 
     return Scaffold(
-      body: SafeArea(
-        child: CustomScrollView(
-          slivers: <Widget>[
-            SliverToBoxAdapter(
-              child: Column(
-                children: [
-                  // User name and coupons
-                  FutureBuilder<String>(
-                    future: getUserName(),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        // Use shimmer effect while loading
-                        return Shimmer.fromColors(
-                          baseColor: shimmerBaseColor,
-                          highlightColor: shimmerHighlightColor,
-                          child: Container(
-                              width: double.infinity,
-                              height: 60.0,
-                              color: backgroundColor),
-                        );
-                      } else {
-                        String userName =
-                            snapshot.data ?? 'Nieznany użytkownik';
-                        return Row(
+      body: CustomScrollView(
+        slivers: <Widget>[
+          SliverToBoxAdapter(
+            child: Column(
+              children: [
+                // User name and coupons
+                FutureBuilder<String>(
+                  future: getUserName(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      // Use shimmer effect while loading
+                      return Shimmer.fromColors(
+                        baseColor: shimmerBaseColor,
+                        highlightColor: shimmerHighlightColor,
+                        child: Container(
+                            width: double.infinity,
+                            height: 60.0,
+                            color: backgroundColor),
+                      );
+                    } else {
+                      String userName = snapshot.data ?? 'Nieznany użytkownik';
+                      return AppBar(
+                        backgroundColor: backgroundColor,
+                        elevation: 0, // Remove shadow
+                        title: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Expanded(
-                              child: Container(
-                                padding: const EdgeInsets.all(10.0),
-                                color: backgroundColor,
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Row(
-                                      children: [
-                                        Text(
-                                          'Witaj $userName ',
-                                          style: TextStyle(
-                                            fontSize: 20,
-                                            color: textColor,
-                                          ),
-                                        ),
-                                        Icon(
-                                          Icons.waving_hand,
-                                          size: 20,
-                                          color: primaryColor,
-                                        ),
-                                      ],
-                                    ),
-                                    IconButton(
-                                      icon: Icon(
-                                        Icons.credit_score,
-                                        color: primaryColor,
-                                        size: 30,
-                                      ),
-                                      onPressed: () {
-                                        openPopupScreen(context);
-                                      },
-                                    ),
-                                  ],
+                            Row(
+                              children: [
+                                Text(
+                                  'Witaj $userName ',
+                                  style: TextStyle(
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold,
+                                    color: textColor,
+                                  ),
                                 ),
+                                Icon(
+                                  Icons.waving_hand,
+                                  size: 24,
+                                  color: primaryColor,
+                                ),
+                              ],
+                            ),
+                            IconButton(
+                              icon: Icon(
+                                Icons.credit_score,
+                                color: primaryColor,
+                                size: 30,
                               ),
+                              onPressed: () {
+                                openPopupScreen(context);
+                              },
                             ),
                           ],
-                        );
-                      }
+                        ),
+                      );
+                    }
+                  },
+                ),
+
+                // Show the WelcomeBanner only if conditions are met
+                if (showWelcomeBanner)
+                  WelcomeBanner(
+                    onButtonPressed: () {
+                      openPopupScreen(context);
                     },
                   ),
 
-                  // Show the WelcomeBanner only if conditions are met
-                  if (showWelcomeBanner)
-                    WelcomeBanner(
-                      onButtonPressed: () {
-                        openPopupScreen(context);
-                      },
-                    ),
-
-                  // product searching bar
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(vertical: 15.0),
-                          color: backgroundColor,
-                          child: TextField(
-                            controller: searchController,
-                            onSubmitted: (value) {
-                              searchController.clear();
-                              updateProductSearchList(value);
-                            },
-                            decoration: InputDecoration(
-                              filled: true,
-                              hintText: "Wyszukaj w sklepie",
-                              suffixIcon: IconButton(
-                                icon: const Icon(Icons.search),
-                                onPressed: () {
-                                  String searchValue = searchController.text;
-                                  searchController.clear();
-                                  updateProductSearchList(searchValue);
-                                },
-                              ),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10.0),
-                                borderSide: BorderSide.none,
-                              ),
+                // product searching bar
+                Row(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 15.0),
+                        color: backgroundColor,
+                        child: TextField(
+                          controller: searchController,
+                          onSubmitted: (value) {
+                            searchController.clear();
+                            updateProductSearchList(value);
+                          },
+                          decoration: InputDecoration(
+                            filled: true,
+                            hintText: "Wyszukaj w sklepie",
+                            suffixIcon: IconButton(
+                              icon: const Icon(Icons.search),
+                              onPressed: () {
+                                String searchValue = searchController.text;
+                                searchController.clear();
+                                updateProductSearchList(searchValue);
+                              },
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                              borderSide: BorderSide.none,
                             ),
                           ),
                         ),
                       ),
+                    ),
+                  ],
+                ),
+
+                const CouponCardWidget(),
+
+                // slider with special offers, popular products etc
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 20.0),
+                  child: Column(
+                    children: [
+                      FutureBuilder(
+                        future: loadImages(imageUrls),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            // Use shimmer effect while loading
+                            return Shimmer.fromColors(
+                              baseColor: shimmerBaseColor,
+                              highlightColor: shimmerHighlightColor,
+                              child: Container(
+                                width: double.infinity,
+                                height: 350.0,
+                                color: backgroundColor,
+                              ),
+                            );
+                          } else if (snapshot.hasError) {
+                            return const Icon(Icons.error);
+                          } else {
+                            Map<int, Uint8List> loadedImages =
+                                snapshot.data as Map<int, Uint8List>;
+
+                            return CarouselSlider(
+                              items: loadedImages.entries.map((entry) {
+                                int index = entry.key;
+                                Uint8List image = entry.value;
+                                String productId =
+                                    sliderImagesList[index].values.first;
+
+                                return GestureDetector(
+                                  onTap: () async {
+                                    // Pobierz dane produktu po kliknięciu
+                                    Map<String, dynamic> productData =
+                                        await getProductDataById(productId);
+
+                                    final categoryId =
+                                        productData['category_id'];
+                                    final name = productData['name'];
+                                    final price = productData['price'];
+                                    Map<String, dynamic> details =
+                                        (productData['details']
+                                                as Map<dynamic, dynamic>)
+                                            .cast<String, dynamic>();
+                                    Map<String, dynamic> images =
+                                        (productData['images']
+                                                as Map<dynamic, dynamic>)
+                                            .cast<String, dynamic>();
+
+                                    // Przejdź do nowego widoku i przekaż dane produktu
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            ProductDetailsPage(
+                                                categoryId,
+                                                productId,
+                                                name,
+                                                price,
+                                                details,
+                                                images,
+                                                '/bannerLink'),
+                                      ),
+                                    );
+                                  },
+                                  child: Image.memory(
+                                    image,
+                                    width: MediaQuery.of(context).size.width,
+                                    fit: BoxFit.cover,
+                                  ),
+                                );
+                              }).toList(),
+                              options: CarouselOptions(
+                                height: 350.0,
+                                viewportFraction: 1.0,
+                                enlargeCenterPage: false,
+                                autoPlay: true,
+                                aspectRatio: 16 / 9,
+                              ),
+                            );
+                          }
+                        },
+                      ),
                     ],
                   ),
+                ),
 
-                  const CouponCardWidget(),
-
-                  // slider with special offers, popular products etc
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 20.0),
-                    child: Column(
-                      children: [
-                        FutureBuilder(
-                          future: loadImages(imageUrls),
-                          builder: (context, snapshot) {
-                            if (snapshot.connectionState ==
-                                ConnectionState.waiting) {
-                              // Use shimmer effect while loading
-                              return Shimmer.fromColors(
-                                baseColor: shimmerBaseColor,
-                                highlightColor: shimmerHighlightColor,
-                                child: Container(
-                                  width: double.infinity,
-                                  height: 350.0,
-                                  color: backgroundColor,
-                                ),
-                              );
-                            } else if (snapshot.hasError) {
-                              return const Icon(Icons.error);
-                            } else {
-                              Map<int, Uint8List> loadedImages =
-                                  snapshot.data as Map<int, Uint8List>;
-
-                              return CarouselSlider(
-                                items: loadedImages.entries.map((entry) {
-                                  int index = entry.key;
-                                  Uint8List image = entry.value;
-                                  String productId =
-                                      sliderImagesList[index].values.first;
-
-                                  return GestureDetector(
-                                    onTap: () async {
-                                      // Pobierz dane produktu po kliknięciu
-                                      Map<String, dynamic> productData =
-                                          await getProductDataById(productId);
-
-                                      final categoryId =
-                                          productData['category_id'];
-                                      final name = productData['name'];
-                                      final price = productData['price'];
-                                      Map<String, dynamic> details =
-                                          (productData['details']
-                                                  as Map<dynamic, dynamic>)
-                                              .cast<String, dynamic>();
-                                      Map<String, dynamic> images =
-                                          (productData['images']
-                                                  as Map<dynamic, dynamic>)
-                                              .cast<String, dynamic>();
-
-                                      // Przejdź do nowego widoku i przekaż dane produktu
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) =>
-                                              ProductDetailsPage(
-                                                  categoryId,
-                                                  productId,
-                                                  name,
-                                                  price,
-                                                  details,
-                                                  images,
-                                                  '/bannerLink'),
-                                        ),
-                                      );
-                                    },
-                                    child: Image.memory(
-                                      image,
-                                      width: MediaQuery.of(context).size.width,
-                                      fit: BoxFit.cover,
-                                    ),
-                                  );
-                                }).toList(),
-                                options: CarouselOptions(
-                                  height: 350.0,
-                                  viewportFraction: 1.0,
-                                  enlargeCenterPage: false,
-                                  autoPlay: true,
-                                  aspectRatio: 16 / 9,
-                                ),
-                              );
-                            }
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  // categories of products
-                  FutureBuilder<List>(
-                    future: getCategories(),
-                    builder:
-                        (BuildContext context, AsyncSnapshot<List> snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        // Use shimmer effect while loading
-                        return Shimmer.fromColors(
-                          baseColor: shimmerBaseColor,
-                          highlightColor: shimmerHighlightColor,
-                          child: GridView.builder(
-                            gridDelegate:
-                                const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 3,
-                              crossAxisSpacing: 8.0,
-                              mainAxisSpacing: 8.0,
-                            ),
-                            itemCount: 6,
-                            itemBuilder: (BuildContext context, int index) {
-                              return Card(
-                                elevation: 2.0,
-                                child: Padding(
-                                  padding: const EdgeInsets.all(16.0),
-                                  child: Center(
-                                    child: Container(
-                                        width: 50.0,
-                                        height: 20.0,
-                                        color: backgroundColor),
-                                  ),
-                                ),
-                              );
-                            },
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                          ),
-                        );
-                      } else if (snapshot.hasError) {
-                        // Handle the error case.
-                        return Text('Error: ${snapshot.error}');
-                      } else {
-                        // Categories have been fetched successfully, use them in the GridView.builder.
-                        List? categoriesList = snapshot.data;
-                        return GridView.builder(
+                // categories of products
+                FutureBuilder<List>(
+                  future: getCategories(),
+                  builder:
+                      (BuildContext context, AsyncSnapshot<List> snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      // Use shimmer effect while loading
+                      return Shimmer.fromColors(
+                        baseColor: shimmerBaseColor,
+                        highlightColor: shimmerHighlightColor,
+                        child: GridView.builder(
                           gridDelegate:
                               const SliverGridDelegateWithFixedCrossAxisCount(
                             crossAxisCount: 3,
                             crossAxisSpacing: 8.0,
                             mainAxisSpacing: 8.0,
                           ),
-                          itemCount: categoriesList?.length,
+                          itemCount: 6,
                           itemBuilder: (BuildContext context, int index) {
-                            return buildGridItem(index, categoriesList!);
+                            return Card(
+                              elevation: 2.0,
+                              child: Padding(
+                                padding: const EdgeInsets.all(16.0),
+                                child: Center(
+                                  child: Container(
+                                      width: 50.0,
+                                      height: 20.0,
+                                      color: backgroundColor),
+                                ),
+                              ),
+                            );
                           },
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
-                        );
-                      }
-                    },
-                  ),
-                ],
-              ),
+                        ),
+                      );
+                    } else if (snapshot.hasError) {
+                      // Handle the error case.
+                      return Text('Error: ${snapshot.error}');
+                    } else {
+                      // Categories have been fetched successfully, use them in the GridView.builder.
+                      List? categoriesList = snapshot.data;
+                      return GridView.builder(
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 3,
+                          crossAxisSpacing: 8.0,
+                          mainAxisSpacing: 8.0,
+                        ),
+                        itemCount: categoriesList?.length,
+                        itemBuilder: (BuildContext context, int index) {
+                          return buildGridItem(index, categoriesList!);
+                        },
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                      );
+                    }
+                  },
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

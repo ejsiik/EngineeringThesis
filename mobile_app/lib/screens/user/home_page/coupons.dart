@@ -56,9 +56,6 @@ class CouponCard extends StatelessWidget {
     final Color primaryColor = theme.brightness == Brightness.light
         ? AppColors.primaryLight
         : AppColors.primaryDark;
-    final Color textColor = theme.brightness == Brightness.light
-        ? AppColors.textLight
-        : AppColors.textDark;
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
@@ -92,8 +89,10 @@ class CouponCard extends StatelessWidget {
                         Text(
                           'Gratis',
                           style: TextStyle(
-                            color: textColor,
-                            fontSize: 11,
+                            color: primaryColor,
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            fontStyle: FontStyle.italic,
                           ),
                         ),
                       ],
