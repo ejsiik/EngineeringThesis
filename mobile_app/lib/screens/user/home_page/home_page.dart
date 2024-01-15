@@ -239,6 +239,12 @@ class _HomePageState extends State<HomePage> {
         : AppColors.shimmerHighlightColorDark;
 
     return Scaffold(
+      appBar: AppBar(
+        title: Container(),
+        toolbarHeight: 0,
+        titleSpacing: 0,
+        automaticallyImplyLeading: false,
+      ),
       body: CustomScrollView(
         slivers: <Widget>[
           SliverToBoxAdapter(

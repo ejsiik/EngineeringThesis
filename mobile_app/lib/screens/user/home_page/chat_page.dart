@@ -43,6 +43,7 @@ class _ChatPageState extends State<ChatPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Czatuj ze sklepem'),
+        automaticallyImplyLeading: false,
       ),
       body: Column(
         children: [

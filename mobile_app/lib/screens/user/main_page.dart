@@ -38,6 +38,12 @@ class _MainPageState extends State<MainPage> {
         : AppColors.navbarUnselectedDark;
 
     return Scaffold(
+      appBar: AppBar(
+        title: Container(),
+        toolbarHeight: 0,
+        titleSpacing: 0,
+        automaticallyImplyLeading: false,
+      ),
       body: pages[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
         backgroundColor: backgroundColor,

@@ -55,6 +55,12 @@ class _UserAccountPage extends State<UserAccountPage> {
         : AppColors.shimmerHighlightColorDark;
 
     return Scaffold(
+      appBar: AppBar(
+        title: Container(),
+        toolbarHeight: 0,
+        titleSpacing: 0,
+        automaticallyImplyLeading: false,
+      ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:mobile_app/service/connection/connection_check.dart';
+import 'package:mobile_app/constants/colors.dart';
 import 'package:mobile_app/service/database/order_data.dart';
 import 'package:mobile_app/service/database/shop_location_data.dart';
 import 'package:mobile_app/service/database/data.dart';
 import 'package:mobile_app/screens/user/main_page.dart';
+import 'package:shimmer/shimmer.dart';
 
 class OrdersPage extends StatefulWidget {
   const OrdersPage({Key? key}) : super(key: key);
@@ -23,14 +24,14 @@ class _OrdersState extends State<OrdersPage> {
   ShopLocationData shopLocationData = ShopLocationData();
   Data userData = Data();
   OrderData orderData = OrderData();
-  double totalPrice = 0.0;
+  double price = 0.0;
 
   @override
   void initState() {
     super.initState();
     // Set up a listener for changes in the database
+    //getTotalPrice();
     getLocations();
-    setState(() {});
   }
 
   Future<void> getLocations() async {
@@ -40,11 +41,8 @@ class _OrdersState extends State<OrdersPage> {
   }
 
   Future<double> getTotalPrice() async {
-    if (!await checkInternetConnectivity()) {
-      return 0.0;
-    }
-    double totalPrice = await userData.getTotalPriceData();
-    return totalPrice;
+    double price = await userData.getTotalPriceData();
+    return price;
   }
 
   Future<void> addOrder(String name, String surname,
@@ -95,14 +93,17 @@ class _OrdersState extends State<OrdersPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             FutureBuilder<double>(
-              future: getTotalPrice(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const CircularProgressIndicator();
-                } else if (snapshot.hasError) {
-                  return Text('Error: ${snapshot.error}');
+              future: userData.getTotalPriceData(),
+              builder: (BuildContext context,
+                  AsyncSnapshot<double> totalPriceSnapshot) {
+                if (totalPriceSnapshot.connectionState ==
+                    ConnectionState.waiting) {
+                  return ShimmerLoadingTotalPrice();
+                } else if (totalPriceSnapshot.hasError) {
+                  return Text('Error: ${totalPriceSnapshot.error}');
                 } else {
-                  totalPrice = snapshot.data ?? 0.0;
+                  double totalPrice = totalPriceSnapshot.data ?? 0.0;
+                  price = totalPrice;
                   return Container(
                     padding: EdgeInsets.all(12.0),
                     color: Colors.grey,
@@ -224,17 +225,18 @@ class _OrdersState extends State<OrdersPage> {
             if (_nameController.text.isNotEmpty &&
                 _surnameController.text.isNotEmpty &&
                 selectedLocationData!.isNotEmpty &&
-                totalPrice != 0.0) {
+                price != 0.0) {
               addOrder(
                   _nameController.text.toString(),
                   _surnameController.text.toString(),
                   selectedLocationData!,
-                  totalPrice);
-              Navigator.pushReplacement(
+                  price);
+              Navigator.pushAndRemoveUntil(
                 context,
                 MaterialPageRoute(
                   builder: (context) => const MainPage(),
                 ),
+                (route) => false,
               );
             } else {
               showDialog(
@@ -262,6 +264,28 @@ class _OrdersState extends State<OrdersPage> {
             title: Text('Złóż zamówienie'),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class ShimmerLoadingTotalPrice extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    final Color shimmerBaseColor = theme.brightness == Brightness.light
+        ? AppColors.shimmerBaseColorLight
+        : AppColors.shimmerBaseColorDark;
+    final Color shimmerHighlightColor = theme.brightness == Brightness.light
+        ? AppColors.shimmerHighlightColorLight
+        : AppColors.shimmerHighlightColorDark;
+    return Shimmer.fromColors(
+      baseColor: shimmerBaseColor,
+      highlightColor: shimmerHighlightColor,
+      child: Container(
+        width: 600,
+        height: 47,
+        color: Colors.white,
       ),
     );
   }

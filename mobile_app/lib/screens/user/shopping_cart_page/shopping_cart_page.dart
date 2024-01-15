@@ -22,7 +22,6 @@ class ShoppingCartPage extends StatefulWidget {
 class _ShoppingCartPageState extends State<ShoppingCartPage> {
   Data userData = Data();
   static const String routeName = '/shoppingCartPage';
-  double totalPrice = 0.0;
 
   @override
   void initState() {
@@ -30,9 +29,9 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
     getTotalPrice();
   }
 
-  Future<void> getTotalPrice() async {
+  Future<double> getTotalPrice() async {
     double totalPriceData = await userData.getTotalPriceData();
-    totalPrice = totalPriceData;
+    return totalPriceData;
   }
 
   Future<List<dynamic>> getShoppingCartData() async {
@@ -64,8 +63,6 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
     Future<void> changeQuantityInShoppingCart(
         String productId, int quantity) async {
       await userData.changeQuantityInShoppingCart(productId, quantity);
-
-      setState(() {});
     }
 
     Future<int> getQuantityOfShoppingCart(String productId) async {
@@ -205,7 +202,7 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
         automaticallyImplyLeading: false,
       ),
       body: FutureBuilder<double>(
-        future: userData.getTotalPriceData(),
+        future: getTotalPrice(),
         builder:
             (BuildContext context, AsyncSnapshot<double> totalPriceSnapshot) {
           if (totalPriceSnapshot.connectionState == ConnectionState.waiting) {
