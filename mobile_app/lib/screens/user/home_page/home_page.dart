@@ -64,8 +64,8 @@ class _HomePageState extends State<HomePage> {
     {"banner_01.png": "-NlKz08IwkCWjiUPq_vV"},
     {"banner_02.png": "-NnkrnO46WOlGE2llt3b"},
     {"banner_03.png": "-NnovmFR5RscyjV_gRpR"},
-    {"banner_04.png": "-NnqQYS7qv4O_KiSvPkK"},
-    {"banner_05.png": "-NnpsJka0bbsJc7iHTfn"},
+    {"banner_04.png": "-NnpsJka0bbsJc7iHTfn"},
+    {"banner_05.png": "-NnqQYS7qv4O_KiSvPkK"},
     {"banner_06.png": "-NnqpRiaLLNP25t0iuvs"},
   ];
 
@@ -163,20 +163,27 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  Future<List<Uint8List>> loadImages(List<String> imageUrls) async {
-    List<Uint8List> loadedImages = [];
+  Future<Map<int, Uint8List>> loadImages(List<String> imageUrls) async {
+    Map<int, Uint8List> loadedImages = {};
 
     if (!await checkInternetConnectivity()) {
       return loadedImages;
     }
 
-    await Future.wait(
-      imageUrls.map((imageUrl) async {
-        final ref = FirebaseStorage.instance.ref().child(imageUrl);
-        final data = await ref.getData();
-        loadedImages.add(Uint8List.fromList(data!));
-      }),
-    );
+    List<Future<void>> futures = [];
+
+    for (int i = 0; i < imageUrls.length; i++) {
+      final imageUrl = imageUrls[i];
+      final ref = FirebaseStorage.instance.ref().child(imageUrl);
+
+      futures.add(
+        ref.getData().then((data) {
+          loadedImages[i] = Uint8List.fromList(data!);
+        }),
+      );
+    }
+
+    await Future.wait(futures);
 
     return loadedImages;
   }
@@ -215,6 +222,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     List<String> imageUrls =
         sliderImagesList.map((map) => map.keys.first).toList();
+
     final ThemeData theme = Theme.of(context);
     final Color backgroundColor = theme.scaffoldBackgroundColor;
     final Color primaryColor = theme.brightness == Brightness.light
@@ -368,12 +376,11 @@ class _HomePageState extends State<HomePage> {
                             } else if (snapshot.hasError) {
                               return const Icon(Icons.error);
                             } else {
-                              List<Uint8List> loadedImages =
-                                  snapshot.data as List<Uint8List>;
+                              Map<int, Uint8List> loadedImages =
+                                  snapshot.data as Map<int, Uint8List>;
 
                               return CarouselSlider(
-                                items:
-                                    loadedImages.asMap().entries.map((entry) {
+                                items: loadedImages.entries.map((entry) {
                                   int index = entry.key;
                                   Uint8List image = entry.value;
                                   String productId =
@@ -389,8 +396,6 @@ class _HomePageState extends State<HomePage> {
                                           productData['category_id'];
                                       final name = productData['name'];
                                       final price = productData['price'];
-                                      //final details = productData['details'];
-                                      //final images = productData['images'];
                                       Map<String, dynamic> details =
                                           (productData['details']
                                                   as Map<dynamic, dynamic>)
@@ -404,15 +409,16 @@ class _HomePageState extends State<HomePage> {
                                       Navigator.push(
                                         context,
                                         MaterialPageRoute(
-                                            builder: (context) =>
-                                                ProductDetailsPage(
-                                                    categoryId,
-                                                    productId,
-                                                    name,
-                                                    price,
-                                                    details,
-                                                    images,
-                                                    '/bannerLink')),
+                                          builder: (context) =>
+                                              ProductDetailsPage(
+                                                  categoryId,
+                                                  productId,
+                                                  name,
+                                                  price,
+                                                  details,
+                                                  images,
+                                                  '/bannerLink'),
+                                        ),
                                       );
                                     },
                                     child: Image.memory(
@@ -454,7 +460,7 @@ class _HomePageState extends State<HomePage> {
                               crossAxisSpacing: 8.0,
                               mainAxisSpacing: 8.0,
                             ),
-                            itemCount: 6, // Adjust the itemCount as needed
+                            itemCount: 6,
                             itemBuilder: (BuildContext context, int index) {
                               return Card(
                                 elevation: 2.0,
