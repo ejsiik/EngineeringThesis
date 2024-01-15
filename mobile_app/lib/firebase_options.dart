@@ -63,6 +63,6 @@ class DefaultFirebaseOptions {
     messagingSenderId: '1014960409602',
     projectId: 'mobileapp-ejsiik',
     storageBucket: 'mobileapp-ejsiik.appspot.com',
-    iosBundleId: 'com.example.mobileApp',
+    iosBundleId: 'com.ejsiik.inzynierka',
   );
 }

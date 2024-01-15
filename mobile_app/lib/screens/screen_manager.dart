@@ -13,6 +13,10 @@ class WidgetTree extends StatefulWidget {
   State<WidgetTree> createState() => _WidgetTreeState();
 }
 
+bool isEmailAdmin(String email) {
+  return adminEmail.contains(email);
+}
+
 class _WidgetTreeState extends State<WidgetTree> {
   @override
   Widget build(BuildContext context) {
@@ -27,7 +31,7 @@ class _WidgetTreeState extends State<WidgetTree> {
                 user.email ?? ""; // Fetch user's email address
             // Check if email is verified
             if (user.emailVerified) {
-              if (userEmailAddress == adminEmail) {
+              if (isEmailAdmin(userEmailAddress)) {
                 return NavigationPage();
               } else {
                 return const MainPage();
