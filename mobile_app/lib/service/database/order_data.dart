@@ -89,6 +89,47 @@ class OrderData {
     }
   }
 
+  Future<List<Map<String, dynamic>>> getOrderListById(
+      String type, String id) async {
+    try {
+      DatabaseEvent orderEvent = await ordersRef.child(id).once();
+      DataSnapshot orderSnapshot = orderEvent.snapshot;
+
+      if (orderSnapshot.value == null) {
+        return [];
+      }
+
+      final ordersData = Map<String, dynamic>.from(
+          orderSnapshot.value! as Map<Object?, Object?>);
+
+      List<Map<String, dynamic>> orders = [];
+
+      if (type == 'activeOrders') {
+        ordersData.forEach((key, order) {
+          // Check if the order is not completed
+          if (order['is_completed'] == false) {
+            orders.add({key: order});
+          }
+        });
+
+        return orders;
+      } else if (type == 'completedOrders') {
+        ordersData.forEach((key, order) {
+          // Check if the order is not completed
+          if (order['is_completed'] == true) {
+            orders.add({key: order});
+          }
+        });
+
+        return orders;
+      } else {
+        return [];
+      }
+    } catch (error) {
+      throw Exception('Error accesing shopping cart: $error');
+    }
+  }
+
   Future<Map<dynamic, dynamic>> getProductData(String productId) async {
     try {
       DatabaseReference productsRef =
@@ -99,6 +140,46 @@ class OrderData {
           productSnapshot.value! as Map<Object?, Object?>);
 
       return product;
+    } catch (error) {
+      throw Exception('Error accesing shopping cart: $error');
+    }
+  }
+
+  Future<Map<String, String>> getUsersId() async {
+    try {
+      DatabaseEvent orderEvent = await ordersRef.once();
+      DataSnapshot orderSnapshot = orderEvent.snapshot;
+
+      final data = Map<String, dynamic>.from(
+          orderSnapshot.value as Map<Object?, Object?>);
+      final Map<String, String> usersMap = {};
+
+      await Future.forEach(data.keys, (element) async {
+        DatabaseReference usersRef =
+            FirebaseDatabase.instance.ref().child('users/$element');
+        DatabaseEvent userEvent = await usersRef.once();
+        DataSnapshot userSnapshot = userEvent.snapshot;
+
+        final user = Map<String, dynamic>.from(
+            userSnapshot.value as Map<Object?, Object?>);
+
+        String username = user['name'];
+
+        usersMap[element] = username;
+      });
+
+      print(usersMap);
+      return usersMap;
+    } catch (error) {
+      throw Exception('Error accesing shopping cart: $error');
+    }
+  }
+
+  Future<void> makeCompleted(String userId, String orderId) async {
+    try {
+      await ordersRef
+          .child("${userId}/${orderId}")
+          .update({'is_completed': true});
     } catch (error) {
       throw Exception('Error accesing shopping cart: $error');
     }

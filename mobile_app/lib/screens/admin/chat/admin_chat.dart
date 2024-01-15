@@ -36,7 +36,7 @@ class _AdminChatScreenState extends State<AdminChatScreen> {
         : AppColors.shimmerHighlightColorDark;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Admin Chat'),
+        title: const Text('Czat'),
       ),
       body: Column(
         children: [

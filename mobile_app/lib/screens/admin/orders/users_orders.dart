@@ -1,39 +1,47 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:mobile_app/constants/colors.dart';
+import 'package:mobile_app/screens/user/orders_page/orders_detailed_page.dart';
+import 'package:mobile_app/screens/user/orders_page/orders_list_page.dart';
 import 'package:mobile_app/service/connection/connection_check.dart';
 import 'package:mobile_app/service/database/order_data.dart';
-import 'package:mobile_app/screens/user/orders_page/orders_detailed_page.dart';
-import 'package:shimmer/shimmer.dart';
 
-import '../../../constants/colors.dart';
-
-class OrdersListPage extends StatefulWidget {
+class UsersOrders extends StatefulWidget {
   final String type;
+  final String id;
 
-  const OrdersListPage({super.key, required this.type});
+  const UsersOrders({super.key, required this.type, required this.id});
 
   @override
-  State<OrdersListPage> createState() {
-    return _OrdersListState();
+  State<UsersOrders> createState() {
+    return _UsersOrdersState();
   }
 }
 
-class _OrdersListState extends State<OrdersListPage> {
+class _UsersOrdersState extends State<UsersOrders> {
+  OrderData orderData = OrderData();
   late Future<List<Map<String, dynamic>>> orders;
 
   @override
   void initState() {
     super.initState();
 
-    orders = getOrdersData(widget.type);
+    orders = getOrderListById(widget.type, widget.id);
   }
 
-  Future<List<Map<String, dynamic>>> getOrdersData(String type) async {
+  Future<List<Map<String, dynamic>>> getOrderListById(
+      String type, String id) async {
     if (!await checkInternetConnectivity()) {
       return [];
     }
-    OrderData orderData = OrderData();
-    return orderData.getOrderList(type);
+
+    return orderData.getOrderListById(type, id);
+  }
+
+  Future<void> makeCompleted(String userId, String orderId) async {
+    await orderData.makeCompleted(userId, orderId);
+    orders = getOrderListById(widget.type, widget.id);
+    setState(() {});
   }
 
   @override
@@ -80,6 +88,7 @@ class _OrdersListState extends State<OrdersListPage> {
                       ordersList[index].entries.first;
                   final orderData = Map<String, dynamic>.from(
                       (orderEntry.value) as Map<Object?, Object?>);
+                  String orderId = ordersList[index].keys.first;
 
                   String city = orderData['order']['city'];
                   String street = orderData['order']['street'];
@@ -121,12 +130,24 @@ class _OrdersListState extends State<OrdersListPage> {
                           ),
                         ],
                       ),
+                      trailing: widget.type == 'activeOrders'
+                          ? InkWell(
+                              onTap: () async {
+                                await makeCompleted(widget.id, orderId);
+                              },
+                              child: Icon(
+                                Icons.check,
+                                color: primaryColor,
+                              ),
+                            )
+                          : null,
                       onTap: () {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (context) => OrderDetailsPage(
-                                order: orderData['order']['shopping_list']),
+                              order: orderData['order']['shopping_list'],
+                            ),
                           ),
                         );
                       },
@@ -136,57 +157,6 @@ class _OrdersListState extends State<OrdersListPage> {
               );
             }
           }
-        },
-      ),
-    );
-  }
-}
-
-class ShimmerLoadingOrdersList extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
-    final Color shimmerBaseColor = theme.brightness == Brightness.light
-        ? AppColors.shimmerBaseColorLight
-        : AppColors.shimmerBaseColorDark;
-    final Color shimmerHighlightColor = theme.brightness == Brightness.light
-        ? AppColors.shimmerHighlightColorLight
-        : AppColors.shimmerHighlightColorDark;
-    return Shimmer.fromColors(
-      baseColor: shimmerBaseColor,
-      highlightColor: shimmerHighlightColor,
-      child: ListView.builder(
-        itemCount: 4,
-        itemBuilder: (context, index) {
-          return Card(
-            elevation: 5,
-            margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
-            child: ListTile(
-              title: Container(
-                height: 18,
-                color: Colors.white,
-              ),
-              subtitle: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 5),
-                  Container(
-                    height: 14,
-                    color: Colors.white,
-                  ),
-                  Container(
-                    height: 16,
-                    color: Colors.white,
-                  ),
-                  const SizedBox(height: 8),
-                  Container(
-                    height: 14,
-                    color: Colors.white,
-                  ),
-                ],
-              ),
-            ),
-          );
         },
       ),
     );

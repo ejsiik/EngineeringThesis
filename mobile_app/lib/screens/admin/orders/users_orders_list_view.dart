@@ -1,17 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_app/constants/colors.dart';
-import 'package:mobile_app/screens/user/orders_page/orders_list_page.dart';
+import 'package:mobile_app/screens/admin/orders/users_orders.dart';
 
-import 'user_settings.dart';
-
-class UserAccountListView extends StatelessWidget {
+class UsersOrdersListView extends StatefulWidget {
   final String text;
   final IconData icon;
   final String type;
+  final String id;
 
-  const UserAccountListView(
-      {super.key, required this.text, required this.icon, required this.type});
+  const UsersOrdersListView(
+      {super.key,
+      required this.text,
+      required this.icon,
+      required this.type,
+      required this.id});
 
+  @override
+  State<UsersOrdersListView> createState() {
+    return _UsersOrdersListViewState();
+  }
+}
+
+class _UsersOrdersListViewState extends State<UsersOrdersListView> {
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
@@ -22,22 +32,15 @@ class UserAccountListView extends StatelessWidget {
 
     return GestureDetector(
       onTap: () {
-        // Navigate to the new screen
-        if (type == 'activeOrders' || type == 'completedOrders') {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => OrdersListPage(
-                type: type,
-              ),
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => UsersOrders(
+              type: widget.type,
+              id: widget.id,
             ),
-          );
-        } else if (type == 'settings') {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => UserSettings()),
-          );
-        }
+          ),
+        );
       },
       child: Padding(
         padding: const EdgeInsets.all(10.0),
@@ -53,13 +56,13 @@ class UserAccountListView extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(left: 10.0, right: 10.0),
                 child: Icon(
-                  icon,
+                  widget.icon,
                   size: 40,
                   color: primaryColor,
                 ),
               ),
               Text(
-                text,
+                widget.text,
                 style: TextStyle(
                   fontSize: 24,
                   color: primaryColor,

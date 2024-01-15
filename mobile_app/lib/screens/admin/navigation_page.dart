@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_app/screens/admin/orders/users_list.dart';
 import 'chat/admin_chat.dart';
 import 'home_page/home_page.dart';
 
@@ -13,6 +14,7 @@ class _NavigationPageState extends State<NavigationPage> {
   static const List<Widget> _pages = [
     AdminHomePage(),
     AdminChatScreen(),
+    UsersList(),
   ];
 
   void _onItemTapped(int index) {
@@ -31,11 +33,15 @@ class _NavigationPageState extends State<NavigationPage> {
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
-            label: 'Home',
+            label: 'Start',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.chat),
-            label: 'Chat',
+            label: 'Czat',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.auto_stories),
+            label: 'Zamówienia',
           ),
         ],
       ),
