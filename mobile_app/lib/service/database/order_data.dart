@@ -184,4 +184,17 @@ class OrderData {
       throw Exception('Error accesing shopping cart: $error');
     }
   }
+
+  Future<String> deleteUser() async {
+    try {
+      if (currentUser != null) {
+        String userId = currentUser!.uid;
+
+        await ordersRef.child(userId).remove();
+      }
+    } catch (e) {
+      return 'Błąd podczas usuwania zamówień użytkownika: $e';
+    }
+    return "Dane zamówień użytkownika pomyślnie usunięte z bazy danych";
+  }
 }

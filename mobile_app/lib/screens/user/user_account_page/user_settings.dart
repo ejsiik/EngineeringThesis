@@ -3,6 +3,7 @@ import 'package:mobile_app/constants/text_strings.dart';
 import 'package:mobile_app/screens/login/login_page.dart';
 import 'package:mobile_app/service/authentication/auth.dart';
 import 'package:mobile_app/service/database/chat_data.dart';
+import 'package:mobile_app/service/database/order_data.dart';
 import '../../../service/connection/connection_check.dart';
 import '../../../service/database/data.dart';
 
@@ -144,6 +145,8 @@ class _UserSettingsState extends State<UserSettings> {
     try {
       // Close the confirmation dialog immediately
       Navigator.of(context).pop();
+      await OrderData()
+          .deleteUser(); // Delete user's orders from the Realtime Database
       await Data().deleteUser(); // Delete user from the Realtime Database
       await ChatData().deleteUser(); // Delete user from the Firestore Database
       await Auth().deleteUser(); // Delete user from Firebase Authentication
