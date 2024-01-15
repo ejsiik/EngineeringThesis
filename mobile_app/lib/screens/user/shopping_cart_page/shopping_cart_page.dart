@@ -27,7 +27,6 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
   @override
   void initState() {
     super.initState();
-    setState(() {});
     getTotalPrice();
   }
 
