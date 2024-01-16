@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_app/constants/colors.dart';
+import 'package:mobile_app/service/connection/connection_check.dart';
 import 'package:mobile_app/service/database/order_data.dart';
 import 'package:mobile_app/service/database/shop_location_data.dart';
 import 'package:mobile_app/service/database/data.dart';
@@ -16,8 +17,6 @@ class OrdersPage extends StatefulWidget {
 }
 
 class _OrdersState extends State<OrdersPage> {
-  final _nameController = TextEditingController();
-  final _surnameController = TextEditingController();
   late List shops = [];
   late List<bool> shopsExpansionStates = [];
   late Map<String, dynamic>? selectedLocationData = {};
@@ -25,13 +24,25 @@ class _OrdersState extends State<OrdersPage> {
   Data userData = Data();
   OrderData orderData = OrderData();
   double price = 0.0;
+  String name = "";
 
   @override
   void initState() {
     super.initState();
     // Set up a listener for changes in the database
-    //getTotalPrice();
     getLocations();
+  }
+
+  Future<String> getUserName() async {
+    try {
+      if (!await checkInternetConnectivity()) {
+        return "";
+      }
+      String? userName = await userData.getUserName();
+      return userName ?? '';
+    } catch (error) {
+      return 'Nieznany użytkownik';
+    }
   }
 
   Future<void> getLocations() async {
@@ -45,9 +56,9 @@ class _OrdersState extends State<OrdersPage> {
     return price;
   }
 
-  Future<void> addOrder(String name, String surname,
-      Map<String, dynamic> location, double totalPrice) async {
-    await orderData.addOrder(name, surname, location, totalPrice);
+  Future<void> addOrder(
+      String name, Map<String, dynamic> location, double totalPrice) async {
+    await orderData.addOrder(name, location, totalPrice);
   }
 
   Widget buildDay(String day, Map<dynamic, dynamic> dayData) {
@@ -83,6 +94,15 @@ class _OrdersState extends State<OrdersPage> {
 
   @override
   Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    final Color backgroundColor = theme.scaffoldBackgroundColor;
+    final Color shimmerBaseColor = theme.brightness == Brightness.light
+        ? AppColors.shimmerBaseColorLight
+        : AppColors.shimmerBaseColorDark;
+    final Color shimmerHighlightColor = theme.brightness == Brightness.light
+        ? AppColors.shimmerHighlightColorLight
+        : AppColors.shimmerHighlightColorDark;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Składanie zamówienia'),
@@ -125,26 +145,43 @@ class _OrdersState extends State<OrdersPage> {
               },
             ),
             const SizedBox(height: 16),
-            const Text(
-              'Imię',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-            TextField(
-              controller: _nameController,
-              decoration: const InputDecoration(
-                hintText: 'Wprowadź imię',
-              ),
-            ),
-            const SizedBox(height: 16),
-            const Text(
-              'Nazwisko',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-            TextField(
-              controller: _surnameController,
-              decoration: const InputDecoration(
-                hintText: 'Wprowadź nazwisko',
-              ),
+            FutureBuilder<String>(
+              future: getUserName(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  // Use shimmer effect while loading
+                  return Shimmer.fromColors(
+                    baseColor: shimmerBaseColor,
+                    highlightColor: shimmerHighlightColor,
+                    child: Container(
+                        width: double.infinity,
+                        height: 60.0,
+                        color: backgroundColor),
+                  );
+                } else {
+                  String userName = snapshot.data ?? 'Nieznany użytkownik';
+                  name = userName;
+                  TextEditingController usernameController =
+                      TextEditingController(text: '$userName');
+
+                  return TextField(
+                    controller: usernameController,
+                    readOnly: true,
+                    decoration: InputDecoration(
+                      labelText: 'Nazwa użytkownika',
+                      labelStyle: TextStyle(
+                        fontSize: 20,
+                        color: Colors.white,
+                      ),
+                    ),
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  );
+                }
+              },
             ),
             const SizedBox(height: 32),
             const Text(
@@ -222,15 +259,10 @@ class _OrdersState extends State<OrdersPage> {
         color: Colors.orange,
         child: GestureDetector(
           onTap: () {
-            if (_nameController.text.isNotEmpty &&
-                _surnameController.text.isNotEmpty &&
+            if (name.isNotEmpty &&
                 selectedLocationData!.isNotEmpty &&
                 price != 0.0) {
-              addOrder(
-                  _nameController.text.toString(),
-                  _surnameController.text.toString(),
-                  selectedLocationData!,
-                  price);
+              addOrder(name, selectedLocationData!, price);
               Navigator.pushAndRemoveUntil(
                 context,
                 MaterialPageRoute(
@@ -245,7 +277,7 @@ class _OrdersState extends State<OrdersPage> {
                   return AlertDialog(
                     title: const Text('Brak wymaganych danych'),
                     content: const Text(
-                        'Wypełnij wszystkie pola przed złożeniem zamówienia.'),
+                        'Przed złożeniem zamówienia wybierz lokalizację sklepu.'),
                     actions: [
                       TextButton(
                         onPressed: () {

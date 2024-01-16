@@ -239,12 +239,6 @@ class _HomePageState extends State<HomePage> {
         : AppColors.shimmerHighlightColorDark;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Container(),
-        toolbarHeight: 0,
-        titleSpacing: 0,
-        automaticallyImplyLeading: false,
-      ),
       body: CustomScrollView(
         slivers: <Widget>[
           SliverToBoxAdapter(
@@ -268,7 +262,8 @@ class _HomePageState extends State<HomePage> {
                       String userName = snapshot.data ?? 'Nieznany użytkownik';
                       return AppBar(
                         backgroundColor: backgroundColor,
-                        elevation: 0, // Remove shadow
+                        elevation: 0,
+                        automaticallyImplyLeading: false,
                         title: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [

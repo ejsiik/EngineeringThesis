@@ -454,6 +454,18 @@ class Data {
     }
   }
 
+  Future<String> getUsernameById(String userId) async {
+    try {
+      DatabaseEvent event = await usersRef.child('$userId/name').once();
+      DataSnapshot snapshot = event.snapshot;
+      String username = snapshot.value.toString();
+
+      return username;
+    } catch (error) {
+      throw Exception('Error accesing shopping cart: $error');
+    }
+  }
+
   Future<void> submitData(String userId, bool welcomeBanner, String couponValue,
       Function(String) onSubmitted) async {
     try {
