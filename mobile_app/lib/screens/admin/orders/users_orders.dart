@@ -128,6 +128,12 @@ class _UsersOrdersState extends State<UsersOrders> {
                             'Adres: $city, $street $streetNumber',
                             style: const TextStyle(fontSize: 14),
                           ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Kod odbioru: ${orderData['order']['order_code']}',
+                            style: const TextStyle(
+                                fontSize: 16, fontWeight: FontWeight.bold),
+                          ),
                         ],
                       ),
                       trailing: widget.type == 'activeOrders'

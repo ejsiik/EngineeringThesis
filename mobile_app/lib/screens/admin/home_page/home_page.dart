@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_app/screens/admin/home_page/qr_button.dart';
+import 'package:mobile_app/screens/admin/orders/search_order.dart';
 import '../../../constants/text_strings.dart';
 import '../../../service/authentication/auth.dart';
 import '../../../constants/colors.dart';
@@ -21,6 +22,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
 
   final TextEditingController _controllerUserID = TextEditingController();
   final TextEditingController _controllerValue = TextEditingController();
+  final TextEditingController _orderCodeController = TextEditingController();
 
   Widget _buildSubmitButton() {
     return SubmitButton(
@@ -50,6 +52,13 @@ class _AdminHomePageState extends State<AdminHomePage> {
       return;
     }
     await Auth().signOut();
+  }
+
+  void updateOrderCode(String value) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (contex) => SearchOrder(orderCode: value)),
+    );
   }
 
   Widget _buildWelcomeBannerCheckbox() {
@@ -156,6 +165,33 @@ class _AdminHomePageState extends State<AdminHomePage> {
                 const SizedBox(height: 30),
                 ErrorMessage(message: errorMessage as String),
                 _buildSubmitButton(),
+                const SizedBox(height: 30),
+                Padding(
+                  padding: const EdgeInsets.all(15.0),
+                  child: TextField(
+                    controller: _orderCodeController,
+                    onSubmitted: (value) {
+                      _orderCodeController.clear();
+                      updateOrderCode(value);
+                    },
+                    decoration: InputDecoration(
+                      filled: true,
+                      hintText: "Wprowadź kod odbioru",
+                      suffixIcon: IconButton(
+                        icon: const Icon(Icons.search),
+                        onPressed: () {
+                          String searchValue = _orderCodeController.text;
+                          _orderCodeController.clear();
+                          updateOrderCode(searchValue);
+                        },
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                        borderSide: BorderSide.none,
+                      ),
+                    ),
+                  ),
+                ),
               ],
             ),
           ),

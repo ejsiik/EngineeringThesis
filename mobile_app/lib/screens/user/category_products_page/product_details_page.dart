@@ -35,6 +35,10 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
     return data;
   }
 
+  Future<void> removeFromShoppingCart(String productId) async {
+    await userData.removeFromShoppingCart(productId);
+  }
+
   Future<List<Uint8List>> loadImages(Map<String, dynamic> images) async {
     List<Uint8List> loadedImages = [];
 
@@ -48,6 +52,11 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
       loadedImages.add(Uint8List.fromList(data!));
     }
     return loadedImages;
+  }
+
+  Future<void> addToShoppingCart(String productId) async {
+    await userData.addToShoppingCart(productId);
+    setState(() {});
   }
 
   void _showDescriptionDialog(BuildContext context, String label) {
@@ -114,11 +123,6 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
 
   @override
   Widget build(BuildContext context) {
-    Future<void> addToShoppingCart(String productId) async {
-      await userData.addToShoppingCart(productId);
-      setState(() {});
-    }
-
     final ThemeData theme = Theme.of(context);
     final Color shimmerBaseColor = theme.brightness == Brightness.light
         ? AppColors.shimmerBaseColorLight
@@ -318,7 +322,14 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
               color: Colors.orange,
               child: GestureDetector(
                 onTap: () async {
-                  await addToShoppingCart(widget.productId);
+                  if (await userData
+                      .isProductInShoppingCart(widget.productId)) {
+                    // Produkt jest już w koszyku, więc usuń z koszyka
+                    await removeFromShoppingCart(widget.productId);
+                  } else {
+                    // Produkt nie jest w koszyku, więc dodaj do koszyka
+                    await addToShoppingCart(widget.productId);
+                  }
                   // Aktualizuj tekst bez odświeżania całego widoku
                   setState(() {});
                 },

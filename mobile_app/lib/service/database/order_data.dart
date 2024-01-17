@@ -1,6 +1,7 @@
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:mobile_app/service/database/data.dart';
+import 'package:random_string/random_string.dart';
 
 class OrderData {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
@@ -10,8 +11,8 @@ class OrderData {
 
   DatabaseReference ordersRef = FirebaseDatabase.instance.ref().child('orders');
 
-  Future<void> addOrder(String name, String surname,
-      Map<String, dynamic> location, double totalPrice) async {
+  Future<void> addOrder(
+      String name, Map<String, dynamic> location, double totalPrice) async {
     try {
       String userId = currentUser!.uid;
 
@@ -25,19 +26,21 @@ class OrderData {
       DateTime now = DateTime.now();
       String formattedDate = now.toLocal().toString();
 
+      String randomCode = randomAlphaNumeric(9);
+
       DatabaseReference userOrderRef = ordersRef.child(userId).push();
       await userOrderRef.set({
         'is_completed': false,
         'order': {
           'user_id': userId,
           'user_name': name,
-          'user_surname': surname,
           'city': city,
           'street': street,
           'street_number': streetNumber,
           'total_price': totalPrice,
           'shopping_list': data,
           'order_date': formattedDate,
+          'order_code': randomCode,
         },
       });
 
@@ -170,6 +173,35 @@ class OrderData {
 
       print(usersMap);
       return usersMap;
+    } catch (error) {
+      throw Exception('Error accesing shopping cart: $error');
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> searchOrder(String orderCode) async {
+    try {
+      DatabaseEvent orderEvent = await ordersRef.once();
+      DataSnapshot orderSnapshot = orderEvent.snapshot;
+      final data = Map<String, dynamic>.from(
+          orderSnapshot.value as Map<Object?, Object?>);
+      final List<Map<String, dynamic>> matchingOrders = [];
+
+      data.forEach((userId, orders) {
+        orders.forEach((orderId, order) {
+          String orderCodeFormatted = orderCode.trim().toLowerCase();
+          String dbOrderCodeFormatted =
+              order['order']['order_code'].toString().toLowerCase();
+
+          if (order['is_completed'] == false &&
+              orderCodeFormatted == dbOrderCodeFormatted) {
+            matchingOrders.add({
+              userId: {orderId: order}
+            });
+          }
+        });
+      });
+
+      return matchingOrders;
     } catch (error) {
       throw Exception('Error accesing shopping cart: $error');
     }

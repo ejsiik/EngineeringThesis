@@ -78,7 +78,8 @@ class _UserAccountPage extends State<UserAccountPage> {
                 String userName = snapshot.data ?? 'Brak danych';
                 return AppBar(
                   backgroundColor: backgroundColor,
-                  elevation: 0, // Remove shadow
+                  elevation: 0,
+                  automaticallyImplyLeading: false,
                   title: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -132,14 +133,9 @@ class _UserAccountPage extends State<UserAccountPage> {
                     type: "completedOrders",
                   ),
                   UserAccountListView(
-                    text: "Obserwowane produkty",
-                    icon: Icons.remove_red_eye,
-                    type: "other",
-                  ),
-                  UserAccountListView(
                     text: "Zakupione produkty",
                     icon: Icons.home_repair_service,
-                    type: "other",
+                    type: "boughtProducts",
                   ),
                   UserAccountListView(
                     text: "Kupony",

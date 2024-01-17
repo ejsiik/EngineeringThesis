@@ -237,10 +237,12 @@ class Data {
 
         bool productAlreadyInCart = false;
 
+        // Dany produkt znajduje się już w koszyku
         for (var item in currentShoppingList) {
-          // removing product from shopping cart
           if (item['product_id'] == productId) {
-            currentShoppingList.remove(item);
+            int quantity = await getQuantityOfShoppingCart(productId);
+            await changeQuantityInShoppingCart(productId, quantity + 1);
+
             productAlreadyInCart = true;
             break;
           }
@@ -260,21 +262,21 @@ class Data {
             'quantity': 1,
             'price': productPrice,
           });
+
+          await usersRef
+              .child('$userId/shoppingCart')
+              .update({'shoppingList': currentShoppingList});
+
+          // Oblicz nową sumę cen produktów i zaktualizuj totalPrice
+          double newTotalPrice = 0.0;
+          for (var item in currentShoppingList) {
+            newTotalPrice += item['price'];
+          }
+
+          await usersRef
+              .child('$userId/shoppingCart')
+              .update({'totalPrice': newTotalPrice});
         }
-
-        await usersRef
-            .child('$userId/shoppingCart')
-            .update({'shoppingList': currentShoppingList});
-
-        // Oblicz nową sumę cen produktów i zaktualizuj totalPrice
-        double newTotalPrice = 0.0;
-        for (var item in currentShoppingList) {
-          newTotalPrice += item['price'];
-        }
-
-        await usersRef
-            .child('$userId/shoppingCart')
-            .update({'totalPrice': newTotalPrice});
       } else {
         double productPrice = 0.0;
 
@@ -294,6 +296,48 @@ class Data {
             },
           ],
         });
+      }
+    } catch (error) {
+      throw Exception('Error accesing shopping cart: $error');
+    }
+  }
+
+  Future<void> removeFromShoppingCart(String productId) async {
+    try {
+      String userId = currentUser!.uid;
+
+      // Sprawdź, czy użytkownik ma aktywny koszyk
+      DatabaseEvent event = await usersRef.child('$userId/shoppingCart').once();
+      DataSnapshot snapshot = event.snapshot;
+      final shoppingCartData =
+          Map<String, dynamic>.from(snapshot.value! as Map<Object?, Object?>);
+
+      // checking if shopping list is already created
+      if (shoppingCartData.containsKey('shoppingList')) {
+        List<dynamic> currentShoppingList =
+            List.from(shoppingCartData['shoppingList'] ?? []);
+
+        for (var item in currentShoppingList) {
+          // removing product from shopping cart
+          if (item['product_id'] == productId) {
+            currentShoppingList.remove(item);
+            break;
+          }
+        }
+
+        await usersRef
+            .child('$userId/shoppingCart')
+            .update({'shoppingList': currentShoppingList});
+
+        // Oblicz nową sumę cen produktów i zaktualizuj totalPrice
+        double newTotalPrice = 0.0;
+        for (var item in currentShoppingList) {
+          newTotalPrice += item['price'];
+        }
+
+        await usersRef
+            .child('$userId/shoppingCart')
+            .update({'totalPrice': newTotalPrice});
       }
     } catch (error) {
       throw Exception('Error accesing shopping cart: $error');
@@ -449,6 +493,18 @@ class Data {
       double totalPrice = (shoppingCartData['totalPrice']).toDouble();
 
       return totalPrice;
+    } catch (error) {
+      throw Exception('Error accesing shopping cart: $error');
+    }
+  }
+
+  Future<String> getUsernameById(String userId) async {
+    try {
+      DatabaseEvent event = await usersRef.child('$userId/name').once();
+      DataSnapshot snapshot = event.snapshot;
+      String username = snapshot.value.toString();
+
+      return username;
     } catch (error) {
       throw Exception('Error accesing shopping cart: $error');
     }

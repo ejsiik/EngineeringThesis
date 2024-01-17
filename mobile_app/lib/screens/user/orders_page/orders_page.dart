@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_app/constants/colors.dart';
 import 'package:mobile_app/service/connection/connection_check.dart';
 import 'package:mobile_app/service/database/order_data.dart';
 import 'package:mobile_app/service/database/shop_location_data.dart';
 import 'package:mobile_app/service/database/data.dart';
 import 'package:mobile_app/screens/user/main_page.dart';
+import 'package:shimmer/shimmer.dart';
 
 class OrdersPage extends StatefulWidget {
   const OrdersPage({Key? key}) : super(key: key);
@@ -15,22 +17,32 @@ class OrdersPage extends StatefulWidget {
 }
 
 class _OrdersState extends State<OrdersPage> {
-  final _nameController = TextEditingController();
-  final _surnameController = TextEditingController();
   late List shops = [];
   late List<bool> shopsExpansionStates = [];
   late Map<String, dynamic>? selectedLocationData = {};
   ShopLocationData shopLocationData = ShopLocationData();
   Data userData = Data();
   OrderData orderData = OrderData();
-  double totalPrice = 0.0;
+  double price = 0.0;
+  String name = "";
 
   @override
   void initState() {
     super.initState();
     // Set up a listener for changes in the database
     getLocations();
-    setState(() {});
+  }
+
+  Future<String> getUserName() async {
+    try {
+      if (!await checkInternetConnectivity()) {
+        return "";
+      }
+      String? userName = await userData.getUserName();
+      return userName ?? '';
+    } catch (error) {
+      return 'Nieznany użytkownik';
+    }
   }
 
   Future<void> getLocations() async {
@@ -40,16 +52,13 @@ class _OrdersState extends State<OrdersPage> {
   }
 
   Future<double> getTotalPrice() async {
-    if (!await checkInternetConnectivity()) {
-      return 0.0;
-    }
-    double totalPrice = await userData.getTotalPriceData();
-    return totalPrice;
+    double price = await userData.getTotalPriceData();
+    return price;
   }
 
-  Future<void> addOrder(String name, String surname,
-      Map<String, dynamic> location, double totalPrice) async {
-    await orderData.addOrder(name, surname, location, totalPrice);
+  Future<void> addOrder(
+      String name, Map<String, dynamic> location, double totalPrice) async {
+    await orderData.addOrder(name, location, totalPrice);
   }
 
   Widget buildDay(String day, Map<dynamic, dynamic> dayData) {
@@ -85,6 +94,21 @@ class _OrdersState extends State<OrdersPage> {
 
   @override
   Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    final Color backgroundColor = theme.scaffoldBackgroundColor;
+    final Color primaryColor = theme.brightness == Brightness.light
+        ? AppColors.primaryLight
+        : AppColors.primaryDark;
+    final Color textColor = theme.brightness == Brightness.light
+        ? AppColors.textLight
+        : AppColors.textDark;
+    final Color shimmerBaseColor = theme.brightness == Brightness.light
+        ? AppColors.shimmerBaseColorLight
+        : AppColors.shimmerBaseColorDark;
+    final Color shimmerHighlightColor = theme.brightness == Brightness.light
+        ? AppColors.shimmerHighlightColorLight
+        : AppColors.shimmerHighlightColorDark;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Składanie zamówienia'),
@@ -95,14 +119,17 @@ class _OrdersState extends State<OrdersPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             FutureBuilder<double>(
-              future: getTotalPrice(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const CircularProgressIndicator();
-                } else if (snapshot.hasError) {
-                  return Text('Error: ${snapshot.error}');
+              future: userData.getTotalPriceData(),
+              builder: (BuildContext context,
+                  AsyncSnapshot<double> totalPriceSnapshot) {
+                if (totalPriceSnapshot.connectionState ==
+                    ConnectionState.waiting) {
+                  return ShimmerLoadingTotalPrice();
+                } else if (totalPriceSnapshot.hasError) {
+                  return Text('Error: ${totalPriceSnapshot.error}');
                 } else {
-                  totalPrice = snapshot.data ?? 0.0;
+                  double totalPrice = totalPriceSnapshot.data ?? 0.0;
+                  price = totalPrice;
                   return Container(
                     padding: EdgeInsets.all(12.0),
                     color: Colors.grey,
@@ -124,26 +151,43 @@ class _OrdersState extends State<OrdersPage> {
               },
             ),
             const SizedBox(height: 16),
-            const Text(
-              'Imię',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-            TextField(
-              controller: _nameController,
-              decoration: const InputDecoration(
-                hintText: 'Wprowadź imię',
-              ),
-            ),
-            const SizedBox(height: 16),
-            const Text(
-              'Nazwisko',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-            TextField(
-              controller: _surnameController,
-              decoration: const InputDecoration(
-                hintText: 'Wprowadź nazwisko',
-              ),
+            FutureBuilder<String>(
+              future: getUserName(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  // Use shimmer effect while loading
+                  return Shimmer.fromColors(
+                    baseColor: shimmerBaseColor,
+                    highlightColor: shimmerHighlightColor,
+                    child: Container(
+                        width: double.infinity,
+                        height: 60.0,
+                        color: backgroundColor),
+                  );
+                } else {
+                  String userName = snapshot.data ?? 'Nieznany użytkownik';
+                  name = userName;
+                  TextEditingController usernameController =
+                      TextEditingController(text: '$userName');
+
+                  return TextField(
+                    controller: usernameController,
+                    readOnly: true,
+                    decoration: InputDecoration(
+                      labelText: 'Nazwa użytkownika',
+                      labelStyle: TextStyle(
+                        fontSize: 20,
+                        color: Colors.white,
+                      ),
+                    ),
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  );
+                }
+              },
             ),
             const SizedBox(height: 32),
             const Text(
@@ -221,21 +265,71 @@ class _OrdersState extends State<OrdersPage> {
         color: Colors.orange,
         child: GestureDetector(
           onTap: () {
-            if (_nameController.text.isNotEmpty &&
-                _surnameController.text.isNotEmpty &&
+            if (name.isNotEmpty &&
                 selectedLocationData!.isNotEmpty &&
-                totalPrice != 0.0) {
-              addOrder(
-                  _nameController.text.toString(),
-                  _surnameController.text.toString(),
-                  selectedLocationData!,
-                  totalPrice);
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const MainPage(),
-                ),
+                price != 0.0) {
+              addOrder(name, selectedLocationData!, price);
+
+              showGeneralDialog(
+                context: context,
+                barrierDismissible: true,
+                barrierLabel:
+                    MaterialLocalizations.of(context).modalBarrierDismissLabel,
+                barrierColor: Colors.black.withOpacity(0.5),
+                transitionDuration: const Duration(milliseconds: 200),
+                pageBuilder: (BuildContext buildContext, Animation animation,
+                    Animation secondaryAnimation) {
+                  return Center(
+                    child: Container(
+                      width: MediaQuery.of(context).size.width,
+                      height: MediaQuery.of(context).size.height,
+                      padding: EdgeInsets.all(16.0),
+                      decoration: BoxDecoration(
+                        color: backgroundColor,
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            "Twoje zamówienie zostało złożone",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: textColor,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 20.0,
+                              decoration: TextDecoration.none,
+                            ),
+                          ),
+                          SizedBox(height: 16.0),
+                          Text(
+                            "Dziękujemy",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: primaryColor,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18.0,
+                              decoration: TextDecoration.none,
+                            ),
+                          ),
+                          SizedBox(height: 16.0),
+                        ],
+                      ),
+                    ),
+                  );
+                },
               );
+
+              Future.delayed(Duration(seconds: 3), () {
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const MainPage(),
+                  ),
+                  (route) => false,
+                );
+              });
             } else {
               showDialog(
                 context: context,
@@ -243,7 +337,7 @@ class _OrdersState extends State<OrdersPage> {
                   return AlertDialog(
                     title: const Text('Brak wymaganych danych'),
                     content: const Text(
-                        'Wypełnij wszystkie pola przed złożeniem zamówienia.'),
+                        'Przed złożeniem zamówienia wybierz lokalizację sklepu.'),
                     actions: [
                       TextButton(
                         onPressed: () {
@@ -257,11 +351,38 @@ class _OrdersState extends State<OrdersPage> {
               );
             }
           },
-          child: const ListTile(
+          child: ListTile(
             leading: Icon(Icons.shopping_cart),
-            title: Text('Złóż zamówienie'),
+            title: Text(
+              'Złóż zamówienie',
+              style: TextStyle(
+                color: textColor,
+              ),
+            ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class ShimmerLoadingTotalPrice extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    final Color shimmerBaseColor = theme.brightness == Brightness.light
+        ? AppColors.shimmerBaseColorLight
+        : AppColors.shimmerBaseColorDark;
+    final Color shimmerHighlightColor = theme.brightness == Brightness.light
+        ? AppColors.shimmerHighlightColorLight
+        : AppColors.shimmerHighlightColorDark;
+    return Shimmer.fromColors(
+      baseColor: shimmerBaseColor,
+      highlightColor: shimmerHighlightColor,
+      child: Container(
+        width: 600,
+        height: 47,
+        color: Colors.white,
       ),
     );
   }
