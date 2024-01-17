@@ -96,6 +96,12 @@ class _OrdersState extends State<OrdersPage> {
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
     final Color backgroundColor = theme.scaffoldBackgroundColor;
+    final Color primaryColor = theme.brightness == Brightness.light
+        ? AppColors.primaryLight
+        : AppColors.primaryDark;
+    final Color textColor = theme.brightness == Brightness.light
+        ? AppColors.textLight
+        : AppColors.textDark;
     final Color shimmerBaseColor = theme.brightness == Brightness.light
         ? AppColors.shimmerBaseColorLight
         : AppColors.shimmerBaseColorDark;
@@ -263,13 +269,67 @@ class _OrdersState extends State<OrdersPage> {
                 selectedLocationData!.isNotEmpty &&
                 price != 0.0) {
               addOrder(name, selectedLocationData!, price);
-              Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const MainPage(),
-                ),
-                (route) => false,
+
+              showGeneralDialog(
+                context: context,
+                barrierDismissible: true,
+                barrierLabel:
+                    MaterialLocalizations.of(context).modalBarrierDismissLabel,
+                barrierColor: Colors.black.withOpacity(0.5),
+                transitionDuration: const Duration(milliseconds: 200),
+                pageBuilder: (BuildContext buildContext, Animation animation,
+                    Animation secondaryAnimation) {
+                  return Center(
+                    child: Container(
+                      width: MediaQuery.of(context).size.width,
+                      height: MediaQuery.of(context).size.height,
+                      padding: EdgeInsets.all(16.0),
+                      decoration: BoxDecoration(
+                        color: backgroundColor,
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            "Twoje zamówienie zostało złożone",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: textColor,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 20.0,
+                              decoration: TextDecoration.none,
+                            ),
+                          ),
+                          SizedBox(height: 16.0),
+                          Text(
+                            "Dziękujemy",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: primaryColor,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18.0,
+                              decoration: TextDecoration.none,
+                            ),
+                          ),
+                          SizedBox(height: 16.0),
+                        ],
+                      ),
+                    ),
+                  );
+                },
               );
+
+              Future.delayed(Duration(seconds: 3), () {
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const MainPage(),
+                  ),
+                  (route) => false,
+                );
+              });
             } else {
               showDialog(
                 context: context,
@@ -291,9 +351,14 @@ class _OrdersState extends State<OrdersPage> {
               );
             }
           },
-          child: const ListTile(
+          child: ListTile(
             leading: Icon(Icons.shopping_cart),
-            title: Text('Złóż zamówienie'),
+            title: Text(
+              'Złóż zamówienie',
+              style: TextStyle(
+                color: textColor,
+              ),
+            ),
           ),
         ),
       ),

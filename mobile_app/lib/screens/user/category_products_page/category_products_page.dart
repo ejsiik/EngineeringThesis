@@ -54,32 +54,38 @@ class _CategoryProductsPageState extends State<CategoryProductsPage> {
   Future<void> addToShoppingCart(String productId) async {
     await userData.addToShoppingCart(productId);
     int quantity = await userData.getQuantityOfShoppingCart(productId);
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Column(
-        children: [
-          Row(
-            children: [
-              Text(
-                "Produkt został dodany do koszyka.",
-                style: TextStyle(fontSize: 14),
-              )
-            ],
-          ),
-          Row(
-            children: [
-              Text(
-                "Ilość produktu w koszyku: ",
-                style: TextStyle(fontSize: 16),
-              ),
-              Text(
-                '$quantity',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
-            ],
-          ),
-        ],
+    showSnackBar(quantity);
+  }
+
+  void showSnackBar(int quantity) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Column(
+          children: [
+            Row(
+              children: [
+                Text(
+                  "Produkt został dodany do koszyka.",
+                  style: TextStyle(fontSize: 14),
+                )
+              ],
+            ),
+            Row(
+              children: [
+                Text(
+                  "Ilość produktu w koszyku: ",
+                  style: TextStyle(fontSize: 16),
+                ),
+                Text(
+                  '$quantity',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
-    ));
+    );
   }
 
   Widget buildProductItem(Map product) {

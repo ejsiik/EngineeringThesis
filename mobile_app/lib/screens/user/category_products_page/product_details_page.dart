@@ -54,6 +54,11 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
     return loadedImages;
   }
 
+  Future<void> addToShoppingCart(String productId) async {
+    await userData.addToShoppingCart(productId);
+    setState(() {});
+  }
+
   void _showDescriptionDialog(BuildContext context, String label) {
     showDialog(
       context: context,
@@ -118,11 +123,6 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
 
   @override
   Widget build(BuildContext context) {
-    Future<void> addToShoppingCart(String productId) async {
-      await userData.addToShoppingCart(productId);
-      setState(() {});
-    }
-
     final ThemeData theme = Theme.of(context);
     final Color shimmerBaseColor = theme.brightness == Brightness.light
         ? AppColors.shimmerBaseColorLight

@@ -36,23 +36,6 @@ class _HomePageState extends State<HomePage> {
   CategoryData categoryData = CategoryData();
   ProductData productData = ProductData();
 
-  void _showSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(message),
-    ));
-  }
-
-  Future<Map<String, dynamic>> getProductDataById(String id) async {
-    Map<String, dynamic> data = {};
-
-    if (!await checkInternetConnectivity()) {
-      return data;
-    }
-
-    data = await productData.getProductDataById(id);
-    return data;
-  }
-
   final List<Map<String, String>> sliderImagesList = [
     {"banner_01.png": "-NlKz08IwkCWjiUPq_vV"},
     {"banner_02.png": "-NnkrnO46WOlGE2llt3b"},
@@ -143,6 +126,17 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  Future<Map<String, dynamic>> getProductDataById(String id) async {
+    Map<String, dynamic> data = {};
+
+    if (!await checkInternetConnectivity()) {
+      return data;
+    }
+
+    data = await productData.getProductDataById(id);
+    return data;
+  }
+
   Future<String> getUserName() async {
     try {
       if (!await checkInternetConnectivity()) {
@@ -187,6 +181,12 @@ class _HomePageState extends State<HomePage> {
     }
 
     return categoryData.getAllCategories();
+  }
+
+  void _showSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(message),
+    ));
   }
 
   void updateProductSearchList(String value) {

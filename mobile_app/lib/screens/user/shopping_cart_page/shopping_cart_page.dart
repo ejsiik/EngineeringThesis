@@ -21,12 +21,12 @@ class ShoppingCartPage extends StatefulWidget {
 
 class _ShoppingCartPageState extends State<ShoppingCartPage> {
   Data userData = Data();
+  double totalPrice = 0.0;
   static const String routeName = '/shoppingCartPage';
 
   @override
   void initState() {
     super.initState();
-    getTotalPrice();
   }
 
   Future<double> getTotalPrice() async {
@@ -53,27 +53,28 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
     return data;
   }
 
+  Future<void> removeFromShoppingCart(String productId) async {
+    await userData.removeFromShoppingCart(productId);
+
+    setState(() {});
+  }
+
+  Future<void> changeQuantityInShoppingCart(
+      String productId, int quantity) async {
+    await userData.changeQuantityInShoppingCart(productId, quantity);
+    await userData.getTotalPriceData();
+  }
+
+  Future<int> getQuantityOfShoppingCart(String productId) async {
+    if (!await checkInternetConnectivity()) {
+      return 0;
+    }
+
+    final data = await userData.getQuantityOfShoppingCart(productId);
+    return data;
+  }
+
   Widget buildProductItem(Map productMap) {
-    Future<void> removeFromShoppingCart(String productId) async {
-      await userData.removeFromShoppingCart(productId);
-
-      setState(() {});
-    }
-
-    Future<void> changeQuantityInShoppingCart(
-        String productId, int quantity) async {
-      await userData.changeQuantityInShoppingCart(productId, quantity);
-    }
-
-    Future<int> getQuantityOfShoppingCart(String productId) async {
-      if (!await checkInternetConnectivity()) {
-        return 0;
-      }
-
-      final data = await userData.getQuantityOfShoppingCart(productId);
-      return data;
-    }
-
     Map<String, dynamic> details =
         (productMap['details'] as Map<dynamic, dynamic>)
             .cast<String, dynamic>();
@@ -113,11 +114,11 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
                     int currentQuantity =
                         await getQuantityOfShoppingCart(productMap['id']);
                     if (currentQuantity > 1) {
+                      await changeQuantityInShoppingCart(
+                          productMap['id'], currentQuantity - 1);
                       setState(() {
-                        currentQuantity--;
+                        currentQuantity -= 1;
                       });
-                      changeQuantityInShoppingCart(
-                          productMap['id'], currentQuantity);
                     }
                   },
                 ),
@@ -139,11 +140,12 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
                   onPressed: () async {
                     int currentQuantity =
                         await getQuantityOfShoppingCart(productMap['id']);
+
+                    await changeQuantityInShoppingCart(
+                        productMap['id'], currentQuantity + 1);
                     setState(() {
-                      currentQuantity++;
+                      currentQuantity += 1;
                     });
-                    changeQuantityInShoppingCart(
-                        productMap['id'], currentQuantity);
                   },
                 ),
               ],
