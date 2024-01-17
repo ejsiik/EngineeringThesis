@@ -54,8 +54,8 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
   }
 
   Widget buildProductItem(Map productMap) {
-    Future<void> addToShoppingCart(String productId) async {
-      await userData.addToShoppingCart(productId);
+    Future<void> removeFromShoppingCart(String productId) async {
+      await userData.removeFromShoppingCart(productId);
 
       setState(() {});
     }
@@ -166,7 +166,7 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
         ),
         trailing: GestureDetector(
           onTap: () {
-            addToShoppingCart(productMap['id']);
+            removeFromShoppingCart(productMap['id']);
           },
           child: const Icon(Icons.delete),
         ),

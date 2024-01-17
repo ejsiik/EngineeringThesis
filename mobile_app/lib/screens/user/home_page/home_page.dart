@@ -5,9 +5,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_app/constants/colors.dart';
 import 'package:mobile_app/screens/user/category_products_page/product_details_page.dart';
-//import 'package:mobile_app/constants/text_strings.dart';
 import 'package:mobile_app/service/authentication/auth.dart';
-//import 'package:mobile_app/service/database/shop_location_data.dart';
 import 'package:mobile_app/service/database/category_data.dart';
 import 'package:mobile_app/service/database/data.dart';
 import 'package:mobile_app/screens/user/category_products_page/category_products_page.dart';
@@ -16,9 +14,7 @@ import 'package:mobile_app/screens/user/home_page/qr_code_popup.dart';
 import 'package:mobile_app/service/database/product_data.dart';
 import 'package:shimmer/shimmer.dart';
 import '../../../service/connection/connection_check.dart';
-import '../category_products_page/product_search_model.dart';
 import 'welcome_banner.dart';
-//import '../category_products_page/product_search_model.dart';
 import '../category_products_page/product_search_result.dart';
 
 class HomePage extends StatefulWidget {
@@ -34,14 +30,11 @@ class _HomePageState extends State<HomePage> {
   late DatabaseReference? couponUsedRef;
   bool isListVisible = false;
   bool showWelcomeBanner = false;
-  List<ProductSearchModel> displayList = [];
   TextEditingController searchController = TextEditingController();
   UserDataProvider userDataProvider = UserDataProvider();
   Data userData = Data();
   CategoryData categoryData = CategoryData();
   ProductData productData = ProductData();
-  //ShopLocationData shopLocationData = ShopLocationData();
-  //List<ProductSearchModel> displayList = [];
 
   void _showSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
