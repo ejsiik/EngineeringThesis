@@ -474,7 +474,7 @@ class _HomePageState extends State<HomePage> {
                       return GridView.builder(
                         gridDelegate:
                             const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 3,
+                          crossAxisCount: 2,
                           crossAxisSpacing: 8.0,
                           mainAxisSpacing: 8.0,
                         ),

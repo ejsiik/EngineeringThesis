@@ -138,9 +138,9 @@ class _UserAccountPage extends State<UserAccountPage> {
                     type: "boughtProducts",
                   ),
                   UserAccountListView(
-                    text: "Kupony",
-                    icon: Icons.local_offer,
-                    type: "other",
+                    text: "Obserwowane produkty",
+                    icon: Icons.remove_red_eye,
+                    type: "followedProducts",
                   ),
                   UserAccountListView(
                     text: "Ustawienia konta",

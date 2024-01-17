@@ -22,7 +22,6 @@ class UserAccountListView extends StatelessWidget {
 
     return GestureDetector(
       onTap: () {
-        // Navigate to the new screen
         if (type == 'activeOrders' || type == 'completedOrders') {
           Navigator.push(
             context,
@@ -42,13 +41,12 @@ class UserAccountListView extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(10.0),
         child: Container(
-          height: 100,
+          padding: EdgeInsets.symmetric(vertical: 20.0),
           decoration: BoxDecoration(
             color: backgroundColor,
             borderRadius: BorderRadius.circular(12.0),
           ),
           child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Padding(
                 padding: const EdgeInsets.only(left: 10.0, right: 10.0),
@@ -58,12 +56,20 @@ class UserAccountListView extends StatelessWidget {
                   color: primaryColor,
                 ),
               ),
-              Text(
-                text,
-                style: TextStyle(
-                  fontSize: 24,
-                  color: primaryColor,
-                  fontWeight: FontWeight.bold,
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      text,
+                      style: TextStyle(
+                        fontSize: 24,
+                        color: primaryColor,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
