@@ -316,7 +316,8 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
             ),
           ),
           if (widget.routeName != '/shoppingCartPage' &&
-              widget.routeName != '/ordersPage')
+              widget.routeName != '/ordersPage' &&
+              widget.routeName != "/purchasedProducts")
             Container(
               padding: EdgeInsets.all(16.0),
               color: Colors.orange,
@@ -324,13 +325,10 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                 onTap: () async {
                   if (await userData
                       .isProductInShoppingCart(widget.productId)) {
-                    // Produkt jest już w koszyku, więc usuń z koszyka
                     await removeFromShoppingCart(widget.productId);
                   } else {
-                    // Produkt nie jest w koszyku, więc dodaj do koszyka
                     await addToShoppingCart(widget.productId);
                   }
-                  // Aktualizuj tekst bez odświeżania całego widoku
                   setState(() {});
                 },
                 child: Row(

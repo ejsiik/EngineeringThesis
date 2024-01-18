@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_app/constants/colors.dart';
 import 'package:mobile_app/screens/user/orders_page/orders_list_page.dart';
+import 'package:mobile_app/screens/user/orders_page/purchased_products.dart';
 
 import 'user_settings.dart';
 
@@ -30,6 +31,11 @@ class UserAccountListView extends StatelessWidget {
                 type: type,
               ),
             ),
+          );
+        } else if (type == 'purchasedProducts') {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => PurchasedProductsPage()),
           );
         } else if (type == 'settings') {
           Navigator.push(

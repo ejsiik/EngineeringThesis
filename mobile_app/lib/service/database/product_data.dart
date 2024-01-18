@@ -72,7 +72,6 @@ class ProductData {
   Future<Map<String, dynamic>> getProductDataById(String id) async {
     DatabaseReference ref = getProductsRef();
 
-    // Pobierz dane z bazy danych
     DatabaseEvent event = await ref.child(id).once();
     DataSnapshot snapshot = event.snapshot;
 

@@ -135,7 +135,7 @@ class _UserAccountPage extends State<UserAccountPage> {
                   UserAccountListView(
                     text: "Zakupione produkty",
                     icon: Icons.home_repair_service,
-                    type: "boughtProducts",
+                    type: "purchasedProducts",
                   ),
                   UserAccountListView(
                     text: "Obserwowane produkty",
