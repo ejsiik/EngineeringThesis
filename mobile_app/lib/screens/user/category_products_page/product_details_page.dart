@@ -317,7 +317,8 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
           ),
           if (widget.routeName != '/shoppingCartPage' &&
               widget.routeName != '/ordersPage' &&
-              widget.routeName != "/purchasedProducts")
+              widget.routeName != "/purchasedProducts" &&
+              widget.routeName != "/followedProducts")
             Container(
               padding: EdgeInsets.all(16.0),
               color: Colors.orange,

@@ -213,6 +213,11 @@ class OrderData {
 
       DatabaseEvent orderEvent = await ordersRef.child(userId).once();
       DataSnapshot orderSnapshot = orderEvent.snapshot;
+
+      if (orderSnapshot.value == null) {
+        return [];
+      }
+
       final data = Map<String, dynamic>.from(
           orderSnapshot.value as Map<Object?, Object?>);
 

@@ -286,7 +286,6 @@ class _OrdersState extends State<OrdersPage> {
                       padding: EdgeInsets.all(16.0),
                       decoration: BoxDecoration(
                         color: backgroundColor,
-                        borderRadius: BorderRadius.circular(10.0),
                       ),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,

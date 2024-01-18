@@ -1,35 +1,42 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_app/constants/colors.dart';
 import 'package:mobile_app/screens/user/category_products_page/product_details_page.dart';
-import 'package:mobile_app/service/database/order_data.dart';
+import 'package:mobile_app/service/database/data.dart';
 import 'package:mobile_app/service/database/product_data.dart';
 
-class PurchasedProductsPage extends StatefulWidget {
-  const PurchasedProductsPage({Key? key}) : super(key: key);
+class FollowedProductsPage extends StatefulWidget {
+  const FollowedProductsPage({Key? key}) : super(key: key);
 
   @override
-  State<PurchasedProductsPage> createState() {
-    return _PurchasedProductsPageState();
+  State<FollowedProductsPage> createState() {
+    return _FollowedProductsPageState();
   }
 }
 
-class _PurchasedProductsPageState extends State<PurchasedProductsPage> {
-  OrderData orderData = OrderData();
+class _FollowedProductsPageState extends State<FollowedProductsPage> {
   ProductData productData = ProductData();
-  late List<Map<String, dynamic>> boughtProducts = [];
+  Data userData = Data();
+  late List<dynamic> followedProducts = [];
 
   @override
   void initState() {
     super.initState();
 
-    getBoughtProducts();
+    getWishlistData();
   }
 
-  Future<void> getBoughtProducts() async {
-    List<Map<String, dynamic>> data = await orderData.getBoughtProducts();
+  Future<void> getWishlistData() async {
+    List<dynamic> data = await userData.getWishlistData();
+    print(data);
     setState(() {
-      boughtProducts = data;
+      followedProducts = data;
     });
+  }
+
+  Future<void> addOrRemoveFromWishlist(String productId) async {
+    bool data = await userData.addOrRemoveFromWishlist(productId);
+    showSnackBarWishList(data);
+    getWishlistData();
   }
 
   Future<Map<String, dynamic>> getProductDataById(String id) async {
@@ -54,6 +61,35 @@ class _PurchasedProductsPageState extends State<PurchasedProductsPage> {
     );
   }
 
+  void showSnackBarWishList(bool addOrRemove) {
+    String message = addOrRemove
+        ? ' z listy produktów obserwowanych'
+        : ' do listy produktów obserwowanych';
+
+    String boldText = addOrRemove ? 'Usunięto' : 'Dodano';
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Column(
+          children: [
+            Row(
+              children: [
+                Text(
+                  boldText,
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+                Text(
+                  message,
+                  style: TextStyle(fontSize: 16),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
@@ -61,10 +97,10 @@ class _PurchasedProductsPageState extends State<PurchasedProductsPage> {
         ? AppColors.primaryLight
         : AppColors.primaryDark;
 
-    if (boughtProducts.isEmpty) {
+    if (followedProducts.isEmpty) {
       return Scaffold(
         appBar: AppBar(
-          title: const Text('Zakupione produkty'),
+          title: const Text('Obserwowane produkty'),
         ),
         body: Container(
           padding: EdgeInsets.all(16.0),
@@ -84,13 +120,12 @@ class _PurchasedProductsPageState extends State<PurchasedProductsPage> {
     } else {
       return Scaffold(
         appBar: AppBar(
-          title: const Text('Zakupione produkty'),
+          title: const Text('Obserwowane produkty'),
         ),
         body: ListView.builder(
-          itemCount: boughtProducts.length,
+          itemCount: followedProducts.length,
           itemBuilder: (context, index) {
-            String productId = boughtProducts[index].keys.first;
-            int quantity = boughtProducts[index][productId]['quantity'];
+            String productId = followedProducts[index]['product_id'];
 
             return FutureBuilder<Map<String, dynamic>>(
               future: getProductDataById(productId),
@@ -108,7 +143,7 @@ class _PurchasedProductsPageState extends State<PurchasedProductsPage> {
                   int categoryId = productData['category_id'];
                   String productName = productData['name'];
                   int price = productData['price'];
-                  String routeName = "/purchasedProducts";
+                  String routeName = "/followedProducts";
 
                   Map<String, dynamic> details =
                       (productData['details'] as Map<dynamic, dynamic>)
@@ -138,16 +173,25 @@ class _PurchasedProductsPageState extends State<PurchasedProductsPage> {
                       ),
                       subtitle: RichText(
                         text: TextSpan(
-                          text: 'Ilość: ',
+                          text: 'Cena: ',
                           style: DefaultTextStyle.of(context).style,
                           children: <TextSpan>[
                             TextSpan(
-                              text: quantity.toString(),
+                              text: '${price} zł',
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
                           ],
+                        ),
+                      ),
+                      trailing: GestureDetector(
+                        onTap: () {
+                          addOrRemoveFromWishlist(productId);
+                        },
+                        child: Icon(
+                          Icons.favorite,
+                          color: Colors.grey,
                         ),
                       ),
                       onTap: () => navigateToProductDetails(

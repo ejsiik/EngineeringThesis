@@ -23,6 +23,11 @@ class _ProductSearchResultState extends State<ProductSearchResult> {
   Data userData = Data();
   static const String routeName = '/productSearchResultPage';
 
+  Future<void> addOrRemoveFromWishlist(String productId) async {
+    bool data = await userData.addOrRemoveFromWishlist(productId);
+    showSnackBarWishList(data);
+  }
+
   Future<List<Map<String, dynamic>>> getProductData() async {
     if (!await checkInternetConnectivity()) {
       return [];
@@ -64,10 +69,10 @@ class _ProductSearchResultState extends State<ProductSearchResult> {
   Future<void> addToShoppingCart(String productId) async {
     await userData.addToShoppingCart(productId);
     int quantity = await userData.getQuantityOfShoppingCart(productId);
-    showSnackBar(quantity);
+    showSnackBarShoppingCart(quantity);
   }
 
-  void showSnackBar(int quantity) {
+  void showSnackBarShoppingCart(int quantity) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Column(
@@ -89,6 +94,35 @@ class _ProductSearchResultState extends State<ProductSearchResult> {
                 Text(
                   '$quantity',
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void showSnackBarWishList(bool addOrRemove) {
+    String message = addOrRemove
+        ? ' z listy produktów obserwowanych'
+        : ' do listy produktów obserwowanych';
+
+    String boldText = addOrRemove ? 'Usunięto' : 'Dodano';
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Column(
+          children: [
+            Row(
+              children: [
+                Text(
+                  boldText,
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+                Text(
+                  message,
+                  style: TextStyle(fontSize: 16),
                 ),
               ],
             ),
@@ -146,14 +180,28 @@ class _ProductSearchResultState extends State<ProductSearchResult> {
             Text('Cena: ${product['price']} zł'),
           ],
         ),
-        trailing: GestureDetector(
-          onTap: () {
-            addToShoppingCart(product['id']);
-          },
-          child: Icon(
-            Icons.shopping_cart,
-            color: Colors.grey,
-          ),
+        trailing: Column(
+          children: [
+            GestureDetector(
+              onTap: () {
+                addOrRemoveFromWishlist(product['id']);
+              },
+              child: Icon(
+                Icons.favorite,
+                color: Colors.grey,
+              ),
+            ),
+            SizedBox(height: 8),
+            GestureDetector(
+              onTap: () {
+                addToShoppingCart(product['id']);
+              },
+              child: Icon(
+                Icons.shopping_cart,
+                color: Colors.grey,
+              ),
+            ),
+          ],
         ),
         onTap: () {
           Navigator.push(
