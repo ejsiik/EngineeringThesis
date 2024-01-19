@@ -21,6 +21,12 @@ class CategoryProductsPage extends StatefulWidget {
   }
 }
 
+// Add a set to keep track of products in the shopping cart
+Set<String> shoppingCartProducts = Set<String>();
+
+// Add a set to keep track of products in the wishlist
+Set<String> wishlistProducts = Set<String>();
+
 class _CategoryProductsPageState extends State<CategoryProductsPage> {
   ProductData productData = ProductData();
   Data userData = Data();
@@ -71,7 +77,7 @@ class _CategoryProductsPageState extends State<CategoryProductsPage> {
     }
   }
 
-  void showSnackBarShoppingCart(int quantity) {
+  void showSnackBarShoppingCart(int quantity) async {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Column(
@@ -84,7 +90,7 @@ class _CategoryProductsPageState extends State<CategoryProductsPage> {
                 )
               ],
             ),
-            Row(
+            /*Row(
               children: [
                 Text(
                   "Ilość produktu w koszyku: ",
@@ -95,7 +101,7 @@ class _CategoryProductsPageState extends State<CategoryProductsPage> {
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
               ],
-            ),
+            ),*/
           ],
         ),
       ),
@@ -141,6 +147,12 @@ class _CategoryProductsPageState extends State<CategoryProductsPage> {
         (product['details'] as Map<dynamic, dynamic>).cast<String, dynamic>();
     Map<String, dynamic> images =
         (product['images'] as Map<dynamic, dynamic>).cast<String, dynamic>();
+
+    // Check if the product is in the shopping cart
+    bool isInShoppingCart = shoppingCartProducts.contains(product['id']);
+    // Check if the product is in the wishlist
+    bool isInWishlist = wishlistProducts.contains(product['id']);
+
     return Card(
       margin: const EdgeInsets.all(8.0),
       child: ListTile(
@@ -175,20 +187,30 @@ class _CategoryProductsPageState extends State<CategoryProductsPage> {
             GestureDetector(
               onTap: () {
                 addOrRemoveFromWishlist(product['id']);
+                wishlistProducts.contains(product['id'])
+                    ? wishlistProducts.remove(product['id'])
+                    : wishlistProducts.add(product['id']);
+                // Use setState to rebuild the widget and update the color
+                setState(() {});
               },
               child: Icon(
                 Icons.favorite,
-                color: Colors.grey,
+                // Change the color based on whether the product is in the wishlist
+                color: isInWishlist ? Colors.green : Colors.grey,
               ),
             ),
             SizedBox(height: 8),
             GestureDetector(
               onTap: () {
                 addToShoppingCart(product['id']);
+                shoppingCartProducts.add(product['id']);
+
+                // Use setState to rebuild the widget and update the color
+                setState(() {});
               },
               child: Icon(
                 Icons.shopping_cart,
-                color: Colors.grey,
+                color: isInShoppingCart ? Colors.green : Colors.grey,
               ),
             ),
           ],
