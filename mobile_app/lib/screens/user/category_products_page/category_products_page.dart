@@ -103,9 +103,8 @@ class _CategoryProductsPageState extends State<CategoryProductsPage> {
   }
 
   void showSnackBarWishList(bool addOrRemove) {
-    String message = addOrRemove
-        ? ' z listy produktów obserwowanych'
-        : ' do listy produktów obserwowanych';
+    String message =
+        addOrRemove ? ' z listy obserwowanych' : ' do listy obserwowanych';
 
     String boldText = addOrRemove ? 'Usunięto' : 'Dodano';
 
