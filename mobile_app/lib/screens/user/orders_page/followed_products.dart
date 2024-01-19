@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_app/constants/colors.dart';
+import 'package:mobile_app/constants/text_strings.dart';
 import 'package:mobile_app/screens/user/category_products_page/product_details_page.dart';
+import 'package:mobile_app/service/connection/connection_check.dart';
 import 'package:mobile_app/service/database/data.dart';
 import 'package:mobile_app/service/database/product_data.dart';
 
@@ -26,11 +28,14 @@ class _FollowedProductsPageState extends State<FollowedProductsPage> {
   }
 
   Future<void> getWishlistData() async {
-    List<dynamic> data = await userData.getWishlistData();
-    print(data);
-    setState(() {
-      followedProducts = data;
-    });
+    if (!await checkInternetConnectivity()) {
+      followedProducts = [];
+    } else {
+      List<dynamic> data = await userData.getWishlistData();
+      setState(() {
+        followedProducts = data;
+      });
+    }
   }
 
   Future<void> addOrRemoveFromWishlist(String productId) async {
@@ -40,6 +45,10 @@ class _FollowedProductsPageState extends State<FollowedProductsPage> {
   }
 
   Future<Map<String, dynamic>> getProductDataById(String id) async {
+    if (!await checkInternetConnectivity()) {
+      return {};
+    }
+
     Map<String, dynamic> data = await productData.getProductDataById(id);
     return data;
   }
@@ -88,6 +97,12 @@ class _FollowedProductsPageState extends State<FollowedProductsPage> {
         ),
       ),
     );
+  }
+
+  void _showSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(message),
+    ));
   }
 
   @override
@@ -186,23 +201,33 @@ class _FollowedProductsPageState extends State<FollowedProductsPage> {
                         ),
                       ),
                       trailing: GestureDetector(
-                        onTap: () {
-                          addOrRemoveFromWishlist(productId);
+                        onTap: () async {
+                          if (!await checkInternetConnectivity()) {
+                            _showSnackBar(connection);
+                          } else {
+                            addOrRemoveFromWishlist(productId);
+                          }
                         },
                         child: Icon(
                           Icons.favorite,
                           color: Colors.grey,
                         ),
                       ),
-                      onTap: () => navigateToProductDetails(
-                        categoryId,
-                        productId,
-                        productName,
-                        price,
-                        details,
-                        images,
-                        routeName,
-                      ),
+                      onTap: () async {
+                        if (!await checkInternetConnectivity()) {
+                          _showSnackBar(connection);
+                        } else {
+                          navigateToProductDetails(
+                            categoryId,
+                            productId,
+                            productName,
+                            price,
+                            details,
+                            images,
+                            routeName,
+                          );
+                        }
+                      },
                     ),
                   );
                 }

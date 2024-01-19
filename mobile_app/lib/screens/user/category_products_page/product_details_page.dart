@@ -2,6 +2,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:mobile_app/constants/text_strings.dart';
 import 'package:mobile_app/service/connection/connection_check.dart';
 import 'package:mobile_app/service/database/data.dart';
 import 'package:shimmer/shimmer.dart';
@@ -36,15 +37,19 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
   }
 
   Future<void> removeFromShoppingCart(String productId) async {
-    await userData.removeFromShoppingCart(productId);
+    if (!await checkInternetConnectivity()) {
+      _showSnackBar(connection);
+    } else {
+      await userData.removeFromShoppingCart(productId);
+    }
   }
 
   Future<List<Uint8List>> loadImages(Map<String, dynamic> images) async {
-    List<Uint8List> loadedImages = [];
-
     if (!await checkInternetConnectivity()) {
-      return loadedImages;
+      return [];
     }
+
+    List<Uint8List> loadedImages = [];
 
     for (String imageUrl in images.values) {
       final ref = FirebaseStorage.instance.ref().child(imageUrl);
@@ -55,8 +60,12 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
   }
 
   Future<void> addToShoppingCart(String productId) async {
-    await userData.addToShoppingCart(productId);
-    setState(() {});
+    if (!await checkInternetConnectivity()) {
+      _showSnackBar(connection);
+    } else {
+      await userData.addToShoppingCart(productId);
+      setState(() {});
+    }
   }
 
   void _showDescriptionDialog(BuildContext context, String label) {
@@ -78,6 +87,12 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
         );
       },
     );
+  }
+
+  void _showSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(message),
+    ));
   }
 
   Container buildListTile(String label, String content, bool color) {
@@ -324,13 +339,17 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
               color: Colors.orange,
               child: GestureDetector(
                 onTap: () async {
-                  if (await userData
-                      .isProductInShoppingCart(widget.productId)) {
-                    await removeFromShoppingCart(widget.productId);
+                  if (!await checkInternetConnectivity()) {
+                    _showSnackBar(connection);
                   } else {
-                    await addToShoppingCart(widget.productId);
+                    if (await userData
+                        .isProductInShoppingCart(widget.productId)) {
+                      await removeFromShoppingCart(widget.productId);
+                    } else {
+                      await addToShoppingCart(widget.productId);
+                    }
+                    setState(() {});
                   }
-                  setState(() {});
                 },
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,

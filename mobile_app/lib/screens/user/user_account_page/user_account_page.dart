@@ -63,7 +63,6 @@ class _UserAccountPage extends State<UserAccountPage> {
             future: getUserName(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
-                // Use shimmer effect while loading
                 return Shimmer.fromColors(
                   baseColor: shimmerBaseColor,
                   highlightColor: shimmerHighlightColor,

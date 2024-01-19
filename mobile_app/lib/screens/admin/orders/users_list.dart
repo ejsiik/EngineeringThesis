@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_app/constants/text_strings.dart';
 import 'package:mobile_app/screens/admin/orders/admin_orders.dart';
+import 'package:mobile_app/service/connection/connection_check.dart';
 import 'package:mobile_app/service/database/order_data.dart';
 
 class UsersList extends StatefulWidget {
@@ -18,12 +20,22 @@ class _UsersListState extends State<UsersList> {
   @override
   void initState() {
     super.initState();
+
     usersData = getUsersId();
   }
 
   Future<Map<String, String>> getUsersId() async {
+    if (!await checkInternetConnectivity()) {
+      return {};
+    }
     Map<String, String> data = await orderData.getUsersId();
     return data;
+  }
+
+  void _showSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(message),
+    ));
   }
 
   @override
@@ -50,13 +62,17 @@ class _UsersListState extends State<UsersList> {
                   elevation: 3,
                   margin: EdgeInsets.all(8),
                   child: InkWell(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => AdminOrders(id: userId),
-                        ),
-                      );
+                    onTap: () async {
+                      if (!await checkInternetConnectivity()) {
+                        _showSnackBar(connection);
+                      } else {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => AdminOrders(id: userId),
+                          ),
+                        );
+                      }
                     },
                     child: ListTile(
                       title: Text(username),

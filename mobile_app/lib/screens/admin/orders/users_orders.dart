@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:mobile_app/constants/colors.dart';
+import 'package:mobile_app/constants/text_strings.dart';
 import 'package:mobile_app/screens/user/orders_page/orders_detailed_page.dart';
 import 'package:mobile_app/screens/user/orders_page/orders_list_page.dart';
 import 'package:mobile_app/service/connection/connection_check.dart';
@@ -42,6 +43,12 @@ class _UsersOrdersState extends State<UsersOrders> {
     await orderData.makeCompleted(userId, orderId);
     orders = getOrderListById(widget.type, widget.id);
     setState(() {});
+  }
+
+  void _showSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(message),
+    ));
   }
 
   @override
@@ -139,7 +146,11 @@ class _UsersOrdersState extends State<UsersOrders> {
                       trailing: widget.type == 'activeOrders'
                           ? InkWell(
                               onTap: () async {
-                                await makeCompleted(widget.id, orderId);
+                                if (!await checkInternetConnectivity()) {
+                                  _showSnackBar(connection);
+                                } else {
+                                  await makeCompleted(widget.id, orderId);
+                                }
                               },
                               child: Icon(
                                 Icons.check,
@@ -147,15 +158,19 @@ class _UsersOrdersState extends State<UsersOrders> {
                               ),
                             )
                           : null,
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => OrderDetailsPage(
-                              order: orderData['order']['shopping_list'],
+                      onTap: () async {
+                        if (!await checkInternetConnectivity()) {
+                          _showSnackBar(connection);
+                        } else {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => OrderDetailsPage(
+                                order: orderData['order']['shopping_list'],
+                              ),
                             ),
-                          ),
-                        );
+                          );
+                        }
                       },
                     ),
                   );

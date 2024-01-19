@@ -61,6 +61,12 @@ class _AdminHomePageState extends State<AdminHomePage> {
     );
   }
 
+  void _showSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(message),
+    ));
+  }
+
   Widget _buildWelcomeBannerCheckbox() {
     final ThemeData theme = Theme.of(context);
     final Color backgroundColor = theme.scaffoldBackgroundColor;
@@ -170,19 +176,27 @@ class _AdminHomePageState extends State<AdminHomePage> {
                   padding: const EdgeInsets.all(15.0),
                   child: TextField(
                     controller: _orderCodeController,
-                    onSubmitted: (value) {
+                    onSubmitted: (value) async {
                       _orderCodeController.clear();
-                      updateOrderCode(value);
+                      if (!await checkInternetConnectivity()) {
+                        _showSnackBar(connection);
+                      } else {
+                        updateOrderCode(value);
+                      }
                     },
                     decoration: InputDecoration(
                       filled: true,
                       hintText: "Wprowadź kod odbioru",
                       suffixIcon: IconButton(
                         icon: const Icon(Icons.search),
-                        onPressed: () {
+                        onPressed: () async {
                           String searchValue = _orderCodeController.text;
                           _orderCodeController.clear();
-                          updateOrderCode(searchValue);
+                          if (!await checkInternetConnectivity()) {
+                            _showSnackBar(connection);
+                          } else {
+                            updateOrderCode(searchValue);
+                          }
                         },
                       ),
                       border: OutlineInputBorder(

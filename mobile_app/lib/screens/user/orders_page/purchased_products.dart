@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_app/constants/colors.dart';
+import 'package:mobile_app/constants/text_strings.dart';
 import 'package:mobile_app/screens/user/category_products_page/product_details_page.dart';
+import 'package:mobile_app/service/connection/connection_check.dart';
 import 'package:mobile_app/service/database/order_data.dart';
 import 'package:mobile_app/service/database/product_data.dart';
 
@@ -26,13 +28,21 @@ class _PurchasedProductsPageState extends State<PurchasedProductsPage> {
   }
 
   Future<void> getBoughtProducts() async {
-    List<Map<String, dynamic>> data = await orderData.getBoughtProducts();
-    setState(() {
-      boughtProducts = data;
-    });
+    if (!await checkInternetConnectivity()) {
+      boughtProducts = [];
+    } else {
+      List<Map<String, dynamic>> data = await orderData.getBoughtProducts();
+      setState(() {
+        boughtProducts = data;
+      });
+    }
   }
 
   Future<Map<String, dynamic>> getProductDataById(String id) async {
+    if (!await checkInternetConnectivity()) {
+      return {};
+    }
+
     Map<String, dynamic> data = await productData.getProductDataById(id);
     return data;
   }
@@ -52,6 +62,12 @@ class _PurchasedProductsPageState extends State<PurchasedProductsPage> {
             categoryId, productId, name, price, details, images, routeName),
       ),
     );
+  }
+
+  void _showSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(message),
+    ));
   }
 
   @override
@@ -150,15 +166,21 @@ class _PurchasedProductsPageState extends State<PurchasedProductsPage> {
                           ],
                         ),
                       ),
-                      onTap: () => navigateToProductDetails(
-                        categoryId,
-                        productId,
-                        productName,
-                        price,
-                        details,
-                        images,
-                        routeName,
-                      ),
+                      onTap: () async {
+                        if (!await checkInternetConnectivity()) {
+                          _showSnackBar(connection);
+                        } else {
+                          navigateToProductDetails(
+                            categoryId,
+                            productId,
+                            productName,
+                            price,
+                            details,
+                            images,
+                            routeName,
+                          );
+                        }
+                      },
                     ),
                   );
                 }

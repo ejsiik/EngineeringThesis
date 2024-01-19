@@ -1,18 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_app/constants/colors.dart';
+import 'package:mobile_app/constants/text_strings.dart';
 import 'package:mobile_app/screens/user/orders_page/followed_products.dart';
 import 'package:mobile_app/screens/user/orders_page/orders_list_page.dart';
 import 'package:mobile_app/screens/user/orders_page/purchased_products.dart';
-
+import 'package:mobile_app/service/connection/connection_check.dart';
 import 'user_settings.dart';
 
-class UserAccountListView extends StatelessWidget {
+class UserAccountListView extends StatefulWidget {
   final String text;
   final IconData icon;
   final String type;
 
   const UserAccountListView(
       {super.key, required this.text, required this.icon, required this.type});
+
+  @override
+  State<UserAccountListView> createState() {
+    return _UserAccountListViewState();
+  }
+}
+
+class _UserAccountListViewState extends State<UserAccountListView> {
+  void _showSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(message),
+    ));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -23,31 +37,36 @@ class UserAccountListView extends StatelessWidget {
         : AppColors.primaryDark;
 
     return GestureDetector(
-      onTap: () {
-        if (type == 'activeOrders' || type == 'completedOrders') {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => OrdersListPage(
-                type: type,
+      onTap: () async {
+        if (!await checkInternetConnectivity()) {
+          _showSnackBar(connection);
+        } else {
+          if (widget.type == 'activeOrders' ||
+              widget.type == 'completedOrders') {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => OrdersListPage(
+                  type: widget.type,
+                ),
               ),
-            ),
-          );
-        } else if (type == 'purchasedProducts') {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => PurchasedProductsPage()),
-          );
-        } else if (type == 'followedProducts') {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => FollowedProductsPage()),
-          );
-        } else if (type == 'settings') {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => UserSettings()),
-          );
+            );
+          } else if (widget.type == 'purchasedProducts') {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => PurchasedProductsPage()),
+            );
+          } else if (widget.type == 'followedProducts') {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => FollowedProductsPage()),
+            );
+          } else if (widget.type == 'settings') {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => UserSettings()),
+            );
+          }
         }
       },
       child: Padding(
@@ -63,7 +82,7 @@ class UserAccountListView extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(left: 10.0, right: 10.0),
                 child: Icon(
-                  icon,
+                  widget.icon,
                   size: 40,
                   color: primaryColor,
                 ),
@@ -74,7 +93,7 @@ class UserAccountListView extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      text,
+                      widget.text,
                       style: TextStyle(
                         fontSize: 24,
                         color: primaryColor,

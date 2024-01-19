@@ -1,16 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_app/constants/text_strings.dart';
 import 'package:mobile_app/service/connection/connection_check.dart';
 import 'package:mobile_app/service/database/order_data.dart';
 import 'package:mobile_app/screens/user/category_products_page/product_details_page.dart';
 import 'package:shimmer/shimmer.dart';
-
 import '../../../constants/colors.dart';
 
-class OrderDetailsPage extends StatelessWidget {
+class OrderDetailsPage extends StatefulWidget {
   final List<Object?> order;
 
-  const OrderDetailsPage({Key? key, required this.order}) : super(key: key);
+  const OrderDetailsPage({Key? key, required this.order});
 
+  @override
+  State<OrderDetailsPage> createState() {
+    return _OrderDetailsPageState();
+  }
+}
+
+class _OrderDetailsPageState extends State<OrderDetailsPage> {
   Future<Map<dynamic, dynamic>> getProductData(String id) async {
     if (!await checkInternetConnectivity()) {
       return {};
@@ -20,6 +27,12 @@ class OrderDetailsPage extends StatelessWidget {
     return data;
   }
 
+  void _showSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(message),
+    ));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -27,18 +40,15 @@ class OrderDetailsPage extends StatelessWidget {
         title: const Text('Zakupione produkty'),
       ),
       body: ListView.builder(
-        itemCount: order.length,
+        itemCount: widget.order.length,
         itemBuilder: (context, index) {
-          final product =
-              Map<String, dynamic>.from(order[index] as Map<Object?, Object?>);
+          final product = Map<String, dynamic>.from(
+              widget.order[index] as Map<Object?, Object?>);
 
           return FutureBuilder<Map<dynamic, dynamic>>(
             future: getProductData(product['product_id']),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
-                /*return ListTile(
-                  title: Text('Produkt #${index + 1} - Wczytywanie...'),
-                );*/
                 return ShimmerLoadingTile();
               } else if (snapshot.hasError) {
                 return ListTile(
@@ -65,25 +75,28 @@ class OrderDetailsPage extends StatelessWidget {
                         Text('Cena całkowita: ${product['price']} zł'),
                       ],
                     ),
-                    onTap: () {
-                      final details = Map<String, dynamic>.from(
-                          productData['details'] as Map<Object?, Object?>);
-                      final images = Map<String, dynamic>.from(
-                          productData['images'] as Map<Object?, Object?>);
-                      // Navigacja do ProductDetailsPage
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => ProductDetailsPage(
-                              productData['category_id'],
-                              productData['id'],
-                              productData['name'],
-                              productData['price'],
-                              details,
-                              images,
-                              "/ordersPage"),
-                        ),
-                      );
+                    onTap: () async {
+                      if (!await checkInternetConnectivity()) {
+                        _showSnackBar(connection);
+                      } else {
+                        final details = Map<String, dynamic>.from(
+                            productData['details'] as Map<Object?, Object?>);
+                        final images = Map<String, dynamic>.from(
+                            productData['images'] as Map<Object?, Object?>);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ProductDetailsPage(
+                                productData['category_id'],
+                                productData['id'],
+                                productData['name'],
+                                productData['price'],
+                                details,
+                                images,
+                                "/ordersPage"),
+                          ),
+                        );
+                      }
                     },
                   ),
                 );

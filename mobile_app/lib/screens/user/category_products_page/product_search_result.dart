@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_app/constants/text_strings.dart';
 import 'package:mobile_app/service/connection/connection_check.dart';
 import 'package:mobile_app/service/database/product_data.dart';
 import 'package:mobile_app/service/database/data.dart';
@@ -23,9 +24,24 @@ class _ProductSearchResultState extends State<ProductSearchResult> {
   Data userData = Data();
   static const String routeName = '/productSearchResultPage';
 
+  @override
+  void initState() {
+    super.initState();
+
+    productData.getProductDataByNameLength(widget.value).then((value) {
+      setState(() {
+        len = value;
+      });
+    });
+  }
+
   Future<void> addOrRemoveFromWishlist(String productId) async {
-    bool data = await userData.addOrRemoveFromWishlist(productId);
-    showSnackBarWishList(data);
+    if (!await checkInternetConnectivity()) {
+      _showSnackBar(connection);
+    } else {
+      bool data = await userData.addOrRemoveFromWishlist(productId);
+      showSnackBarWishList(data);
+    }
   }
 
   Future<List<Map<String, dynamic>>> getProductData() async {
@@ -35,7 +51,6 @@ class _ProductSearchResultState extends State<ProductSearchResult> {
 
     List<Map<String, dynamic>> data =
         await productData.getProductDataByName(widget.value);
-
     return data;
   }
 
@@ -51,25 +66,17 @@ class _ProductSearchResultState extends State<ProductSearchResult> {
 
     final ref = FirebaseStorage.instance.ref().child(imageUrl);
     final data = await ref.getData();
-
     return data;
   }
 
-  @override
-  void initState() {
-    super.initState();
-
-    productData.getProductDataByNameLength(widget.value).then((value) {
-      setState(() {
-        len = value;
-      });
-    });
-  }
-
   Future<void> addToShoppingCart(String productId) async {
-    await userData.addToShoppingCart(productId);
-    int quantity = await userData.getQuantityOfShoppingCart(productId);
-    showSnackBarShoppingCart(quantity);
+    if (!await checkInternetConnectivity()) {
+      _showSnackBar(connection);
+    } else {
+      await userData.addToShoppingCart(productId);
+      int quantity = await userData.getQuantityOfShoppingCart(productId);
+      showSnackBarShoppingCart(quantity);
+    }
   }
 
   void showSnackBarShoppingCart(int quantity) {
@@ -132,6 +139,12 @@ class _ProductSearchResultState extends State<ProductSearchResult> {
     );
   }
 
+  void _showSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(message),
+    ));
+  }
+
   Widget buildProductItem(Map product) {
     final ThemeData theme = Theme.of(context);
     final Color shimmerBaseColor = theme.brightness == Brightness.light
@@ -163,6 +176,8 @@ class _ProductSearchResultState extends State<ProductSearchResult> {
                 ),
               );
             } else if (snapshot.hasError) {
+              return const Icon(Icons.error);
+            } else if (snapshot.data == null) {
               return const Icon(Icons.error);
             } else {
               return Image.memory(
@@ -203,20 +218,24 @@ class _ProductSearchResultState extends State<ProductSearchResult> {
             ),
           ],
         ),
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => ProductDetailsPage(
-                  product['category_id'],
-                  product['id'],
-                  product['name'],
-                  product['price'],
-                  details,
-                  images,
-                  routeName),
-            ),
-          );
+        onTap: () async {
+          if (!await checkInternetConnectivity()) {
+            _showSnackBar(connection);
+          } else {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ProductDetailsPage(
+                    product['category_id'],
+                    product['id'],
+                    product['name'],
+                    product['price'],
+                    details,
+                    images,
+                    routeName),
+              ),
+            );
+          }
         },
       ),
     );
