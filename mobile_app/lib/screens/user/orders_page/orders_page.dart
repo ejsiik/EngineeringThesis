@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_app/constants/colors.dart';
+import 'package:mobile_app/constants/text_strings.dart';
 import 'package:mobile_app/service/connection/connection_check.dart';
 import 'package:mobile_app/service/database/order_data.dart';
 import 'package:mobile_app/service/database/shop_location_data.dart';
@@ -29,7 +30,7 @@ class _OrdersState extends State<OrdersPage> {
   @override
   void initState() {
     super.initState();
-    // Set up a listener for changes in the database
+
     getLocations();
   }
 
@@ -46,19 +47,34 @@ class _OrdersState extends State<OrdersPage> {
   }
 
   Future<void> getLocations() async {
-    shops = await shopLocationData.getAllShopsLocations();
-    shopsExpansionStates = List<bool>.filled(shops.length, false);
-    setState(() {});
+    if (!await checkInternetConnectivity()) {
+      shops = [];
+      shopsExpansionStates = [];
+    } else {
+      shops = await shopLocationData.getAllShopsLocations();
+      shopsExpansionStates = List<bool>.filled(shops.length, false);
+      setState(() {});
+    }
   }
 
   Future<double> getTotalPrice() async {
-    double price = await userData.getTotalPriceData();
-    return price;
+    if (!await checkInternetConnectivity()) {
+      return 0.0;
+    } else {
+      double price = await userData.getTotalPriceData();
+      return price;
+    }
   }
 
   Future<void> addOrder(
       String name, Map<String, dynamic> location, double totalPrice) async {
     await orderData.addOrder(name, location, totalPrice);
+  }
+
+  void _showSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(message),
+    ));
   }
 
   Widget buildDay(String day, Map<dynamic, dynamic> dayData) {
@@ -155,7 +171,6 @@ class _OrdersState extends State<OrdersPage> {
               future: getUserName(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  // Use shimmer effect while loading
                   return Shimmer.fromColors(
                     baseColor: shimmerBaseColor,
                     highlightColor: shimmerHighlightColor,
@@ -264,91 +279,93 @@ class _OrdersState extends State<OrdersPage> {
         padding: const EdgeInsets.all(8.0),
         color: Colors.orange,
         child: GestureDetector(
-          onTap: () {
-            if (name.isNotEmpty &&
-                selectedLocationData!.isNotEmpty &&
-                price != 0.0) {
-              addOrder(name, selectedLocationData!, price);
-
-              showGeneralDialog(
-                context: context,
-                barrierDismissible: true,
-                barrierLabel:
-                    MaterialLocalizations.of(context).modalBarrierDismissLabel,
-                barrierColor: Colors.black.withOpacity(0.5),
-                transitionDuration: const Duration(milliseconds: 200),
-                pageBuilder: (BuildContext buildContext, Animation animation,
-                    Animation secondaryAnimation) {
-                  return Center(
-                    child: Container(
-                      width: MediaQuery.of(context).size.width,
-                      height: MediaQuery.of(context).size.height,
-                      padding: EdgeInsets.all(16.0),
-                      decoration: BoxDecoration(
-                        color: backgroundColor,
-                        borderRadius: BorderRadius.circular(10.0),
-                      ),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            "Twoje zamówienie zostało złożone",
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: textColor,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 20.0,
-                              decoration: TextDecoration.none,
-                            ),
-                          ),
-                          SizedBox(height: 16.0),
-                          Text(
-                            "Dziękujemy",
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: primaryColor,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18.0,
-                              decoration: TextDecoration.none,
-                            ),
-                          ),
-                          SizedBox(height: 16.0),
-                        ],
-                      ),
-                    ),
-                  );
-                },
-              );
-
-              Future.delayed(Duration(seconds: 3), () {
-                Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const MainPage(),
-                  ),
-                  (route) => false,
-                );
-              });
+          onTap: () async {
+            if (!await checkInternetConnectivity()) {
+              _showSnackBar(connection);
             } else {
-              showDialog(
-                context: context,
-                builder: (BuildContext context) {
-                  return AlertDialog(
-                    title: const Text('Brak wymaganych danych'),
-                    content: const Text(
-                        'Przed złożeniem zamówienia wybierz lokalizację sklepu.'),
-                    actions: [
-                      TextButton(
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                        child: const Text('OK'),
+              if (name.isNotEmpty &&
+                  selectedLocationData!.isNotEmpty &&
+                  price != 0.0) {
+                addOrder(name, selectedLocationData!, price);
+
+                showGeneralDialog(
+                  context: context,
+                  barrierDismissible: true,
+                  barrierLabel: MaterialLocalizations.of(context)
+                      .modalBarrierDismissLabel,
+                  barrierColor: Colors.black.withOpacity(0.5),
+                  transitionDuration: const Duration(milliseconds: 200),
+                  pageBuilder: (BuildContext buildContext, Animation animation,
+                      Animation secondaryAnimation) {
+                    return Center(
+                      child: Container(
+                        width: MediaQuery.of(context).size.width,
+                        height: MediaQuery.of(context).size.height,
+                        padding: EdgeInsets.all(16.0),
+                        decoration: BoxDecoration(
+                          color: backgroundColor,
+                        ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              "Twoje zamówienie zostało złożone",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: textColor,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 20.0,
+                                decoration: TextDecoration.none,
+                              ),
+                            ),
+                            SizedBox(height: 16.0),
+                            Text(
+                              "Dziękujemy",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: primaryColor,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 18.0,
+                                decoration: TextDecoration.none,
+                              ),
+                            ),
+                            SizedBox(height: 16.0),
+                          ],
+                        ),
                       ),
-                    ],
+                    );
+                  },
+                );
+                Future.delayed(Duration(seconds: 3), () {
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const MainPage(),
+                    ),
+                    (route) => false,
                   );
-                },
-              );
+                });
+              } else {
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AlertDialog(
+                      title: const Text('Brak wymaganych danych'),
+                      content: const Text(
+                          'Przed złożeniem zamówienia wybierz lokalizację sklepu.'),
+                      actions: [
+                        TextButton(
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                          child: const Text('OK'),
+                        ),
+                      ],
+                    );
+                  },
+                );
+              }
             }
           },
           child: ListTile(

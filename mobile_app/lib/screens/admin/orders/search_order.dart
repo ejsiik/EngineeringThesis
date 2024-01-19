@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:mobile_app/constants/colors.dart';
+import 'package:mobile_app/constants/text_strings.dart';
 import 'package:mobile_app/screens/user/orders_page/orders_detailed_page.dart';
+import 'package:mobile_app/service/connection/connection_check.dart';
 import 'package:mobile_app/service/database/data.dart';
 import 'package:mobile_app/service/database/order_data.dart';
 
@@ -20,6 +22,9 @@ class _SearchOrderState extends State<SearchOrder> {
   Data userData = Data();
 
   Future<String> getUsernameById(String userId) async {
+    if (!await checkInternetConnectivity()) {
+      return "";
+    }
     String username = await userData.getUsernameById(userId);
     return username;
   }
@@ -30,8 +35,17 @@ class _SearchOrderState extends State<SearchOrder> {
   }
 
   Future<List<Map<String, dynamic>>> searchOrder(String orderCode) async {
+    if (!await checkInternetConnectivity()) {
+      return [];
+    }
     List<Map<String, dynamic>> data = await orderData.searchOrder(orderCode);
     return data;
+  }
+
+  void _showSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(message),
+    ));
   }
 
   @override
@@ -138,22 +152,30 @@ class _SearchOrderState extends State<SearchOrder> {
                     ),
                     trailing: InkWell(
                       onTap: () async {
-                        await makeCompleted(userId, orderId);
+                        if (!await checkInternetConnectivity()) {
+                          _showSnackBar(connection);
+                        } else {
+                          await makeCompleted(userId, orderId);
+                        }
                       },
                       child: Icon(
                         Icons.check,
                         color: primaryColor,
                       ),
                     ),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => OrderDetailsPage(
-                            order: orderData['shopping_list'],
+                    onTap: () async {
+                      if (!await checkInternetConnectivity()) {
+                        _showSnackBar(connection);
+                      } else {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => OrderDetailsPage(
+                              order: orderData['shopping_list'],
+                            ),
                           ),
-                        ),
-                      );
+                        );
+                      }
                     },
                   ),
                 );

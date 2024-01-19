@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:mobile_app/constants/text_strings.dart';
 import 'package:mobile_app/service/connection/connection_check.dart';
 import 'package:mobile_app/service/database/order_data.dart';
 import 'package:mobile_app/screens/user/orders_page/orders_detailed_page.dart';
 import 'package:shimmer/shimmer.dart';
-
 import '../../../constants/colors.dart';
 
 class OrdersListPage extends StatefulWidget {
@@ -20,6 +20,7 @@ class OrdersListPage extends StatefulWidget {
 
 class _OrdersListState extends State<OrdersListPage> {
   late Future<List<Map<String, dynamic>>> orders;
+  OrderData orderData = OrderData();
 
   @override
   void initState() {
@@ -32,8 +33,13 @@ class _OrdersListState extends State<OrdersListPage> {
     if (!await checkInternetConnectivity()) {
       return [];
     }
-    OrderData orderData = OrderData();
     return orderData.getOrderList(type);
+  }
+
+  void _showSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(message),
+    ));
   }
 
   @override
@@ -127,14 +133,18 @@ class _OrdersListState extends State<OrdersListPage> {
                           ),
                         ],
                       ),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => OrderDetailsPage(
-                                order: orderData['order']['shopping_list']),
-                          ),
-                        );
+                      onTap: () async {
+                        if (!await checkInternetConnectivity()) {
+                          _showSnackBar(connection);
+                        } else {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => OrderDetailsPage(
+                                  order: orderData['order']['shopping_list']),
+                            ),
+                          );
+                        }
                       },
                     ),
                   );

@@ -207,6 +207,54 @@ class OrderData {
     }
   }
 
+  Future<List<Map<String, dynamic>>> getBoughtProducts() async {
+    try {
+      String userId = currentUser!.uid;
+
+      DatabaseEvent orderEvent = await ordersRef.child(userId).once();
+      DataSnapshot orderSnapshot = orderEvent.snapshot;
+
+      if (orderSnapshot.value == null) {
+        return [];
+      }
+
+      final data = Map<String, dynamic>.from(
+          orderSnapshot.value as Map<Object?, Object?>);
+
+      List<Map<String, dynamic>> productsList = [];
+
+      data.forEach((key, value) {
+        if (value['is_completed'] == true) {
+          List<dynamic> orderShoppingData = List<dynamic>.from(
+              value['order']['shopping_list'] as List<Object?>);
+          orderShoppingData.forEach((element) {
+            String productId = element['product_id'];
+
+            if (!productsList
+                .any((product) => product.containsKey(productId))) {
+              productsList.add({
+                productId: {'quantity': element['quantity']}
+              });
+            } else {
+              final selectedProduct = productsList
+                  .firstWhere((product) => product.containsKey(productId));
+              final innerMap =
+                  selectedProduct.values.first as Map<String, dynamic>;
+              int currentQuantity = innerMap['quantity'];
+              int productQuantity = element['quantity'];
+              int quantity = currentQuantity + productQuantity;
+
+              selectedProduct[productId] = {'quantity': quantity};
+            }
+          });
+        }
+      });
+      return productsList;
+    } catch (error) {
+      throw Exception('Error accesing shopping cart: $error');
+    }
+  }
+
   Future<void> makeCompleted(String userId, String orderId) async {
     try {
       await ordersRef

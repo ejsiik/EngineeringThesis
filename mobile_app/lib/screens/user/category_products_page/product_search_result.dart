@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_app/constants/text_strings.dart';
 import 'package:mobile_app/service/connection/connection_check.dart';
 import 'package:mobile_app/service/database/product_data.dart';
 import 'package:mobile_app/service/database/data.dart';
@@ -23,6 +24,26 @@ class _ProductSearchResultState extends State<ProductSearchResult> {
   Data userData = Data();
   static const String routeName = '/productSearchResultPage';
 
+  @override
+  void initState() {
+    super.initState();
+
+    productData.getProductDataByNameLength(widget.value).then((value) {
+      setState(() {
+        len = value;
+      });
+    });
+  }
+
+  Future<void> addOrRemoveFromWishlist(String productId) async {
+    if (!await checkInternetConnectivity()) {
+      _showSnackBar(connection);
+    } else {
+      bool data = await userData.addOrRemoveFromWishlist(productId);
+      showSnackBarWishList(data);
+    }
+  }
+
   Future<List<Map<String, dynamic>>> getProductData() async {
     if (!await checkInternetConnectivity()) {
       return [];
@@ -30,7 +51,6 @@ class _ProductSearchResultState extends State<ProductSearchResult> {
 
     List<Map<String, dynamic>> data =
         await productData.getProductDataByName(widget.value);
-
     return data;
   }
 
@@ -46,28 +66,20 @@ class _ProductSearchResultState extends State<ProductSearchResult> {
 
     final ref = FirebaseStorage.instance.ref().child(imageUrl);
     final data = await ref.getData();
-
     return data;
   }
 
-  @override
-  void initState() {
-    super.initState();
-
-    productData.getProductDataByNameLength(widget.value).then((value) {
-      setState(() {
-        len = value;
-      });
-    });
-  }
-
   Future<void> addToShoppingCart(String productId) async {
-    await userData.addToShoppingCart(productId);
-    int quantity = await userData.getQuantityOfShoppingCart(productId);
-    showSnackBar(quantity);
+    if (!await checkInternetConnectivity()) {
+      _showSnackBar(connection);
+    } else {
+      await userData.addToShoppingCart(productId);
+      int quantity = await userData.getQuantityOfShoppingCart(productId);
+      showSnackBarShoppingCart(quantity);
+    }
   }
 
-  void showSnackBar(int quantity) {
+  void showSnackBarShoppingCart(int quantity) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Column(
@@ -96,6 +108,41 @@ class _ProductSearchResultState extends State<ProductSearchResult> {
         ),
       ),
     );
+  }
+
+  void showSnackBarWishList(bool addOrRemove) {
+    String message = addOrRemove
+        ? ' z listy produktów obserwowanych'
+        : ' do listy produktów obserwowanych';
+
+    String boldText = addOrRemove ? 'Usunięto' : 'Dodano';
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Column(
+          children: [
+            Row(
+              children: [
+                Text(
+                  boldText,
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+                Text(
+                  message,
+                  style: TextStyle(fontSize: 16),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(message),
+    ));
   }
 
   Widget buildProductItem(Map product) {
@@ -130,6 +177,8 @@ class _ProductSearchResultState extends State<ProductSearchResult> {
               );
             } else if (snapshot.hasError) {
               return const Icon(Icons.error);
+            } else if (snapshot.data == null) {
+              return const Icon(Icons.error);
             } else {
               return Image.memory(
                 snapshot.data!,
@@ -146,29 +195,47 @@ class _ProductSearchResultState extends State<ProductSearchResult> {
             Text('Cena: ${product['price']} zł'),
           ],
         ),
-        trailing: GestureDetector(
-          onTap: () {
-            addToShoppingCart(product['id']);
-          },
-          child: Icon(
-            Icons.shopping_cart,
-            color: Colors.grey,
-          ),
-        ),
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => ProductDetailsPage(
-                  product['category_id'],
-                  product['id'],
-                  product['name'],
-                  product['price'],
-                  details,
-                  images,
-                  routeName),
+        trailing: Column(
+          children: [
+            GestureDetector(
+              onTap: () {
+                addOrRemoveFromWishlist(product['id']);
+              },
+              child: Icon(
+                Icons.favorite,
+                color: Colors.grey,
+              ),
             ),
-          );
+            SizedBox(height: 8),
+            GestureDetector(
+              onTap: () {
+                addToShoppingCart(product['id']);
+              },
+              child: Icon(
+                Icons.shopping_cart,
+                color: Colors.grey,
+              ),
+            ),
+          ],
+        ),
+        onTap: () async {
+          if (!await checkInternetConnectivity()) {
+            _showSnackBar(connection);
+          } else {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ProductDetailsPage(
+                    product['category_id'],
+                    product['id'],
+                    product['name'],
+                    product['price'],
+                    details,
+                    images,
+                    routeName),
+              ),
+            );
+          }
         },
       ),
     );

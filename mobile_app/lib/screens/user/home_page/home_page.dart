@@ -4,6 +4,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_app/constants/colors.dart';
+import 'package:mobile_app/constants/text_strings.dart';
 import 'package:mobile_app/screens/user/category_products_page/product_details_page.dart';
 import 'package:mobile_app/service/authentication/auth.dart';
 import 'package:mobile_app/service/database/category_data.dart';
@@ -45,32 +46,106 @@ class _HomePageState extends State<HomePage> {
     {"banner_06.png": "-NnqpRiaLLNP25t0iuvs"},
   ];
 
-  Widget buildGridItem(int index, List categoriesList) {
-    return InkWell(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => CategoryProductsPage(
-              index,
-              categoriesList[index],
-            ),
+  @override
+  void initState() {
+    super.initState();
+
+    searchController = TextEditingController();
+    getCategories();
+    userDataProvider.isUserCreatedWithin14Days().then((value) {
+      setState(() {
+        showWelcomeBanner = value;
+      });
+    });
+    couponUsedRef = Data().getCouponUsedReference(Auth().userId());
+    couponUsedRef!.onValue.listen((event) {
+      if (event.snapshot.value is bool) {
+        setState(() {
+          showWelcomeBanner = event.snapshot.value == false;
+        });
+      }
+    });
+  }
+
+  Future<Map<String, dynamic>> getProductDataById(String id) async {
+    if (!await checkInternetConnectivity()) {
+      return {};
+    }
+
+    Map<String, dynamic> data = await productData.getProductDataById(id);
+    return data;
+  }
+
+  Future<String> getUserName() async {
+    try {
+      if (!await checkInternetConnectivity()) {
+        return "";
+      }
+      String? userName = await userData.getUserName();
+      return userName ?? '';
+    } catch (error) {
+      _showSnackBar('Błąd podczas pobierania nazwy użytkownika');
+      return 'Nieznany użytkownik';
+    }
+  }
+
+  Future<Map<int, Uint8List>> loadImages(List<String> imageUrls) async {
+    if (!await checkInternetConnectivity()) {
+      return {};
+    }
+
+    Map<int, Uint8List> loadedImages = {};
+    List<Future<void>> futures = [];
+
+    for (int i = 0; i < imageUrls.length; i++) {
+      final imageUrl = imageUrls[i];
+      final ref = FirebaseStorage.instance.ref().child(imageUrl);
+
+      futures.add(
+        ref.getData().then((data) {
+          loadedImages[i] = Uint8List.fromList(data!);
+        }),
+      );
+    }
+
+    await Future.wait(futures);
+    return loadedImages;
+  }
+
+  Future<List> getCategories() async {
+    if (!await checkInternetConnectivity()) {
+      return [];
+    }
+
+    return categoryData.getAllCategories();
+  }
+
+  void updateProductSearchList(String value) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (contex) => ProductSearchResult(value)),
+    );
+  }
+
+  void openPopupScreen(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          content: SizedBox(
+            width: MediaQuery.of(context).size.width * 0.8,
+            height: MediaQuery.of(context).size.height * 0.4,
+            child: const QRCodePopup(),
           ),
         );
       },
-      child: Card(
-        elevation: 2.0,
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Center(
-            child: Text(
-              categoriesList[index],
-              style: const TextStyle(fontSize: 16.0),
-            ),
-          ),
-        ),
-      ),
     );
+  }
+
+  void _showSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(message),
+    ));
   }
 
   /*Widget buildDay(String day, Map<dynamic, dynamic> dayData) {
@@ -104,110 +179,31 @@ class _HomePageState extends State<HomePage> {
     );
   }*/
 
-  @override
-  void initState() {
-    super.initState();
-    // Set up a listener for changes in the database
-    searchController = TextEditingController();
-    productData.getProductDataById("-NlKz08Km4JPp9smAewM");
-    getCategories();
-    userDataProvider.isUserCreatedWithin14Days().then((value) {
-      setState(() {
-        showWelcomeBanner = value;
-      });
-    });
-    couponUsedRef = Data().getCouponUsedReference(Auth().userId());
-    couponUsedRef!.onValue.listen((event) {
-      if (event.snapshot.value is bool) {
-        setState(() {
-          showWelcomeBanner = event.snapshot.value == false;
-        });
-      }
-    });
-  }
-
-  Future<Map<String, dynamic>> getProductDataById(String id) async {
-    Map<String, dynamic> data = {};
-
-    if (!await checkInternetConnectivity()) {
-      return data;
-    }
-
-    data = await productData.getProductDataById(id);
-    return data;
-  }
-
-  Future<String> getUserName() async {
-    try {
-      if (!await checkInternetConnectivity()) {
-        return "";
-      }
-      String? userName = await userData.getUserName();
-      return userName ?? '';
-    } catch (error) {
-      _showSnackBar('Błąd podczas pobierania nazwy użytkownika');
-      return 'Nieznany użytkownik';
-    }
-  }
-
-  Future<Map<int, Uint8List>> loadImages(List<String> imageUrls) async {
-    Map<int, Uint8List> loadedImages = {};
-
-    if (!await checkInternetConnectivity()) {
-      return loadedImages;
-    }
-
-    List<Future<void>> futures = [];
-
-    for (int i = 0; i < imageUrls.length; i++) {
-      final imageUrl = imageUrls[i];
-      final ref = FirebaseStorage.instance.ref().child(imageUrl);
-
-      futures.add(
-        ref.getData().then((data) {
-          loadedImages[i] = Uint8List.fromList(data!);
-        }),
-      );
-    }
-
-    await Future.wait(futures);
-
-    return loadedImages;
-  }
-
-  Future<List> getCategories() async {
-    if (!await checkInternetConnectivity()) {
-      return [];
-    }
-
-    return categoryData.getAllCategories();
-  }
-
-  void _showSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(message),
-    ));
-  }
-
-  void updateProductSearchList(String value) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (contex) => ProductSearchResult(value)),
-    );
-  }
-
-  void openPopupScreen(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          content: SizedBox(
-            width: MediaQuery.of(context).size.width * 0.8,
-            height: MediaQuery.of(context).size.height * 0.4,
-            child: const QRCodePopup(),
+  Widget buildGridItem(int index, List categoriesList) {
+    return InkWell(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => CategoryProductsPage(
+              index,
+              categoriesList[index],
+            ),
           ),
         );
       },
+      child: Card(
+        elevation: 2.0,
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Center(
+            child: Text(
+              categoriesList[index],
+              style: const TextStyle(fontSize: 16.0),
+            ),
+          ),
+        ),
+      ),
     );
   }
 
@@ -242,7 +238,6 @@ class _HomePageState extends State<HomePage> {
                   future: getUserName(),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
-                      // Use shimmer effect while loading
                       return Shimmer.fromColors(
                         baseColor: shimmerBaseColor,
                         highlightColor: shimmerHighlightColor,
@@ -311,19 +306,27 @@ class _HomePageState extends State<HomePage> {
                         color: backgroundColor,
                         child: TextField(
                           controller: searchController,
-                          onSubmitted: (value) {
+                          onSubmitted: (value) async {
                             searchController.clear();
-                            updateProductSearchList(value);
+                            if (!await checkInternetConnectivity()) {
+                              _showSnackBar(connection);
+                            } else {
+                              updateProductSearchList(value);
+                            }
                           },
                           decoration: InputDecoration(
                             filled: true,
                             hintText: "Wyszukaj w sklepie",
                             suffixIcon: IconButton(
                               icon: const Icon(Icons.search),
-                              onPressed: () {
+                              onPressed: () async {
                                 String searchValue = searchController.text;
                                 searchController.clear();
-                                updateProductSearchList(searchValue);
+                                if (!await checkInternetConnectivity()) {
+                                  _showSnackBar(connection);
+                                } else {
+                                  updateProductSearchList(searchValue);
+                                }
                               },
                             ),
                             border: OutlineInputBorder(
@@ -442,7 +445,7 @@ class _HomePageState extends State<HomePage> {
                         child: GridView.builder(
                           gridDelegate:
                               const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 3,
+                            crossAxisCount: 2,
                             crossAxisSpacing: 8.0,
                             mainAxisSpacing: 8.0,
                           ),
@@ -466,15 +469,13 @@ class _HomePageState extends State<HomePage> {
                         ),
                       );
                     } else if (snapshot.hasError) {
-                      // Handle the error case.
                       return Text('Error: ${snapshot.error}');
                     } else {
-                      // Categories have been fetched successfully, use them in the GridView.builder.
                       List? categoriesList = snapshot.data;
                       return GridView.builder(
                         gridDelegate:
                             const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 3,
+                          crossAxisCount: 2,
                           crossAxisSpacing: 8.0,
                           mainAxisSpacing: 8.0,
                         ),

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_app/constants/text_strings.dart';
 import 'package:mobile_app/screens/admin/orders/users_orders.dart';
+import 'package:mobile_app/service/connection/connection_check.dart';
 
 class AdminOrders extends StatefulWidget {
   final String id;
@@ -13,6 +15,12 @@ class AdminOrders extends StatefulWidget {
 }
 
 class _AdminOrdersState extends State<AdminOrders> {
+  void _showSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(message),
+    ));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -27,16 +35,20 @@ class _AdminOrdersState extends State<AdminOrders> {
             icon: Icons.auto_stories,
             type: "activeOrders",
             id: widget.id,
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => UsersOrders(
-                    type: "activeOrders",
-                    id: widget.id,
+            onTap: () async {
+              if (!await checkInternetConnectivity()) {
+                _showSnackBar(connection);
+              } else {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => UsersOrders(
+                      type: "activeOrders",
+                      id: widget.id,
+                    ),
                   ),
-                ),
-              );
+                );
+              }
             },
           ),
           OrderCard(
@@ -44,16 +56,20 @@ class _AdminOrdersState extends State<AdminOrders> {
             icon: Icons.history,
             type: "completedOrders",
             id: widget.id,
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => UsersOrders(
-                    type: "completedOrders",
-                    id: widget.id,
+            onTap: () async {
+              if (!await checkInternetConnectivity()) {
+                _showSnackBar(connection);
+              } else {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => UsersOrders(
+                      type: "completedOrders",
+                      id: widget.id,
+                    ),
                   ),
-                ),
-              );
+                );
+              }
             },
           ),
         ],

@@ -63,7 +63,6 @@ class _UserAccountPage extends State<UserAccountPage> {
             future: getUserName(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
-                // Use shimmer effect while loading
                 return Shimmer.fromColors(
                   baseColor: shimmerBaseColor,
                   highlightColor: shimmerHighlightColor,
@@ -135,12 +134,12 @@ class _UserAccountPage extends State<UserAccountPage> {
                   UserAccountListView(
                     text: "Zakupione produkty",
                     icon: Icons.home_repair_service,
-                    type: "boughtProducts",
+                    type: "purchasedProducts",
                   ),
                   UserAccountListView(
-                    text: "Kupony",
-                    icon: Icons.local_offer,
-                    type: "other",
+                    text: "Obserwowane produkty",
+                    icon: Icons.remove_red_eye,
+                    type: "followedProducts",
                   ),
                   UserAccountListView(
                     text: "Ustawienia konta",

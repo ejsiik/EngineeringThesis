@@ -1,13 +1,12 @@
 import 'dart:typed_data';
-
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:mobile_app/constants/text_strings.dart';
 import 'package:mobile_app/service/connection/connection_check.dart';
 import 'package:mobile_app/service/database/data.dart';
 import 'package:mobile_app/screens/user/category_products_page/product_details_page.dart';
 import 'package:mobile_app/screens/user/orders_page/orders_page.dart';
 import 'package:shimmer/shimmer.dart';
-
 import '../../../constants/colors.dart';
 
 class ShoppingCartPage extends StatefulWidget {
@@ -30,8 +29,12 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
   }
 
   Future<double> getTotalPrice() async {
-    double totalPriceData = await userData.getTotalPriceData();
-    return totalPriceData;
+    if (!await checkInternetConnectivity()) {
+      return 0.0;
+    } else {
+      double totalPriceData = await userData.getTotalPriceData();
+      return totalPriceData;
+    }
   }
 
   Future<List<dynamic>> getShoppingCartData() async {
@@ -55,7 +58,6 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
 
   Future<void> removeFromShoppingCart(String productId) async {
     await userData.removeFromShoppingCart(productId);
-
     setState(() {});
   }
 
@@ -72,6 +74,12 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
 
     final data = await userData.getQuantityOfShoppingCart(productId);
     return data;
+  }
+
+  void _showSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(message),
+    ));
   }
 
   Widget buildProductItem(Map productMap) {
@@ -111,14 +119,18 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
                 IconButton(
                   icon: const Icon(Icons.remove),
                   onPressed: () async {
-                    int currentQuantity =
-                        await getQuantityOfShoppingCart(productMap['id']);
-                    if (currentQuantity > 1) {
-                      await changeQuantityInShoppingCart(
-                          productMap['id'], currentQuantity - 1);
-                      setState(() {
-                        currentQuantity -= 1;
-                      });
+                    if (!await checkInternetConnectivity()) {
+                      _showSnackBar(connection);
+                    } else {
+                      int currentQuantity =
+                          await getQuantityOfShoppingCart(productMap['id']);
+                      if (currentQuantity > 1) {
+                        await changeQuantityInShoppingCart(
+                            productMap['id'], currentQuantity - 1);
+                        setState(() {
+                          currentQuantity -= 1;
+                        });
+                      }
                     }
                   },
                 ),
@@ -138,14 +150,18 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
                 IconButton(
                   icon: const Icon(Icons.add),
                   onPressed: () async {
-                    int currentQuantity =
-                        await getQuantityOfShoppingCart(productMap['id']);
+                    if (!await checkInternetConnectivity()) {
+                      _showSnackBar(connection);
+                    } else {
+                      int currentQuantity =
+                          await getQuantityOfShoppingCart(productMap['id']);
 
-                    await changeQuantityInShoppingCart(
-                        productMap['id'], currentQuantity + 1);
-                    setState(() {
-                      currentQuantity += 1;
-                    });
+                      await changeQuantityInShoppingCart(
+                          productMap['id'], currentQuantity + 1);
+                      setState(() {
+                        currentQuantity += 1;
+                      });
+                    }
                   },
                 ),
               ],
@@ -167,25 +183,33 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
           ],
         ),
         trailing: GestureDetector(
-          onTap: () {
-            removeFromShoppingCart(productMap['id']);
+          onTap: () async {
+            if (!await checkInternetConnectivity()) {
+              _showSnackBar(connection);
+            } else {
+              removeFromShoppingCart(productMap['id']);
+            }
           },
           child: const Icon(Icons.delete),
         ),
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => ProductDetailsPage(
-                  productMap['category_id'],
-                  productMap['id'],
-                  productMap['name'],
-                  productMap['price'],
-                  details,
-                  images,
-                  routeName),
-            ),
-          );
+        onTap: () async {
+          if (!await checkInternetConnectivity()) {
+            _showSnackBar(connection);
+          } else {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ProductDetailsPage(
+                    productMap['category_id'],
+                    productMap['id'],
+                    productMap['name'],
+                    productMap['price'],
+                    details,
+                    images,
+                    routeName),
+              ),
+            );
+          }
         },
       ),
     );
@@ -277,13 +301,17 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
                     padding: EdgeInsets.all(16.0),
                     color: Colors.orange,
                     child: GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const OrdersPage(),
-                          ),
-                        );
+                      onTap: () async {
+                        if (!await checkInternetConnectivity()) {
+                          _showSnackBar(connection);
+                        } else {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const OrdersPage(),
+                            ),
+                          );
+                        }
                       },
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,

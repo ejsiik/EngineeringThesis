@@ -510,6 +510,64 @@ class Data {
     }
   }
 
+  Future<List<dynamic>> getWishlistData() async {
+    try {
+      String userId = currentUser!.uid;
+
+      DatabaseEvent event = await usersRef.child(userId).once();
+      DataSnapshot snapshot = event.snapshot;
+
+      if (snapshot.hasChild('wishlist')) {
+        Map<String, dynamic> data =
+            Map<String, dynamic>.from(snapshot.value as Map<Object?, Object?>);
+        List<dynamic> wishlistList = data['wishlist'];
+
+        return wishlistList;
+      } else {
+        return [];
+      }
+    } catch (error) {
+      throw Exception('Error accesing shopping cart: $error');
+    }
+  }
+
+  Future<bool> addOrRemoveFromWishlist(String productId) async {
+    try {
+      String userId = currentUser!.uid;
+
+      DatabaseEvent event = await usersRef.child(userId).once();
+      DataSnapshot snapshot = event.snapshot;
+
+      Map<String, dynamic> wishlist = {};
+      int newIndex = wishlist.length;
+      bool toAdd = false;
+
+      if (snapshot.hasChild('wishlist')) {
+        Map<String, dynamic> data =
+            Map<String, dynamic>.from(snapshot.value as Map<Object?, Object?>);
+        List<dynamic> wishlistList = data['wishlist'];
+
+        wishlistList.forEach((element) {
+          if (element['product_id'] != productId) {
+            wishlist[newIndex.toString()] = element;
+            newIndex += 1;
+          } else {
+            toAdd = true;
+          }
+        });
+      }
+
+      if (!toAdd) {
+        wishlist[newIndex.toString()] = {'product_id': productId};
+      }
+
+      usersRef.child(userId).update({'wishlist': wishlist});
+      return toAdd;
+    } catch (error) {
+      throw Exception('Error accesing shopping cart: $error');
+    }
+  }
+
   Future<void> submitData(String userId, bool welcomeBanner, String couponValue,
       Function(String) onSubmitted) async {
     try {
