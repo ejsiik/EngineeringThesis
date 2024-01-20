@@ -4,6 +4,7 @@ import 'package:mobile_app/constants/text_strings.dart';
 import 'package:mobile_app/screens/user/orders_page/followed_products.dart';
 import 'package:mobile_app/screens/user/orders_page/orders_list_page.dart';
 import 'package:mobile_app/screens/user/orders_page/purchased_products.dart';
+import 'package:mobile_app/screens/utils.dart';
 import 'package:mobile_app/service/connection/connection_check.dart';
 import 'user_settings.dart';
 
@@ -22,10 +23,8 @@ class UserAccountListView extends StatefulWidget {
 }
 
 class _UserAccountListViewState extends State<UserAccountListView> {
-  void _showSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(message),
-    ));
+  void showSnackBarSimpleMessage(String message) {
+    Utils.showSnackBarSimpleMessage(context, message);
   }
 
   @override
@@ -39,7 +38,7 @@ class _UserAccountListViewState extends State<UserAccountListView> {
     return GestureDetector(
       onTap: () async {
         if (!await checkInternetConnectivity()) {
-          _showSnackBar(connection);
+          showSnackBarSimpleMessage(connection);
         } else {
           if (widget.type == 'activeOrders' ||
               widget.type == 'completedOrders') {

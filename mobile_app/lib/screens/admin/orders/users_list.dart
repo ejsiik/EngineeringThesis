@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_app/constants/text_strings.dart';
 import 'package:mobile_app/screens/admin/orders/admin_orders.dart';
+import 'package:mobile_app/screens/utils.dart';
 import 'package:mobile_app/service/connection/connection_check.dart';
 import 'package:mobile_app/service/database/order_data.dart';
 
@@ -32,10 +33,8 @@ class _UsersListState extends State<UsersList> {
     return data;
   }
 
-  void _showSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(message),
-    ));
+  void showSnackBarSimpleMessage(String message) {
+    Utils.showSnackBarSimpleMessage(context, message);
   }
 
   @override
@@ -64,7 +63,7 @@ class _UsersListState extends State<UsersList> {
                   child: InkWell(
                     onTap: () async {
                       if (!await checkInternetConnectivity()) {
-                        _showSnackBar(connection);
+                        showSnackBarSimpleMessage(connection);
                       } else {
                         Navigator.push(
                           context,

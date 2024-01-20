@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_app/constants/text_strings.dart';
+import 'package:mobile_app/screens/utils.dart';
 import 'package:mobile_app/service/connection/connection_check.dart';
 import 'package:mobile_app/service/database/order_data.dart';
 import 'package:mobile_app/screens/user/category_products_page/product_details_page.dart';
@@ -27,10 +28,8 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
     return data;
   }
 
-  void _showSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(message),
-    ));
+  void showSnackBarSimpleMessage(String message) {
+    Utils.showSnackBarSimpleMessage(context, message);
   }
 
   @override
@@ -77,7 +76,7 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                     ),
                     onTap: () async {
                       if (!await checkInternetConnectivity()) {
-                        _showSnackBar(connection);
+                        showSnackBarSimpleMessage(connection);
                       } else {
                         final details = Map<String, dynamic>.from(
                             productData['details'] as Map<Object?, Object?>);

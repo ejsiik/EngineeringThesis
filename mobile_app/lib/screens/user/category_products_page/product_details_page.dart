@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:mobile_app/constants/text_strings.dart';
+import 'package:mobile_app/screens/utils.dart';
 import 'package:mobile_app/service/connection/connection_check.dart';
 import 'package:mobile_app/service/database/data.dart';
 import 'package:shimmer/shimmer.dart';
-
 import '../../../constants/colors.dart';
 
 class ProductDetailsPage extends StatefulWidget {
@@ -31,6 +31,15 @@ class ProductDetailsPage extends StatefulWidget {
 class _ProductDetailsPageState extends State<ProductDetailsPage> {
   Data userData = Data();
 
+  Future<void> addOrRemoveFromWishlist(String productId) async {
+    if (!await checkInternetConnectivity()) {
+      showSnackBarSimpleMessage(connection);
+    } else {
+      bool data = await userData.addOrRemoveFromWishlist(productId);
+      showSnackBarWishList(data);
+    }
+  }
+
   Future<bool> isProductInShoppingCart(id) async {
     bool data = await userData.isProductInShoppingCart(id);
     return data;
@@ -38,7 +47,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
 
   Future<void> removeFromShoppingCart(String productId) async {
     if (!await checkInternetConnectivity()) {
-      _showSnackBar(connection);
+      showSnackBarSimpleMessage(connection);
     } else {
       await userData.removeFromShoppingCart(productId);
     }
@@ -61,7 +70,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
 
   Future<void> addToShoppingCart(String productId) async {
     if (!await checkInternetConnectivity()) {
-      _showSnackBar(connection);
+      showSnackBarSimpleMessage(connection);
     } else {
       await userData.addToShoppingCart(productId);
       setState(() {});
@@ -89,10 +98,12 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
     );
   }
 
-  void _showSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(message),
-    ));
+  void showSnackBarWishList(bool addOrRemove) {
+    Utils.showSnackBarWishList(context, addOrRemove);
+  }
+
+  void showSnackBarSimpleMessage(String message) {
+    Utils.showSnackBarSimpleMessage(context, message);
   }
 
   Container buildListTile(String label, String content, bool color) {
@@ -198,16 +209,35 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                   ),
                   Padding(
                     padding: EdgeInsets.only(top: 12.0, bottom: 6.0),
-                    child: Text('Cena: ${widget.price} zł',
-                        style: const TextStyle(
-                            fontSize: 18.0, fontWeight: FontWeight.bold)),
+                    child: Row(
+                      children: [
+                        Text(
+                          'Cena: ${widget.price} zł',
+                          style: const TextStyle(
+                            fontSize: 28.0,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Spacer(),
+                        GestureDetector(
+                          onTap: () {
+                            addOrRemoveFromWishlist(widget.productId);
+                          },
+                          child: Icon(
+                            Icons.favorite,
+                            color: Colors.grey,
+                            size: 36,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                   Padding(
                     padding: EdgeInsets.only(top: 6.0, bottom: 6.0),
                     child: const Text(
                       'Szczegóły produktu:',
                       style: TextStyle(
-                        fontSize: 16.0,
+                        fontSize: 20.0,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -330,17 +360,16 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
               ),
             ),
           ),
-          if (widget.routeName != '/shoppingCartPage' &&
-              widget.routeName != '/ordersPage' &&
-              widget.routeName != "/purchasedProducts" &&
-              widget.routeName != "/followedProducts")
+          if (widget.routeName == '/categoryProductsPage' ||
+              widget.routeName == '/productSearchResultPage' ||
+              widget.routeName == '/bannerLink')
             Container(
               padding: EdgeInsets.all(16.0),
               color: Colors.orange,
               child: GestureDetector(
                 onTap: () async {
                   if (!await checkInternetConnectivity()) {
-                    _showSnackBar(connection);
+                    showSnackBarSimpleMessage(connection);
                   } else {
                     if (await userData
                         .isProductInShoppingCart(widget.productId)) {

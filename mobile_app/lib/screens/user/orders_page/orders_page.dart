@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_app/constants/colors.dart';
 import 'package:mobile_app/constants/text_strings.dart';
+import 'package:mobile_app/screens/utils.dart';
 import 'package:mobile_app/service/connection/connection_check.dart';
 import 'package:mobile_app/service/database/order_data.dart';
 import 'package:mobile_app/service/database/shop_location_data.dart';
@@ -71,10 +72,8 @@ class _OrdersState extends State<OrdersPage> {
     await orderData.addOrder(name, location, totalPrice);
   }
 
-  void _showSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(message),
-    ));
+  void showSnackBarSimpleMessage(String message) {
+    Utils.showSnackBarSimpleMessage(context, message);
   }
 
   Widget buildDay(String day, Map<dynamic, dynamic> dayData) {
@@ -281,7 +280,7 @@ class _OrdersState extends State<OrdersPage> {
         child: GestureDetector(
           onTap: () async {
             if (!await checkInternetConnectivity()) {
-              _showSnackBar(connection);
+              showSnackBarSimpleMessage(connection);
             } else {
               if (name.isNotEmpty &&
                   selectedLocationData!.isNotEmpty &&

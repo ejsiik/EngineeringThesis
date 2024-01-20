@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mobile_app/constants/colors.dart';
 import 'package:mobile_app/constants/text_strings.dart';
 import 'package:mobile_app/screens/user/category_products_page/product_details_page.dart';
+import 'package:mobile_app/screens/utils.dart';
 import 'package:mobile_app/service/connection/connection_check.dart';
 import 'package:mobile_app/service/database/data.dart';
 import 'package:mobile_app/service/database/product_data.dart';
@@ -71,37 +72,11 @@ class _FollowedProductsPageState extends State<FollowedProductsPage> {
   }
 
   void showSnackBarWishList(bool addOrRemove) {
-    String message =
-        addOrRemove ? ' z listy obserwowanych' : ' do listy obserwowanych';
-
-    String boldText = addOrRemove ? 'Usunięto' : 'Dodano';
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Column(
-          children: [
-            Row(
-              children: [
-                Text(
-                  boldText,
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-                Text(
-                  message,
-                  style: TextStyle(fontSize: 16),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
+    Utils.showSnackBarWishList(context, addOrRemove);
   }
 
-  void _showSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(message),
-    ));
+  void showSnackBarSimpleMessage(String message) {
+    Utils.showSnackBarSimpleMessage(context, message);
   }
 
   @override
@@ -202,7 +177,7 @@ class _FollowedProductsPageState extends State<FollowedProductsPage> {
                       trailing: GestureDetector(
                         onTap: () async {
                           if (!await checkInternetConnectivity()) {
-                            _showSnackBar(connection);
+                            showSnackBarSimpleMessage(connection);
                           } else {
                             addOrRemoveFromWishlist(productId);
                           }
@@ -214,7 +189,7 @@ class _FollowedProductsPageState extends State<FollowedProductsPage> {
                       ),
                       onTap: () async {
                         if (!await checkInternetConnectivity()) {
-                          _showSnackBar(connection);
+                          showSnackBarSimpleMessage(connection);
                         } else {
                           navigateToProductDetails(
                             categoryId,

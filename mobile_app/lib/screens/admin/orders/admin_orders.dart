@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_app/constants/text_strings.dart';
 import 'package:mobile_app/screens/admin/orders/users_orders.dart';
+import 'package:mobile_app/screens/utils.dart';
 import 'package:mobile_app/service/connection/connection_check.dart';
 
 class AdminOrders extends StatefulWidget {
@@ -15,10 +16,8 @@ class AdminOrders extends StatefulWidget {
 }
 
 class _AdminOrdersState extends State<AdminOrders> {
-  void _showSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(message),
-    ));
+  void showSnackBarSimpleMessage(String message) {
+    Utils.showSnackBarSimpleMessage(context, message);
   }
 
   @override
@@ -37,7 +36,7 @@ class _AdminOrdersState extends State<AdminOrders> {
             id: widget.id,
             onTap: () async {
               if (!await checkInternetConnectivity()) {
-                _showSnackBar(connection);
+                showSnackBarSimpleMessage(connection);
               } else {
                 Navigator.push(
                   context,
@@ -58,7 +57,7 @@ class _AdminOrdersState extends State<AdminOrders> {
             id: widget.id,
             onTap: () async {
               if (!await checkInternetConnectivity()) {
-                _showSnackBar(connection);
+                showSnackBarSimpleMessage(connection);
               } else {
                 Navigator.push(
                   context,
