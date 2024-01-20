@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_app/constants/text_strings.dart';
 import 'package:mobile_app/screens/login/login_page.dart';
+import 'package:mobile_app/screens/utils.dart';
 import 'package:mobile_app/service/authentication/auth.dart';
 import 'package:mobile_app/service/database/chat_data.dart';
 import 'package:mobile_app/service/database/order_data.dart';
@@ -16,10 +17,8 @@ class _UserSettingsState extends State<UserSettings> {
   TextEditingController _nameController = TextEditingController();
   String newName = '';
 
-  void _showSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(message),
-    ));
+  void showSnackBarSimpleMessage(String message) {
+    Utils.showSnackBarSimpleMessage(context, message);
   }
 
   @override
@@ -47,16 +46,16 @@ class _UserSettingsState extends State<UserSettings> {
               onPressed: () async {
                 bool isInternetConnected = await checkInternetConnectivity();
                 if (!isInternetConnected) {
-                  _showSnackBar(connection);
+                  showSnackBarSimpleMessage(connection);
 
                   return;
                 }
                 try {
                   Data().changeUserName(newName);
                   _nameController.clear(); // Clear the TextField
-                  _showSnackBar('Imię zostało zmienione');
+                  showSnackBarSimpleMessage('Imię zostało zmienione');
                 } catch (error) {
-                  _showSnackBar('Błąd podczas zmiany imienia');
+                  showSnackBarSimpleMessage('Błąd podczas zmiany imienia');
                 }
               },
               child: Text('Zmień imię'),
@@ -118,7 +117,7 @@ class _UserSettingsState extends State<UserSettings> {
                 try {
                   bool isInternetConnected = await checkInternetConnectivity();
                   if (!isInternetConnected) {
-                    _showSnackBar(connection);
+                    showSnackBarSimpleMessage(connection);
                     return;
                   }
                   // Close the dialog using the stored context

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_app/screens/admin/home_page/qr_button.dart';
 import 'package:mobile_app/screens/admin/orders/search_order.dart';
+import 'package:mobile_app/screens/utils.dart';
 import '../../../constants/text_strings.dart';
 import '../../../service/authentication/auth.dart';
 import '../../../constants/colors.dart';
@@ -61,10 +62,8 @@ class _AdminHomePageState extends State<AdminHomePage> {
     );
   }
 
-  void _showSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(message),
-    ));
+  void showSnackBarSimpleMessage(String message) {
+    Utils.showSnackBarSimpleMessage(context, message);
   }
 
   Widget _buildWelcomeBannerCheckbox() {
@@ -179,7 +178,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
                     onSubmitted: (value) async {
                       _orderCodeController.clear();
                       if (!await checkInternetConnectivity()) {
-                        _showSnackBar(connection);
+                        showSnackBarSimpleMessage(connection);
                       } else {
                         updateOrderCode(value);
                       }
@@ -193,7 +192,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
                           String searchValue = _orderCodeController.text;
                           _orderCodeController.clear();
                           if (!await checkInternetConnectivity()) {
-                            _showSnackBar(connection);
+                            showSnackBarSimpleMessage(connection);
                           } else {
                             updateOrderCode(searchValue);
                           }

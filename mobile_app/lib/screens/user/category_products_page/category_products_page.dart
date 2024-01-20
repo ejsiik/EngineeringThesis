@@ -3,6 +3,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_app/constants/text_strings.dart';
 import 'package:mobile_app/constants/colors.dart';
+import 'package:mobile_app/screens/utils.dart';
 import 'package:mobile_app/service/connection/connection_check.dart';
 import 'package:mobile_app/service/database/product_data.dart';
 import 'package:mobile_app/service/database/data.dart';
@@ -34,7 +35,7 @@ class _CategoryProductsPageState extends State<CategoryProductsPage> {
 
   Future<void> addOrRemoveFromWishlist(String productId) async {
     if (!await checkInternetConnectivity()) {
-      _showSnackBar(connection);
+      showSnackBarSimpleMessage(connection);
     } else {
       bool data = await userData.addOrRemoveFromWishlist(productId);
       showSnackBarWishList(data);
@@ -43,7 +44,7 @@ class _CategoryProductsPageState extends State<CategoryProductsPage> {
 
   Future<List<Map<String, dynamic>>> getProductData() async {
     if (!await checkInternetConnectivity()) {
-      _showSnackBar(connection);
+      showSnackBarSimpleMessage(connection);
       return [];
     }
 
@@ -69,7 +70,7 @@ class _CategoryProductsPageState extends State<CategoryProductsPage> {
 
   Future<void> addToShoppingCart(String productId) async {
     if (!await checkInternetConnectivity()) {
-      _showSnackBar(connection);
+      showSnackBarSimpleMessage(connection);
     } else {
       await userData.addToShoppingCart(productId);
       int quantity = await userData.getQuantityOfShoppingCart(productId);
@@ -77,69 +78,16 @@ class _CategoryProductsPageState extends State<CategoryProductsPage> {
     }
   }
 
-  void showSnackBarShoppingCart(int quantity) async {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Column(
-          children: [
-            Row(
-              children: [
-                Text(
-                  "Produkt został dodany do koszyka.",
-                  style: TextStyle(fontSize: 14),
-                )
-              ],
-            ),
-            /*Row(
-              children: [
-                Text(
-                  "Ilość produktu w koszyku: ",
-                  style: TextStyle(fontSize: 16),
-                ),
-                Text(
-                  '$quantity',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-              ],
-            ),*/
-          ],
-        ),
-      ),
-    );
+  void showSnackBarSimpleMessage(String message) {
+    Utils.showSnackBarSimpleMessage(context, message);
   }
 
-  void showSnackBarWishList(bool addOrRemove) {
-    String message =
-        addOrRemove ? ' z listy obserwowanych' : ' do listy obserwowanych';
-
-    String boldText = addOrRemove ? 'Usunięto' : 'Dodano';
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Column(
-          children: [
-            Row(
-              children: [
-                Text(
-                  boldText,
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-                Text(
-                  message,
-                  style: TextStyle(fontSize: 16),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
+  void showSnackBarShoppingCart(int quantity) {
+    Utils.showSnackBarShoppingCart(context, quantity);
   }
 
-  void _showSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(message),
-    ));
+  void showSnackBarWishList(bool addOrRemove) async {
+    Utils.showSnackBarWishList(context, addOrRemove);
   }
 
   Widget buildProductItem(Map product) {
@@ -217,7 +165,7 @@ class _CategoryProductsPageState extends State<CategoryProductsPage> {
         ),
         onTap: () async {
           if (!await checkInternetConnectivity()) {
-            _showSnackBar(connection);
+            showSnackBarSimpleMessage(connection);
           } else {
             Navigator.push(
               context,

@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:mobile_app/constants/colors.dart';
 import 'package:mobile_app/constants/text_strings.dart';
 import 'package:mobile_app/screens/user/orders_page/orders_detailed_page.dart';
+import 'package:mobile_app/screens/utils.dart';
 import 'package:mobile_app/service/connection/connection_check.dart';
 import 'package:mobile_app/service/database/data.dart';
 import 'package:mobile_app/service/database/order_data.dart';
@@ -42,10 +43,8 @@ class _SearchOrderState extends State<SearchOrder> {
     return data;
   }
 
-  void _showSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(message),
-    ));
+  void showSnackBarSimpleMessage(String message) {
+    Utils.showSnackBarSimpleMessage(context, message);
   }
 
   @override
@@ -153,7 +152,7 @@ class _SearchOrderState extends State<SearchOrder> {
                     trailing: InkWell(
                       onTap: () async {
                         if (!await checkInternetConnectivity()) {
-                          _showSnackBar(connection);
+                          showSnackBarSimpleMessage(connection);
                         } else {
                           await makeCompleted(userId, orderId);
                         }
@@ -165,7 +164,7 @@ class _SearchOrderState extends State<SearchOrder> {
                     ),
                     onTap: () async {
                       if (!await checkInternetConnectivity()) {
-                        _showSnackBar(connection);
+                        showSnackBarSimpleMessage(connection);
                       } else {
                         Navigator.push(
                           context,

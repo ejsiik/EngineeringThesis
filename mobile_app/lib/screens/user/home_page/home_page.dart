@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:mobile_app/constants/colors.dart';
 import 'package:mobile_app/constants/text_strings.dart';
 import 'package:mobile_app/screens/user/category_products_page/product_details_page.dart';
+import 'package:mobile_app/screens/utils.dart';
 import 'package:mobile_app/service/authentication/auth.dart';
 import 'package:mobile_app/service/database/category_data.dart';
 import 'package:mobile_app/service/database/data.dart';
@@ -84,7 +85,7 @@ class _HomePageState extends State<HomePage> {
       String? userName = await userData.getUserName();
       return userName ?? '';
     } catch (error) {
-      _showSnackBar('Błąd podczas pobierania nazwy użytkownika');
+      showSnackBarSimpleMessage('Błąd podczas pobierania nazwy użytkownika');
       return 'Nieznany użytkownik';
     }
   }
@@ -142,10 +143,8 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  void _showSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(message),
-    ));
+  void showSnackBarSimpleMessage(String message) {
+    Utils.showSnackBarSimpleMessage(context, message);
   }
 
   /*Widget buildDay(String day, Map<dynamic, dynamic> dayData) {
@@ -309,7 +308,7 @@ class _HomePageState extends State<HomePage> {
                           onSubmitted: (value) async {
                             searchController.clear();
                             if (!await checkInternetConnectivity()) {
-                              _showSnackBar(connection);
+                              showSnackBarSimpleMessage(connection);
                             } else {
                               updateProductSearchList(value);
                             }
@@ -323,7 +322,7 @@ class _HomePageState extends State<HomePage> {
                                 String searchValue = searchController.text;
                                 searchController.clear();
                                 if (!await checkInternetConnectivity()) {
-                                  _showSnackBar(connection);
+                                  showSnackBarSimpleMessage(connection);
                                 } else {
                                   updateProductSearchList(searchValue);
                                 }

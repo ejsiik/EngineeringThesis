@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:mobile_app/constants/text_strings.dart';
+import 'package:mobile_app/screens/utils.dart';
 import 'package:mobile_app/service/connection/connection_check.dart';
 import 'package:mobile_app/service/database/order_data.dart';
 import 'package:mobile_app/screens/user/orders_page/orders_detailed_page.dart';
@@ -36,10 +37,8 @@ class _OrdersListState extends State<OrdersListPage> {
     return orderData.getOrderList(type);
   }
 
-  void _showSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(message),
-    ));
+  void showSnackBarSimpleMessage(String message) {
+    Utils.showSnackBarSimpleMessage(context, message);
   }
 
   @override
@@ -135,7 +134,7 @@ class _OrdersListState extends State<OrdersListPage> {
                       ),
                       onTap: () async {
                         if (!await checkInternetConnectivity()) {
-                          _showSnackBar(connection);
+                          showSnackBarSimpleMessage(connection);
                         } else {
                           Navigator.push(
                             context,

@@ -2,6 +2,7 @@ import 'dart:typed_data';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_app/constants/text_strings.dart';
+import 'package:mobile_app/screens/utils.dart';
 import 'package:mobile_app/service/connection/connection_check.dart';
 import 'package:mobile_app/service/database/data.dart';
 import 'package:mobile_app/screens/user/category_products_page/product_details_page.dart';
@@ -76,10 +77,8 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
     return data;
   }
 
-  void _showSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(message),
-    ));
+  void showSnackBarSimpleMessage(String message) {
+    Utils.showSnackBarSimpleMessage(context, message);
   }
 
   Widget buildProductItem(Map productMap) {
@@ -120,7 +119,7 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
                   icon: const Icon(Icons.remove),
                   onPressed: () async {
                     if (!await checkInternetConnectivity()) {
-                      _showSnackBar(connection);
+                      showSnackBarSimpleMessage(connection);
                     } else {
                       int currentQuantity =
                           await getQuantityOfShoppingCart(productMap['id']);
@@ -151,7 +150,7 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
                   icon: const Icon(Icons.add),
                   onPressed: () async {
                     if (!await checkInternetConnectivity()) {
-                      _showSnackBar(connection);
+                      showSnackBarSimpleMessage(connection);
                     } else {
                       int currentQuantity =
                           await getQuantityOfShoppingCart(productMap['id']);
@@ -185,7 +184,7 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
         trailing: GestureDetector(
           onTap: () async {
             if (!await checkInternetConnectivity()) {
-              _showSnackBar(connection);
+              showSnackBarSimpleMessage(connection);
             } else {
               removeFromShoppingCart(productMap['id']);
             }
@@ -194,7 +193,7 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
         ),
         onTap: () async {
           if (!await checkInternetConnectivity()) {
-            _showSnackBar(connection);
+            showSnackBarSimpleMessage(connection);
           } else {
             Navigator.push(
               context,
@@ -303,7 +302,7 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
                     child: GestureDetector(
                       onTap: () async {
                         if (!await checkInternetConnectivity()) {
-                          _showSnackBar(connection);
+                          showSnackBarSimpleMessage(connection);
                         } else {
                           Navigator.push(
                             context,

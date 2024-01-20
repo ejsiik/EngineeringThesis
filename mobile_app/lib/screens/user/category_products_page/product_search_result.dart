@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_app/constants/text_strings.dart';
+import 'package:mobile_app/screens/utils.dart';
 import 'package:mobile_app/service/connection/connection_check.dart';
 import 'package:mobile_app/service/database/product_data.dart';
 import 'package:mobile_app/service/database/data.dart';
@@ -37,7 +38,7 @@ class _ProductSearchResultState extends State<ProductSearchResult> {
 
   Future<void> addOrRemoveFromWishlist(String productId) async {
     if (!await checkInternetConnectivity()) {
-      _showSnackBar(connection);
+      showSnackBarSimpleMessage(connection);
     } else {
       bool data = await userData.addOrRemoveFromWishlist(productId);
       showSnackBarWishList(data);
@@ -71,7 +72,7 @@ class _ProductSearchResultState extends State<ProductSearchResult> {
 
   Future<void> addToShoppingCart(String productId) async {
     if (!await checkInternetConnectivity()) {
-      _showSnackBar(connection);
+      showSnackBarSimpleMessage(connection);
     } else {
       await userData.addToShoppingCart(productId);
       int quantity = await userData.getQuantityOfShoppingCart(productId);
@@ -111,37 +112,11 @@ class _ProductSearchResultState extends State<ProductSearchResult> {
   }
 
   void showSnackBarWishList(bool addOrRemove) {
-    String message =
-        addOrRemove ? ' z listy obserwowanych' : ' do listy obserwowanych';
-
-    String boldText = addOrRemove ? 'Usunięto' : 'Dodano';
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Column(
-          children: [
-            Row(
-              children: [
-                Text(
-                  boldText,
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-                Text(
-                  message,
-                  style: TextStyle(fontSize: 16),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
+    Utils.showSnackBarWishList(context, addOrRemove);
   }
 
-  void _showSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(message),
-    ));
+  void showSnackBarSimpleMessage(String message) {
+    Utils.showSnackBarSimpleMessage(context, message);
   }
 
   Widget buildProductItem(Map product) {
@@ -219,7 +194,7 @@ class _ProductSearchResultState extends State<ProductSearchResult> {
         ),
         onTap: () async {
           if (!await checkInternetConnectivity()) {
-            _showSnackBar(connection);
+            showSnackBarSimpleMessage(connection);
           } else {
             Navigator.push(
               context,
