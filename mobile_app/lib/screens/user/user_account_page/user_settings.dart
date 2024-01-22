@@ -52,8 +52,13 @@ class _UserSettingsState extends State<UserSettings> {
                 }
                 try {
                   Data().changeUserName(newName);
-                  _nameController.clear(); // Clear the TextField
-                  showSnackBarSimpleMessage('Imię zostało zmienione');
+                  if (newName.trim().isNotEmpty) {
+                    _nameController.clear();
+                    showSnackBarSimpleMessage('Imię zostało zmienione');
+                  } else {
+                    _nameController.clear();
+                    showSnackBarSimpleMessage('Imię nie może być puste');
+                  }
                 } catch (error) {
                   showSnackBarSimpleMessage('Błąd podczas zmiany imienia');
                 }
