@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_app/constants/colors.dart';
 import 'package:mobile_app/constants/text_strings.dart';
 import 'package:mobile_app/screens/login/login_page.dart';
 import 'package:mobile_app/screens/utils.dart';
@@ -17,12 +18,22 @@ class _UserSettingsState extends State<UserSettings> {
   TextEditingController _nameController = TextEditingController();
   String newName = '';
 
+  void signOut() async {
+    await Auth().signOut();
+  }
+
   void showSnackBarSimpleMessage(String message) {
     Utils.showSnackBarSimpleMessage(context, message);
   }
 
   @override
   Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    const Color logoutColor = AppColors.logout;
+    final Color textColor = theme.brightness == Brightness.light
+        ? AppColors.textLight
+        : AppColors.textDark;
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Ustawienia użytkownika'),
@@ -32,6 +43,28 @@ class _UserSettingsState extends State<UserSettings> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            Row(
+              children: [
+                Text(
+                  'Wyloguj się',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: textColor,
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(
+                    Icons.exit_to_app,
+                    color: logoutColor,
+                  ),
+                  onPressed: () {
+                    signOut();
+                  },
+                ),
+              ],
+            ),
+            SizedBox(height: 16.0),
             // TextField for changing username
             TextField(
               controller: _nameController,
