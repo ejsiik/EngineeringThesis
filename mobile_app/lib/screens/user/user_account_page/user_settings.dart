@@ -30,9 +30,12 @@ class _UserSettingsState extends State<UserSettings> {
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
     const Color logoutColor = AppColors.logout;
-    final Color textColor = theme.brightness == Brightness.light
-        ? AppColors.textLight
-        : AppColors.textDark;
+    final Color buttonBackgroundColor = theme.brightness == Brightness.light
+        ? AppColors.primaryLight
+        : AppColors.primaryDark;
+    final Color buttonTextColor = theme.brightness == Brightness.light
+        ? AppColors.backgroundLight
+        : AppColors.backgroundDark;
 
     return Scaffold(
       appBar: AppBar(
@@ -43,27 +46,6 @@ class _UserSettingsState extends State<UserSettings> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Row(
-              children: [
-                Text(
-                  'Wyloguj się',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: textColor,
-                  ),
-                ),
-                IconButton(
-                  icon: const Icon(
-                    Icons.exit_to_app,
-                    color: logoutColor,
-                  ),
-                  onPressed: () {
-                    signOut();
-                  },
-                ),
-              ],
-            ),
             SizedBox(height: 16.0),
             // TextField for changing username
             TextField(
@@ -105,19 +87,39 @@ class _UserSettingsState extends State<UserSettings> {
                 alignment: Alignment.bottomCenter,
                 child: Padding(
                   padding: const EdgeInsets.only(bottom: 20.0),
-                  child: GestureDetector(
-                    onTap: () {
-                      // Show confirmation dialog before deleting account
-                      _showDeleteConfirmationDialog(context);
-                    },
-                    child: Text(
-                      'Usuń konto',
-                      style: TextStyle(
-                        decoration: TextDecoration.underline,
-                        color: Colors.red,
-                        fontWeight: FontWeight.bold,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          foregroundColor: buttonTextColor,
+                          backgroundColor: buttonBackgroundColor,
+                        ),
+                        onPressed: () {
+                          signOut();
+                          Navigator.of(context).pushReplacement(
+                            MaterialPageRoute(
+                                builder: (context) => LoginPage()),
+                          );
+                        },
+                        child: Text('WYLOGUJ SIĘ'),
                       ),
-                    ),
+                      SizedBox(height: 60.0),
+                      GestureDetector(
+                        onTap: () {
+                          // Show confirmation dialog before deleting account
+                          _showDeleteConfirmationDialog(context);
+                        },
+                        child: Text(
+                          'Usuń konto',
+                          style: TextStyle(
+                            decoration: TextDecoration.underline,
+                            color: logoutColor,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
