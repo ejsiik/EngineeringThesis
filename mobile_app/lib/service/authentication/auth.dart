@@ -119,6 +119,15 @@ class Auth extends GetxController {
     required String name,
   }) async {
     try {
+      if (email.isEmpty || password.isEmpty) {
+        return "Pole adresu e-mail i hasła nie może być puste";
+      }
+
+      // Sprawdź poprawność formatu adresu e-mail
+      if (!RegExp(r'^[\w-]+(\.[\w-]+)*@[\w-]+(\.[\w-]+)+$').hasMatch(email)) {
+        return "Nieprawidłowy format adresu e-mail";
+      }
+
       await _firebaseAuth.createUserWithEmailAndPassword(
         email: email.trim(),
         password: password.trim(),
