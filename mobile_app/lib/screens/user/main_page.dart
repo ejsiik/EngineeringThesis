@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:mobile_app/constants/colors.dart';
 import 'package:mobile_app/screens/user/home_page/chat_page.dart';
@@ -16,15 +18,16 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> {
   int _currentIndex = 0;
 
-  final List<Widget> pages = [
-    const HomePage(),
-    const ChatPage(
-      receiverId: receiverId,
-      receiverEmail: receiverEmail,
-    ),
-    const ShoppingCartPage(),
-    const UserAccountPage(),
-  ];
+  // Create a StreamController
+  final StreamController<int> _cartUpdateController = StreamController<int>();
+  // Create a FocusScopeNode
+  late final FocusScopeNode _focusScopeNode = FocusScopeNode();
+
+  // Method to add items to the cart
+  void addItemToCart() {
+    // Add an event to the stream
+    _cartUpdateController.add(1);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,49 +40,80 @@ class _MainPageState extends State<MainPage> {
         ? AppColors.navbarUnselectedLight
         : AppColors.navbarUnselectedDark;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Container(),
-        toolbarHeight: 0,
-        titleSpacing: 0,
-        automaticallyImplyLeading: false,
+    final List<Widget> pages = [
+      const HomePage(),
+      const ChatPage(
+        receiverId: receiverId,
+        receiverEmail: receiverEmail,
       ),
-      body: pages[_currentIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: backgroundColor,
-        showSelectedLabels: false,
-        showUnselectedLabels: false,
-        selectedIconTheme: IconThemeData(
-          color: navbarSelectedColor,
+      StreamBuilder<int>(
+        stream: _cartUpdateController.stream,
+        builder: (BuildContext context, AsyncSnapshot<int> snapshot) {
+          // Rebuild the ShoppingCartPage whenever an item is added to the cart
+          return ShoppingCartPage();
+        },
+      ),
+      const UserAccountPage(),
+    ];
+
+    return FocusScope(
+      node: _focusScopeNode,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Container(),
+          toolbarHeight: 0,
+          titleSpacing: 0,
+          automaticallyImplyLeading: false,
         ),
-        unselectedIconTheme: IconThemeData(
-          color: navbarUnselectedColor,
+        body: IndexedStack(
+          index: _currentIndex,
+          children: pages,
         ),
-        currentIndex: _currentIndex,
-        onTap: (index) => setState(() => _currentIndex = index),
-        items: [
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.home),
-            label: 'Home',
-            backgroundColor: backgroundColor,
+        bottomNavigationBar: BottomNavigationBar(
+          backgroundColor: backgroundColor,
+          showSelectedLabels: false,
+          showUnselectedLabels: false,
+          selectedIconTheme: IconThemeData(
+            color: navbarSelectedColor,
           ),
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.chat),
-            label: 'Chat',
-            backgroundColor: backgroundColor,
+          unselectedIconTheme: IconThemeData(
+            color: navbarUnselectedColor,
           ),
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.add_shopping_cart),
-            label: 'Shopping Cart',
-            backgroundColor: backgroundColor,
-          ),
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.person),
-            label: 'Profile',
-            backgroundColor: backgroundColor,
-          ),
-        ],
+          currentIndex: _currentIndex,
+          onTap: (index) => setState(() => _currentIndex = index),
+          items: [
+            BottomNavigationBarItem(
+              icon: const Icon(Icons.home),
+              label: 'Home',
+              backgroundColor: backgroundColor,
+            ),
+            BottomNavigationBarItem(
+              icon: const Icon(Icons.chat),
+              label: 'Chat',
+              backgroundColor: backgroundColor,
+            ),
+            BottomNavigationBarItem(
+              icon: const Icon(Icons.add_shopping_cart),
+              label: 'Shopping Cart',
+              backgroundColor: backgroundColor,
+            ),
+            BottomNavigationBarItem(
+              icon: const Icon(Icons.person),
+              label: 'Profile',
+              backgroundColor: backgroundColor,
+            ),
+          ],
+        ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    // Dispose of the FocusScopeNode to avoid memory leaks
+    _focusScopeNode.dispose();
+    // Close the StreamController to avoid memory leaks
+    _cartUpdateController.close();
+    super.dispose();
   }
 }
