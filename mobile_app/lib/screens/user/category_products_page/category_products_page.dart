@@ -17,29 +17,38 @@ class CategoryProductsPage extends StatefulWidget {
   const CategoryProductsPage(this.categoryId, this.categoryName, {super.key});
 
   @override
-  State<CategoryProductsPage> createState() {
-    return _CategoryProductsPageState();
-  }
+  State<CategoryProductsPage> createState() => _CategoryProductsPageState();
 }
-
-// Add a set to keep track of products in the shopping cart
-Set<String> shoppingCartProducts = Set<String>();
-
-// Add a set to keep track of products in the wishlist
-Set<String> wishlistProducts = Set<String>();
 
 class _CategoryProductsPageState extends State<CategoryProductsPage> {
   ProductData productData = ProductData();
   Data userData = Data();
+  late bool _isMounted;
   static const String routeName = '/categoryProductsPage';
 
-  Future<void> addOrRemoveFromWishlist(String productId) async {
-    if (!await checkInternetConnectivity()) {
-      showSnackBarSimpleMessage(connection);
-    } else {
-      bool data = await userData.addOrRemoveFromWishlist(productId);
-      showSnackBarWishList(data);
+  @override
+  void initState() {
+    super.initState();
+    _isMounted = true;
+  }
+
+  @override
+  void dispose() {
+    _isMounted = false;
+    super.dispose();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_isMounted) {
+      getProductData();
     }
+  }
+
+  Future<void> addOrRemoveFromWishlist(String productId) async {
+    bool data = await userData.addOrRemoveFromWishlist(productId);
+    showSnackBarWishList(data);
   }
 
   Future<List<Map<String, dynamic>>> getProductData() async {
@@ -50,11 +59,6 @@ class _CategoryProductsPageState extends State<CategoryProductsPage> {
 
     List<Map<String, dynamic>> data =
         await productData.getProductData(widget.categoryId);
-    return data;
-  }
-
-  Future<bool> isProductInShoppingCart(id) async {
-    bool data = await userData.isProductInShoppingCart(id);
     return data;
   }
 
@@ -69,21 +73,31 @@ class _CategoryProductsPageState extends State<CategoryProductsPage> {
   }
 
   Future<void> addToShoppingCart(String productId) async {
-    if (!await checkInternetConnectivity()) {
-      showSnackBarSimpleMessage(connection);
-    } else {
-      await userData.addToShoppingCart(productId);
-      int quantity = await userData.getQuantityOfShoppingCart(productId);
-      showSnackBarShoppingCart(quantity);
-    }
+    await userData.addToShoppingCart(productId);
+    showSnackBarShoppingCart(true);
+  }
+
+  Future<void> removeFromShoppingCart(String productId) async {
+    await userData.removeFromShoppingCart(productId);
+    showSnackBarShoppingCart(false);
+  }
+
+  Future<bool> isProductInShoppingCart(id) async {
+    bool data = await userData.isProductInShoppingCart(id);
+    return data;
+  }
+
+  Future<bool> isProductInWishlist(id) async {
+    bool data = await userData.isProductInWishlist(id);
+    return data;
   }
 
   void showSnackBarSimpleMessage(String message) {
     Utils.showSnackBarSimpleMessage(context, message);
   }
 
-  void showSnackBarShoppingCart(int quantity) {
-    Utils.showSnackBarShoppingCart(context, quantity);
+  void showSnackBarShoppingCart(bool isInShoppingCart) {
+    Utils.showSnackBarShoppingCart(context, isInShoppingCart);
   }
 
   void showSnackBarWishList(bool addOrRemove) async {
@@ -95,11 +109,6 @@ class _CategoryProductsPageState extends State<CategoryProductsPage> {
         (product['details'] as Map<dynamic, dynamic>).cast<String, dynamic>();
     Map<String, dynamic> images =
         (product['images'] as Map<dynamic, dynamic>).cast<String, dynamic>();
-
-    // Check if the product is in the shopping cart
-    bool isInShoppingCart = shoppingCartProducts.contains(product['id']);
-    // Check if the product is in the wishlist
-    bool isInWishlist = wishlistProducts.contains(product['id']);
 
     return Card(
       margin: const EdgeInsets.all(8.0),
@@ -132,34 +141,75 @@ class _CategoryProductsPageState extends State<CategoryProductsPage> {
         ),
         trailing: Column(
           children: [
-            GestureDetector(
-              onTap: () {
-                addOrRemoveFromWishlist(product['id']);
-                wishlistProducts.contains(product['id'])
-                    ? wishlistProducts.remove(product['id'])
-                    : wishlistProducts.add(product['id']);
-                // Use setState to rebuild the widget and update the color
-                setState(() {});
+            FutureBuilder<bool>(
+              future: userData.isProductInWishlist(product['id']),
+              builder: (context, wishlistSnapshot) {
+                if (wishlistSnapshot.connectionState ==
+                    ConnectionState.waiting) {
+                  return Container(
+                    child: Icon(
+                      Icons.favorite,
+                      color: Colors.grey,
+                    ),
+                  );
+                } else if (wishlistSnapshot.hasError) {
+                  return Icon(Icons.error, color: Colors.red);
+                } else {
+                  bool isProductInWishlist = wishlistSnapshot.data ?? false;
+
+                  return GestureDetector(
+                    onTap: () async {
+                      if (!await checkInternetConnectivity()) {
+                        showSnackBarSimpleMessage(connection);
+                      } else {
+                        await addOrRemoveFromWishlist(product['id']);
+                        setState(() {});
+                      }
+                    },
+                    child: Icon(
+                      Icons.favorite,
+                      color: isProductInWishlist ? Colors.red : Colors.grey,
+                    ),
+                  );
+                }
               },
-              child: Icon(
-                Icons.favorite,
-                // Change the color based on whether the product is in the wishlist
-                color: isInWishlist ? Colors.green : Colors.grey,
-              ),
             ),
             SizedBox(height: 8),
-            GestureDetector(
-              onTap: () {
-                addToShoppingCart(product['id']);
-                shoppingCartProducts.add(product['id']);
+            FutureBuilder<bool>(
+              future: userData.isProductInShoppingCart(product['id']),
+              builder: (context, cartSnapshot) {
+                if (cartSnapshot.connectionState == ConnectionState.waiting) {
+                  return Container(
+                    child: Icon(
+                      Icons.shopping_cart,
+                      color: Colors.grey,
+                    ),
+                  );
+                } else if (cartSnapshot.hasError) {
+                  return Icon(Icons.error, color: Colors.red);
+                } else {
+                  bool isProductInCart = cartSnapshot.data ?? false;
 
-                // Use setState to rebuild the widget and update the color
-                setState(() {});
+                  return GestureDetector(
+                    onTap: () async {
+                      if (!await checkInternetConnectivity()) {
+                        showSnackBarSimpleMessage(connection);
+                      } else {
+                        if (isProductInCart) {
+                          await removeFromShoppingCart(product['id']);
+                        } else {
+                          await addToShoppingCart(product['id']);
+                        }
+                        setState(() {});
+                      }
+                    },
+                    child: Icon(
+                      Icons.shopping_cart,
+                      color: isProductInCart ? Colors.green : Colors.grey,
+                    ),
+                  );
+                }
               },
-              child: Icon(
-                Icons.shopping_cart,
-                color: isInShoppingCart ? Colors.green : Colors.grey,
-              ),
             ),
           ],
         ),
@@ -167,7 +217,7 @@ class _CategoryProductsPageState extends State<CategoryProductsPage> {
           if (!await checkInternetConnectivity()) {
             showSnackBarSimpleMessage(connection);
           } else {
-            Navigator.push(
+            await Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (context) => ProductDetailsPage(
@@ -180,6 +230,7 @@ class _CategoryProductsPageState extends State<CategoryProductsPage> {
                     routeName),
               ),
             );
+            setState(() {});
           }
         },
       ),

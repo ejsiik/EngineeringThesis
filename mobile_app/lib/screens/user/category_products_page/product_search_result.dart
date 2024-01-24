@@ -37,12 +37,8 @@ class _ProductSearchResultState extends State<ProductSearchResult> {
   }
 
   Future<void> addOrRemoveFromWishlist(String productId) async {
-    if (!await checkInternetConnectivity()) {
-      showSnackBarSimpleMessage(connection);
-    } else {
-      bool data = await userData.addOrRemoveFromWishlist(productId);
-      showSnackBarWishList(data);
-    }
+    bool data = await userData.addOrRemoveFromWishlist(productId);
+    showSnackBarWishList(data);
   }
 
   Future<List<Map<String, dynamic>>> getProductData() async {
@@ -52,11 +48,6 @@ class _ProductSearchResultState extends State<ProductSearchResult> {
 
     List<Map<String, dynamic>> data =
         await productData.getProductDataByName(widget.value);
-    return data;
-  }
-
-  Future<bool> isProductInShoppingCart(id) async {
-    bool data = await userData.isProductInShoppingCart(id);
     return data;
   }
 
@@ -71,52 +62,35 @@ class _ProductSearchResultState extends State<ProductSearchResult> {
   }
 
   Future<void> addToShoppingCart(String productId) async {
-    if (!await checkInternetConnectivity()) {
-      showSnackBarSimpleMessage(connection);
-    } else {
-      await userData.addToShoppingCart(productId);
-      int quantity = await userData.getQuantityOfShoppingCart(productId);
-      showSnackBarShoppingCart(quantity);
-    }
+    await userData.addToShoppingCart(productId);
+    showSnackBarShoppingCart(true);
   }
 
-  void showSnackBarShoppingCart(int quantity) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Column(
-          children: [
-            Row(
-              children: [
-                Text(
-                  "Produkt został dodany do koszyka.",
-                  style: TextStyle(fontSize: 14),
-                )
-              ],
-            ),
-            Row(
-              children: [
-                Text(
-                  "Ilość produktu w koszyku: ",
-                  style: TextStyle(fontSize: 16),
-                ),
-                Text(
-                  '$quantity',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
+  Future<void> removeFromShoppingCart(String productId) async {
+    await userData.removeFromShoppingCart(productId);
+    showSnackBarShoppingCart(false);
   }
 
-  void showSnackBarWishList(bool addOrRemove) {
-    Utils.showSnackBarWishList(context, addOrRemove);
+  Future<bool> isProductInShoppingCart(id) async {
+    bool data = await userData.isProductInShoppingCart(id);
+    return data;
+  }
+
+  Future<bool> isProductInWishlist(id) async {
+    bool data = await userData.isProductInWishlist(id);
+    return data;
   }
 
   void showSnackBarSimpleMessage(String message) {
     Utils.showSnackBarSimpleMessage(context, message);
+  }
+
+  void showSnackBarShoppingCart(bool isInShoppingCart) {
+    Utils.showSnackBarShoppingCart(context, isInShoppingCart);
+  }
+
+  void showSnackBarWishList(bool addOrRemove) {
+    Utils.showSnackBarWishList(context, addOrRemove);
   }
 
   Widget buildProductItem(Map product) {
@@ -171,24 +145,75 @@ class _ProductSearchResultState extends State<ProductSearchResult> {
         ),
         trailing: Column(
           children: [
-            GestureDetector(
-              onTap: () {
-                addOrRemoveFromWishlist(product['id']);
+            FutureBuilder<bool>(
+              future: userData.isProductInWishlist(product['id']),
+              builder: (context, wishlistSnapshot) {
+                if (wishlistSnapshot.connectionState ==
+                    ConnectionState.waiting) {
+                  return Container(
+                    child: Icon(
+                      Icons.favorite,
+                      color: Colors.grey,
+                    ),
+                  );
+                } else if (wishlistSnapshot.hasError) {
+                  return Icon(Icons.error, color: Colors.red);
+                } else {
+                  bool isProductInWishlist = wishlistSnapshot.data ?? false;
+
+                  return GestureDetector(
+                    onTap: () async {
+                      if (!await checkInternetConnectivity()) {
+                        showSnackBarSimpleMessage(connection);
+                      } else {
+                        await addOrRemoveFromWishlist(product['id']);
+                        setState(() {});
+                      }
+                    },
+                    child: Icon(
+                      Icons.favorite,
+                      color: isProductInWishlist ? Colors.red : Colors.grey,
+                    ),
+                  );
+                }
               },
-              child: Icon(
-                Icons.favorite,
-                color: Colors.grey,
-              ),
             ),
             SizedBox(height: 8),
-            GestureDetector(
-              onTap: () {
-                addToShoppingCart(product['id']);
+            FutureBuilder<bool>(
+              future: userData.isProductInShoppingCart(product['id']),
+              builder: (context, cartSnapshot) {
+                if (cartSnapshot.connectionState == ConnectionState.waiting) {
+                  return Container(
+                    child: Icon(
+                      Icons.shopping_cart,
+                      color: Colors.grey,
+                    ),
+                  );
+                } else if (cartSnapshot.hasError) {
+                  return Icon(Icons.error, color: Colors.red);
+                } else {
+                  bool isProductInCart = cartSnapshot.data ?? false;
+
+                  return GestureDetector(
+                    onTap: () async {
+                      if (!await checkInternetConnectivity()) {
+                        showSnackBarSimpleMessage(connection);
+                      } else {
+                        if (isProductInCart) {
+                          await removeFromShoppingCart(product['id']);
+                        } else {
+                          await addToShoppingCart(product['id']);
+                        }
+                        setState(() {});
+                      }
+                    },
+                    child: Icon(
+                      Icons.shopping_cart,
+                      color: isProductInCart ? Colors.green : Colors.grey,
+                    ),
+                  );
+                }
               },
-              child: Icon(
-                Icons.shopping_cart,
-                color: Colors.grey,
-              ),
             ),
           ],
         ),
@@ -196,7 +221,7 @@ class _ProductSearchResultState extends State<ProductSearchResult> {
           if (!await checkInternetConnectivity()) {
             showSnackBarSimpleMessage(connection);
           } else {
-            Navigator.push(
+            await Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (context) => ProductDetailsPage(
@@ -209,6 +234,7 @@ class _ProductSearchResultState extends State<ProductSearchResult> {
                     routeName),
               ),
             );
+            setState(() {});
           }
         },
       ),
@@ -255,14 +281,18 @@ class _ProductSearchResultState extends State<ProductSearchResult> {
                 ),
                 Row(
                   children: [
-                    Container(
-                      padding: EdgeInsets.all(8.0),
-                      child: Text(
-                        'Wyszukiwana fraza: ${widget.value}',
-                        style: TextStyle(
-                          fontSize: 20,
-                          color: textColor,
-                          fontStyle: FontStyle.italic,
+                    Flexible(
+                      child: Container(
+                        padding: EdgeInsets.all(8.0),
+                        child: Text(
+                          widget.value.trim().isEmpty
+                              ? 'Wyświetlono wszystkie produkty'
+                              : "Wyszukiwana fraza: ${widget.value}",
+                          style: TextStyle(
+                            fontSize: 20,
+                            color: textColor,
+                            fontStyle: FontStyle.italic,
+                          ),
                         ),
                       ),
                     ),

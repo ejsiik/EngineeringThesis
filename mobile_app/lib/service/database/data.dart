@@ -215,6 +215,33 @@ class Data {
     }
   }
 
+  Future<bool> isProductInWishlist(String productId) async {
+    try {
+      String userId = currentUser!.uid;
+
+      DatabaseEvent event = await usersRef.child('$userId/wishlist').once();
+      DataSnapshot snapshot = event.snapshot;
+
+      if (snapshot.value != null) {
+        final shoppingList =
+            List<dynamic>.from(snapshot.value as List<Object?>);
+        bool isInList = false;
+
+        shoppingList.forEach((element) {
+          if (element['product_id'] == productId) {
+            isInList = true;
+          }
+        });
+
+        return isInList;
+      } else {
+        return false;
+      }
+    } catch (error) {
+      throw Exception('Error accesing shopping cart: $error');
+    }
+  }
+
   Future<void> addToShoppingCart(String productId) async {
     try {
       String userId = currentUser!.uid;
