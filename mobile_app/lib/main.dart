@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:mobile_app/constants/theme.dart';
 import 'package:mobile_app/firebase_options.dart';
 import 'package:mobile_app/screens/screen_manager.dart';
+import 'service/authentication/auth.dart';
 //import 'package:mobile_app/service/notification/notification_data.dart';
 
 Future<void> main() async {
@@ -10,11 +11,12 @@ Future<void> main() async {
       .ensureInitialized(); // initialization has been completed
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   //await NotificationData().initNotifications();
-  runApp(const MyApp());
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final Auth auth = Auth();
+  MyApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +25,7 @@ class MyApp extends StatelessWidget {
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.system,
-      home: const WidgetTree(),
+      home: WidgetTree(auth: auth),
     );
   }
 }

@@ -4,6 +4,7 @@ import 'package:mobile_app/service/database/chat_data.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '../../../constants/colors.dart';
+import '../../../service/authentication/auth.dart';
 import 'chat_page.dart';
 
 class AdminChatScreen extends StatefulWidget {
@@ -14,15 +15,17 @@ class AdminChatScreen extends StatefulWidget {
 }
 
 class _AdminChatScreenState extends State<AdminChatScreen> {
-  final Chat chat = Chat();
   final ChatData chatData = ChatData();
   late Stream<List<Map<String, String>>> usersStream;
   String selectedUserId = ''; // Track the selected user ID
+  final Auth auth = Auth();
+  late Chat chat;
 
   @override
   void initState() {
     super.initState();
     usersStream = chatData.getAllUsers(); // Fetch the list of all users
+    chat = Chat(auth: auth);
   }
 
   @override

@@ -1,4 +1,4 @@
-import 'package:firebase_messaging/firebase_messaging.dart';
+/*import 'package:firebase_messaging/firebase_messaging.dart';
 
 class NotificationData {
   final _firebaseMessaging = FirebaseMessaging.instance;
@@ -49,7 +49,7 @@ class NotificationData {
     print('Token: $fCMToken');
     initPushNotifications();
   }
-}
+}*/
 
 
 

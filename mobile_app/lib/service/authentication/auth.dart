@@ -74,14 +74,42 @@ class Auth extends GetxController {
     required String password,
   }) async {
     try {
+      if (email.isEmpty || password.isEmpty) {
+        return "Pole adresu e-mail i hasła nie może być puste";
+      }
+
+      // Sprawdź poprawność formatu adresu e-mail
+      if (!RegExp(r'^[\w-]+(\.[\w-]+)*@[\w-]+(\.[\w-]+)+$').hasMatch(email)) {
+        return "Nieprawidłowy format adresu e-mail";
+      }
+
+      /*
+      ^: Oznacza początek ciągu znaków.
+
+      [\w-]+: Odpowiada za sprawdzenie, czy na początku adresu e-mail znajduje się co najmniej jeden znak alfanumeryczny (\w) lub myślnik (-). To sprawdza, czy nazwa użytkownika ma poprawny format.
+
+      (\.[\w-]+)*: Jest to grupa w nawiasach, która sprawdza, czy istnieje opcjonalny fragment, który składa się z kropki (.), a następnie kolejnych znaków alfanumerycznych lub myślnika. * oznacza, że ta grupa może występować zero lub więcej razy, co pozwala na obsługę poddomen.
+
+      @: Jest to znak at (@), który oddziela nazwę użytkownika od domeny.
+
+      [\w-]+: Sprawdza, czy domena zawiera co najmniej jeden znak alfanumeryczny lub myślnik. To sprawdza, czy nazwa domeny ma poprawny format.
+
+      (\.[\w-]+)+: Podobnie jak w punkcie 3, ta grupa sprawdza, czy istnieje jedna lub więcej sekcji rozdzielanych kropką (. ), z których każda składa się z kolejnych znaków alfanumerycznych lub myślnika.
+
+      $: Oznacza koniec ciągu znaków. 
+      */
+
       await _firebaseAuth.signInWithEmailAndPassword(
         email: email.trim(),
         password: password.trim(),
       );
+
       return null; // Return null if the sign-in is successful
     } on FirebaseAuthException catch (e) {
-      return _mapFirebaseErrorToPolish(
-          e.code); // Return the error message if there's an exception
+      String errorMessage = _mapFirebaseErrorToPolish(e.code);
+      print("Błąd logowania: $errorMessage");
+
+      return errorMessage; // Return the error message if there's an exception
     }
   }
 

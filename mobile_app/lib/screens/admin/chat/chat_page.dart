@@ -23,7 +23,14 @@ class AdminChatPage extends StatefulWidget {
 
 class _ChatPageState extends State<AdminChatPage> {
   final TextEditingController messageController = TextEditingController();
-  final Chat chat = Chat();
+  final Auth auth = Auth();
+  late Chat chat;
+
+  @override
+  void initState() {
+    super.initState();
+    chat = Chat(auth: auth);
+  }
 
   void sendMessage() async {
     if (messageController.text.isNotEmpty) {
@@ -31,7 +38,8 @@ class _ChatPageState extends State<AdminChatPage> {
       if (!isInternetConnected) {
         return;
       }
-      await Chat().sendMessage(widget.receiverId, messageController.text);
+      await Chat(auth: Auth())
+          .sendMessage(widget.receiverId, messageController.text);
       messageController.clear();
     }
   }
