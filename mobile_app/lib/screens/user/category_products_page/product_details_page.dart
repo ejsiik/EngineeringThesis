@@ -30,18 +30,31 @@ class ProductDetailsPage extends StatefulWidget {
 
 class _ProductDetailsPageState extends State<ProductDetailsPage> {
   Data userData = Data();
+  bool isProduct = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    isProductInWishlist(widget.productId).then((value) {
+      setState(() {
+        isProduct = value;
+      });
+    });
+  }
 
   Future<void> addOrRemoveFromWishlist(String productId) async {
-    if (!await checkInternetConnectivity()) {
-      showSnackBarSimpleMessage(connection);
-    } else {
-      bool data = await userData.addOrRemoveFromWishlist(productId);
-      showSnackBarWishList(data);
-    }
+    bool data = await userData.addOrRemoveFromWishlist(productId);
+    showSnackBarWishList(data);
   }
 
   Future<bool> isProductInShoppingCart(id) async {
     bool data = await userData.isProductInShoppingCart(id);
+    return data;
+  }
+
+  Future<bool> isProductInWishlist(id) async {
+    bool data = await userData.isProductInWishlist(id);
     return data;
   }
 
@@ -77,6 +90,14 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
     }
   }
 
+  void showSnackBarWishList(bool addOrRemove) {
+    Utils.showSnackBarWishList(context, addOrRemove);
+  }
+
+  void showSnackBarSimpleMessage(String message) {
+    Utils.showSnackBarSimpleMessage(context, message);
+  }
+
   void _showDescriptionDialog(BuildContext context, String label) {
     showDialog(
       context: context,
@@ -96,14 +117,6 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
         );
       },
     );
-  }
-
-  void showSnackBarWishList(bool addOrRemove) {
-    Utils.showSnackBarWishList(context, addOrRemove);
-  }
-
-  void showSnackBarSimpleMessage(String message) {
-    Utils.showSnackBarSimpleMessage(context, message);
   }
 
   Container buildListTile(String label, String content, bool color) {
@@ -220,12 +233,21 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                         ),
                         Spacer(),
                         GestureDetector(
-                          onTap: () {
-                            addOrRemoveFromWishlist(widget.productId);
+                          onTap: () async {
+                            if (!await checkInternetConnectivity()) {
+                              showSnackBarSimpleMessage(connection);
+                            } else {
+                              await addOrRemoveFromWishlist(widget.productId);
+                              bool isProductValue =
+                                  await isProductInWishlist(widget.productId);
+                              setState(() {
+                                isProduct = isProductValue;
+                              });
+                            }
                           },
                           child: Icon(
                             Icons.favorite,
-                            color: Colors.grey,
+                            color: isProduct ? Colors.red : Colors.grey,
                             size: 36,
                           ),
                         ),

@@ -8,7 +8,11 @@ class Utils {
   }
 
   static void showSnackBarShoppingCart(
-      BuildContext context, int quantity) async {
+      BuildContext context, bool isInShoppingCart) {
+    String message = isInShoppingCart ? ' do koszyka' : ' z koszyka';
+
+    String boldText = isInShoppingCart ? 'Dodano' : 'Usunięto';
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Column(
@@ -16,23 +20,15 @@ class Utils {
             Row(
               children: [
                 Text(
-                  "Produkt został dodany do koszyka.",
-                  style: TextStyle(fontSize: 14),
-                )
-              ],
-            ),
-            /*Row(
-              children: [
-                Text(
-                  "Ilość produktu w koszyku: ",
-                  style: TextStyle(fontSize: 16),
-                ),
-                Text(
-                  '$quantity',
+                  boldText,
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
+                Text(
+                  message,
+                  style: TextStyle(fontSize: 16),
+                ),
               ],
-            ),*/
+            ),
           ],
         ),
       ),

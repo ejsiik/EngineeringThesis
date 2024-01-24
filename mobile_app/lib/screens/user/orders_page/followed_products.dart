@@ -19,13 +19,20 @@ class FollowedProductsPage extends StatefulWidget {
 class _FollowedProductsPageState extends State<FollowedProductsPage> {
   ProductData productData = ProductData();
   Data userData = Data();
+  late bool _isMounted;
   late List<dynamic> followedProducts = [];
 
   @override
   void initState() {
     super.initState();
-
+    _isMounted = true;
     getWishlistData();
+  }
+
+  @override
+  void dispose() {
+    _isMounted = false;
+    super.dispose();
   }
 
   Future<void> getWishlistData() async {
@@ -33,9 +40,11 @@ class _FollowedProductsPageState extends State<FollowedProductsPage> {
       followedProducts = [];
     } else {
       List<dynamic> data = await userData.getWishlistData();
-      setState(() {
-        followedProducts = data;
-      });
+      if (_isMounted) {
+        setState(() {
+          followedProducts = data;
+        });
+      }
     }
   }
 
@@ -55,20 +64,30 @@ class _FollowedProductsPageState extends State<FollowedProductsPage> {
   }
 
   Future<void> navigateToProductDetails(
-      int categoryId,
-      String productId,
-      String name,
-      int price,
-      Map<String, dynamic> details,
-      Map<String, dynamic> images,
-      String routeName) async {
-    Navigator.push(
+    int categoryId,
+    String productId,
+    String name,
+    int price,
+    Map<String, dynamic> details,
+    Map<String, dynamic> images,
+    String routeName,
+  ) async {
+    await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => ProductDetailsPage(
-            categoryId, productId, name, price, details, images, routeName),
+          categoryId,
+          productId,
+          name,
+          price,
+          details,
+          images,
+          routeName,
+        ),
       ),
     );
+
+    getWishlistData();
   }
 
   void showSnackBarWishList(bool addOrRemove) {
@@ -184,7 +203,7 @@ class _FollowedProductsPageState extends State<FollowedProductsPage> {
                         },
                         child: Icon(
                           Icons.favorite,
-                          color: Colors.grey,
+                          color: Colors.red,
                         ),
                       ),
                       onTap: () async {
