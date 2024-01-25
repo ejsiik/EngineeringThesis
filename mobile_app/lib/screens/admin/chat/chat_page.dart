@@ -1,10 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_app/constants/colors.dart';
-import 'package:mobile_app/service/authentication/auth.dart';
 import 'package:mobile_app/service/chat/chat.dart';
 import 'package:shimmer/shimmer.dart';
 
+import '../../../service/authentication/auth.dart';
 import '../../../service/connection/connection_check.dart';
 
 class AdminChatPage extends StatefulWidget {
@@ -23,14 +23,7 @@ class AdminChatPage extends StatefulWidget {
 
 class _ChatPageState extends State<AdminChatPage> {
   final TextEditingController messageController = TextEditingController();
-  final Auth auth = Auth();
-  late Chat chat;
-
-  @override
-  void initState() {
-    super.initState();
-    chat = Chat(auth: auth);
-  }
+  final Chat chat = Chat();
 
   void sendMessage() async {
     if (messageController.text.isNotEmpty) {
@@ -38,8 +31,7 @@ class _ChatPageState extends State<AdminChatPage> {
       if (!isInternetConnected) {
         return;
       }
-      await Chat(auth: Auth())
-          .sendMessage(widget.receiverId, messageController.text);
+      await Chat().sendMessage(widget.receiverId, messageController.text);
       messageController.clear();
     }
   }

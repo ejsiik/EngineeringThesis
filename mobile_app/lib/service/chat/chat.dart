@@ -5,14 +5,11 @@ import 'package:mobile_app/service/chat/message.dart';
 import 'package:mobile_app/service/database/chat_data.dart';
 
 class Chat extends ChangeNotifier {
-  final Auth auth;
-
-  Chat({required this.auth});
   // Send message
   Future<void> sendMessage(String receiverId, String message) async {
     // get current user id
-    final String userId = auth.userId();
-    final String? userEmail = auth.userEmail();
+    final String userId = Auth().userId();
+    final String? userEmail = Auth().userEmail();
     final timestamp = Timestamp.now();
 
     // create message

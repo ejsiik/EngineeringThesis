@@ -22,19 +22,11 @@ class ChatPage extends StatefulWidget {
 
 class _ChatPageState extends State<ChatPage> {
   final TextEditingController messageController = TextEditingController();
-  final Auth auth = Auth();
-  late Chat chat;
-
-  @override
-  void initState() {
-    super.initState();
-    chat = Chat(auth: auth);
-  }
+  final Chat chat = Chat();
 
   void sendMessage() async {
     if (messageController.text.isNotEmpty) {
-      await Chat(auth: auth)
-          .sendMessage(widget.receiverId, messageController.text);
+      await Chat().sendMessage(widget.receiverId, messageController.text);
       messageController.clear();
     }
   }

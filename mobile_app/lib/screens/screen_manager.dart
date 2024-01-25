@@ -1,15 +1,13 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_app/screens/admin/navigation_page.dart';
-import 'package:mobile_app/service/authentication/auth.dart';
 import 'login/verify_email.dart';
 import 'login/login_page.dart';
 import 'user/main_page.dart';
 import '/constants/config.dart';
 
 class WidgetTree extends StatefulWidget {
-  final Auth auth;
-  WidgetTree({super.key, required this.auth});
+  const WidgetTree({super.key});
 
   @override
   State<WidgetTree> createState() => _WidgetTreeState();
@@ -32,8 +30,7 @@ class _WidgetTreeState extends State<WidgetTree> {
           );
         }
         if (snapshot.connectionState == ConnectionState.active) {
-          if (snapshot.data?.emailVerified == true) {
-            // User is logged in, navigate to the main page
+          if (snapshot.hasData && snapshot.data != null) {
             User? user = snapshot.data;
 
             if (user != null) {

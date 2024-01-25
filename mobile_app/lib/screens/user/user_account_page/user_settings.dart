@@ -96,7 +96,27 @@ class _UserSettingsState extends State<UserSettings> {
                 backgroundColor: buttonBackgroundColor,
               ),
               onPressed: () async {
+                print("Before navigation");
+                try {
+                  // Use pushReplacement to navigate to the login page
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => LoginPage()),
+                  );
+                } catch (e) {
+                  print("Error during navigation: $e");
+                }
+                print("After navigation");
+
+                // Show a Snackbar for successful deletion
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Zostałeś wylogowany'),
+                    duration: Duration(seconds: 2),
+                  ),
+                );
                 await Auth().signOut();
+                Navigator.pop(context);
               },
               child: Text('WYLOGUJ SIĘ'),
             ),
@@ -179,7 +199,6 @@ class _UserSettingsState extends State<UserSettings> {
       await Data().deleteUser(); // Delete user from the Realtime Database
       await ChatData().deleteUser(); // Delete user from the Firestore Database
       await Auth().deleteUser(); // Delete user from Firebase Authentication
-      await Auth().signOut(); // Log the user out
 
       print("Before navigation");
       try {
@@ -200,6 +219,8 @@ class _UserSettingsState extends State<UserSettings> {
           duration: Duration(seconds: 2),
         ),
       );
+      await Auth().signOut(); // Log the user out
+      Navigator.pop(context);
     } catch (e) {
       print("Error during deletion: $e");
     }
