@@ -97,26 +97,28 @@ class _UserSettingsState extends State<UserSettings> {
               ),
               onPressed: () async {
                 print("Before navigation");
-                try {
-                  // Use pushReplacement to navigate to the login page
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => LoginPage()),
-                  );
-                } catch (e) {
-                  print("Error during navigation: $e");
-                }
-                print("After navigation");
+                if (mounted) {
+                  try {
+                    // Use pushReplacement to navigate to the login page
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => LoginPage()),
+                    );
+                  } catch (e) {
+                    print("Error during navigation: $e");
+                  }
+                  print("After navigation");
 
-                // Show a Snackbar for successful deletion
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('Zostałeś wylogowany'),
-                    duration: Duration(seconds: 2),
-                  ),
-                );
-                await Auth().signOut();
-                Navigator.pop(context);
+                  // Show a Snackbar for successful deletion
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Zostałeś wylogowany'),
+                      duration: Duration(seconds: 2),
+                    ),
+                  );
+                  await Auth().signOut();
+                  Navigator.pop(context);
+                }
               },
               child: Text('WYLOGUJ SIĘ'),
             ),
@@ -201,26 +203,28 @@ class _UserSettingsState extends State<UserSettings> {
       await Auth().deleteUser(); // Delete user from Firebase Authentication
 
       print("Before navigation");
-      try {
-        // Use pushReplacement to navigate to the login page
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => LoginPage()),
-        );
-      } catch (e) {
-        print("Error during navigation: $e");
-      }
-      print("After navigation");
+      if (mounted) {
+        try {
+          // Use pushReplacement to navigate to the login page
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => LoginPage()),
+          );
+        } catch (e) {
+          print("Error during navigation: $e");
+        }
+        print("After navigation");
 
-      // Show a Snackbar for successful deletion
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Konto zostało usunięte'),
-          duration: Duration(seconds: 2),
-        ),
-      );
-      await Auth().signOut(); // Log the user out
-      Navigator.pop(context);
+        // Show a Snackbar for successful deletion
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Konto zostało usunięte'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+        await Auth().signOut();
+        Navigator.pop(context);
+      }
     } catch (e) {
       print("Error during deletion: $e");
     }
