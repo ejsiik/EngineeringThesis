@@ -18,12 +18,12 @@ class _UserSettingsState extends State<UserSettings> {
   TextEditingController _nameController = TextEditingController();
   String newName = '';
 
-  void signOut() async {
-    await Auth().signOut();
-  }
-
   void showSnackBarSimpleMessage(String message) {
     Utils.showSnackBarSimpleMessage(context, message);
+  }
+
+  void signOut() async {
+    await Auth().signOut();
   }
 
   @override
@@ -41,86 +41,76 @@ class _UserSettingsState extends State<UserSettings> {
       appBar: AppBar(
         title: Text('Ustawienia użytkownika'),
       ),
-      body: Padding(
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              SizedBox(height: 16.0),
+              // TextField for changing username
+              TextField(
+                controller: _nameController,
+                decoration: InputDecoration(labelText: 'Zmień imię'),
+                onChanged: (value) {
+                  newName = value;
+                },
+              ),
+              SizedBox(height: 16.0),
+
+              ElevatedButton(
+                onPressed: () async {
+                  bool isInternetConnected = await checkInternetConnectivity();
+                  if (!isInternetConnected) {
+                    showSnackBarSimpleMessage(connection);
+                    return;
+                  }
+                  try {
+                    if (newName.trim().isNotEmpty) {
+                      Data().changeUserName(newName);
+                      _nameController.clear();
+                      showSnackBarSimpleMessage('Imię zostało zmienione');
+                    } else {
+                      _nameController.clear();
+                      showSnackBarSimpleMessage('Imię nie może być puste');
+                    }
+                  } catch (error) {
+                    showSnackBarSimpleMessage('Błąd podczas zmiany imienia');
+                  }
+                },
+                child: Text('Zmień imię'),
+              ),
+            ],
+          ),
+        ),
+      ),
+      bottomNavigationBar: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            SizedBox(height: 16.0),
-            // TextField for changing username
-            TextField(
-              controller: _nameController,
-              decoration: InputDecoration(labelText: 'Zmień imię'),
-              onChanged: (value) {
-                newName = value;
-              },
-            ),
-            SizedBox(height: 16.0),
-
             ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                foregroundColor: buttonTextColor,
+                backgroundColor: buttonBackgroundColor,
+              ),
               onPressed: () async {
-                bool isInternetConnected = await checkInternetConnectivity();
-                if (!isInternetConnected) {
-                  showSnackBarSimpleMessage(connection);
-
-                  return;
-                }
-                try {
-                  Data().changeUserName(newName);
-                  if (newName.trim().isNotEmpty) {
-                    _nameController.clear();
-                    showSnackBarSimpleMessage('Imię zostało zmienione');
-                  } else {
-                    _nameController.clear();
-                    showSnackBarSimpleMessage('Imię nie może być puste');
-                  }
-                } catch (error) {
-                  showSnackBarSimpleMessage('Błąd podczas zmiany imienia');
-                }
+                await Auth().signOut();
               },
-              child: Text('Zmień imię'),
+              child: Text('WYLOGUJ SIĘ'),
             ),
-
-            // Delete account with GestureDetector and Text
-            Expanded(
-              child: Align(
-                alignment: Alignment.bottomCenter,
-                child: Padding(
-                  padding: const EdgeInsets.only(bottom: 20.0),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          foregroundColor: buttonTextColor,
-                          backgroundColor: buttonBackgroundColor,
-                        ),
-                        onPressed: () {
-                          signOut();
-                          Navigator.of(context).pushReplacement(
-                            MaterialPageRoute(
-                                builder: (context) => LoginPage()),
-                          );
-                        },
-                        child: Text('WYLOGUJ SIĘ'),
-                      ),
-                      SizedBox(height: 60.0),
-                      GestureDetector(
-                        onTap: () {
-                          // Show confirmation dialog before deleting account
-                          _showDeleteConfirmationDialog(context);
-                        },
-                        child: Text(
-                          'Usuń konto',
-                          style: TextStyle(
-                            decoration: TextDecoration.underline,
-                            color: logoutColor,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+            SizedBox(height: 16.0),
+            GestureDetector(
+              onTap: () {
+                _showDeleteConfirmationDialog(context);
+              },
+              child: Text(
+                'Usuń konto',
+                style: TextStyle(
+                  decoration: TextDecoration.underline,
+                  color: logoutColor,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
             ),

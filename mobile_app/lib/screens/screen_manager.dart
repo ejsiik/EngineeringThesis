@@ -24,9 +24,15 @@ class _WidgetTreeState extends State<WidgetTree> {
   Widget build(BuildContext context) {
     return StreamBuilder<User?>(
       stream: FirebaseAuth.instance.authStateChanges(),
-      builder: (BuildContext context, AsyncSnapshot<User?> snapshot) {
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          print("Error: ${snapshot.error}");
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
         if (snapshot.connectionState == ConnectionState.active) {
-          if (snapshot.hasData && snapshot.data != null) {
+          if (snapshot.data?.emailVerified == true) {
             // User is logged in, navigate to the main page
             User? user = snapshot.data;
 
