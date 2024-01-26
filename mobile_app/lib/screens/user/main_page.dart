@@ -20,6 +20,9 @@ class _MainPageState extends State<MainPage> {
 
   // Create a StreamController
   final StreamController<int> _cartUpdateController = StreamController<int>();
+  final StreamController<String> _usernameController =
+      StreamController<String>();
+
   // Create a FocusScopeNode
   late final FocusScopeNode _focusScopeNode = FocusScopeNode();
 
@@ -27,6 +30,10 @@ class _MainPageState extends State<MainPage> {
   void addItemToCart() {
     // Add an event to the stream
     _cartUpdateController.add(1);
+  }
+
+  void updateUsername(String newUsername) {
+    _usernameController.add(newUsername);
   }
 
   @override
@@ -41,7 +48,7 @@ class _MainPageState extends State<MainPage> {
         : AppColors.navbarUnselectedDark;
 
     final List<Widget> pages = [
-      const HomePage(),
+      HomePage(usernameController: _usernameController),
       const ChatPage(
         receiverId: receiverId,
         receiverEmail: receiverEmail,
@@ -114,6 +121,7 @@ class _MainPageState extends State<MainPage> {
     _focusScopeNode.dispose();
     // Close the StreamController to avoid memory leaks
     _cartUpdateController.close();
+    _usernameController.close();
     super.dispose();
   }
 }

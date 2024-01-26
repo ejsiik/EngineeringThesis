@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:typed_data';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -20,7 +21,12 @@ import 'welcome_banner.dart';
 import '../category_products_page/product_search_result.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({Key? key}) : super(key: key);
+  final StreamController<String> usernameController;
+
+  const HomePage({
+    Key? key,
+    required this.usernameController,
+  }) : super(key: key);
 
   @override
   State<HomePage> createState() {
