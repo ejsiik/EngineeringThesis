@@ -28,7 +28,6 @@ class _OrdersState extends State<OrdersPage> {
   OrderData orderData = OrderData();
   double price = 0.0;
   String name = "";
-  int selectedCheckboxIndex = -1;
 
   @override
   void initState() {
@@ -300,8 +299,8 @@ class _OrdersState extends State<OrdersPage> {
         ),
       ),
       bottomNavigationBar: Container(
-        padding: const EdgeInsets.all(8.0),
-        color: Colors.orange,
+        padding: const EdgeInsets.all(16.0),
+        color: primaryColor,
         child: GestureDetector(
           onTap: () async {
             if (!await checkInternetConnectivity()) {
@@ -392,14 +391,23 @@ class _OrdersState extends State<OrdersPage> {
               }
             }
           },
-          child: ListTile(
-            leading: Icon(Icons.shopping_cart, color: textColor),
-            title: Text(
-              'Złóż zamówienie',
-              style: TextStyle(
-                color: textColor,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.shopping_cart,
+                color: Colors.white,
               ),
-            ),
+              SizedBox(width: 8.0),
+              Text(
+                'Złóż zamówienie',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16.0,
+                ),
+              ),
+            ],
           ),
         ),
       ),

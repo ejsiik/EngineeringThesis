@@ -17,6 +17,10 @@ class _UserAccountPage extends State<UserAccountPage> {
     final Color backgroundColor = theme.scaffoldBackgroundColor;
 
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('Panel użytkownika'),
+        automaticallyImplyLeading: false,
+      ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
