@@ -21,6 +21,7 @@ class _FollowedProductsPageState extends State<FollowedProductsPage> {
   Data userData = Data();
   late bool _isMounted;
   late List<dynamic> followedProducts = [];
+  late bool isDataFetched = false;
 
   @override
   void initState() {
@@ -43,6 +44,7 @@ class _FollowedProductsPageState extends State<FollowedProductsPage> {
       if (_isMounted) {
         setState(() {
           followedProducts = data;
+          isDataFetched = true;
         });
       }
     }
@@ -105,7 +107,7 @@ class _FollowedProductsPageState extends State<FollowedProductsPage> {
         ? AppColors.primaryLight
         : AppColors.primaryDark;
 
-    if (followedProducts.isEmpty) {
+    if (isDataFetched && followedProducts.isEmpty) {
       return Scaffold(
         appBar: AppBar(
           title: const Text('Obserwowane produkty'),

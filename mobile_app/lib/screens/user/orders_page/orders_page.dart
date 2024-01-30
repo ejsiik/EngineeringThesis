@@ -21,6 +21,7 @@ class OrdersPage extends StatefulWidget {
 class _OrdersState extends State<OrdersPage> {
   late List shops = [];
   late List<bool> shopsExpansionStates = [];
+  late List<bool> shopsCheckedStates = [];
   late Map<String, dynamic>? selectedLocationData = {};
   ShopLocationData shopLocationData = ShopLocationData();
   Data userData = Data();
@@ -51,9 +52,11 @@ class _OrdersState extends State<OrdersPage> {
     if (!await checkInternetConnectivity()) {
       shops = [];
       shopsExpansionStates = [];
+      shopsCheckedStates = [];
     } else {
       shops = await shopLocationData.getAllShopsLocations();
       shopsExpansionStates = List<bool>.filled(shops.length, false);
+      shopsCheckedStates = List<bool>.filled(shops.length, false);
       setState(() {});
     }
   }
@@ -188,16 +191,16 @@ class _OrdersState extends State<OrdersPage> {
                     controller: usernameController,
                     readOnly: true,
                     decoration: InputDecoration(
-                      labelText: 'Nazwa użytkownika',
+                      labelText: 'Twoja nazwa:',
                       labelStyle: TextStyle(
                         fontSize: 20,
-                        color: Colors.white,
+                        color: textColor,
                       ),
                     ),
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                      color: textColor,
                     ),
                   );
                 }
@@ -222,10 +225,6 @@ class _OrdersState extends State<OrdersPage> {
                       shopsExpansionStates[i] = false;
                     } else {
                       shopsExpansionStates[i] = !shopsExpansionStates[i];
-                      if (shopsExpansionStates[i]) {
-                        selectedLocationData = Map<String, dynamic>.from(
-                            shops[index]['location'] as Map<Object?, Object?>);
-                      }
                     }
                   }
                 });
@@ -240,8 +239,33 @@ class _OrdersState extends State<OrdersPage> {
                     return ExpansionPanel(
                       headerBuilder: (BuildContext context, bool isExpanded) {
                         return ListTile(
+                          leading: Checkbox(
+                            value: shopsCheckedStates[index],
+                            onChanged: (bool? value) {
+                              setState(() {
+                                for (var i = 0;
+                                    i < shopsCheckedStates.length;
+                                    i++) {
+                                  if (i != index) {
+                                    shopsCheckedStates[i] = false;
+                                  } else {
+                                    shopsCheckedStates[i] =
+                                        !shopsCheckedStates[i];
+                                    selectedLocationData = {};
+                                    if (shopsCheckedStates[i]) {
+                                      selectedLocationData =
+                                          Map<String, dynamic>.from(shops[index]
+                                                  ['location']
+                                              as Map<Object?, Object?>);
+                                    }
+                                  }
+                                }
+                              });
+                            },
+                          ),
                           title: Text(
-                              '${locationData['city']}, ${locationData['street']} ${locationData['street_number']}'),
+                            '${locationData['city']}, ${locationData['street']} ${locationData['street_number']}',
+                          ),
                         );
                       },
                       body: ListTile(
@@ -275,8 +299,8 @@ class _OrdersState extends State<OrdersPage> {
         ),
       ),
       bottomNavigationBar: Container(
-        padding: const EdgeInsets.all(8.0),
-        color: Colors.orange,
+        padding: const EdgeInsets.all(16.0),
+        color: primaryColor,
         child: GestureDetector(
           onTap: () async {
             if (!await checkInternetConnectivity()) {
@@ -367,14 +391,23 @@ class _OrdersState extends State<OrdersPage> {
               }
             }
           },
-          child: ListTile(
-            leading: Icon(Icons.shopping_cart),
-            title: Text(
-              'Złóż zamówienie',
-              style: TextStyle(
-                color: textColor,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.shopping_cart,
+                color: Colors.white,
               ),
-            ),
+              SizedBox(width: 8.0),
+              Text(
+                'Złóż zamówienie',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16.0,
+                ),
+              ),
+            ],
           ),
         ),
       ),

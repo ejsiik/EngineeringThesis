@@ -298,7 +298,7 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
                 if (totalPrice > 0)
                   Container(
                     padding: EdgeInsets.all(16.0),
-                    color: Colors.orange,
+                    color: primaryColor,
                     child: GestureDetector(
                       onTap: () async {
                         if (!await checkInternetConnectivity()) {
