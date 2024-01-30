@@ -20,6 +20,7 @@ class _PurchasedProductsPageState extends State<PurchasedProductsPage> {
   OrderData orderData = OrderData();
   ProductData productData = ProductData();
   late List<Map<String, dynamic>> boughtProducts = [];
+  late bool isDataFetched = false;
 
   @override
   void initState() {
@@ -35,6 +36,7 @@ class _PurchasedProductsPageState extends State<PurchasedProductsPage> {
       List<Map<String, dynamic>> data = await orderData.getBoughtProducts();
       setState(() {
         boughtProducts = data;
+        isDataFetched = true;
       });
     }
   }
@@ -76,7 +78,7 @@ class _PurchasedProductsPageState extends State<PurchasedProductsPage> {
         ? AppColors.primaryLight
         : AppColors.primaryDark;
 
-    if (boughtProducts.isEmpty) {
+    if (isDataFetched && boughtProducts.isEmpty) {
       return Scaffold(
         appBar: AppBar(
           title: const Text('Zakupione produkty'),
