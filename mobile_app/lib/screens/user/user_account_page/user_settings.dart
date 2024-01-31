@@ -10,6 +10,8 @@ import '../../../service/connection/connection_check.dart';
 import '../../../service/database/data.dart';
 
 class UserSettings extends StatefulWidget {
+  const UserSettings({Key? key}) : super(key: key);
+
   @override
   _UserSettingsState createState() => _UserSettingsState();
 }
@@ -40,6 +42,7 @@ class _UserSettingsState extends State<UserSettings> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Ustawienia użytkownika'),
+        automaticallyImplyLeading: true,
       ),
       body: SingleChildScrollView(
         child: Padding(
