@@ -10,7 +10,7 @@ void main() {
         expect(find.byType(AdminHomePage), findsOneWidget);
       });
 
-      testWidgets('Initial state of value and id fields',
+      testWidgets('Initial state of value, id and order code fields',
           (WidgetTester tester) async {
         await tester.pumpWidget(
           MaterialApp(
@@ -18,7 +18,7 @@ void main() {
           ),
         );
 
-        // Initially, the value and id fields should be empty
+        // Initially, the value, id order code fields should be empty
         expect(find.widgetWithText(TextField, 'Wartość'), findsOneWidget);
         expect(
             find.widgetWithText(TextField, 'ID Użytkownika'), findsOneWidget);
@@ -34,6 +34,41 @@ void main() {
                 .controller!
                 .text,
             '');
+
+        expect(find.widgetWithText(TextField, 'Wprowadź kod odbioru'),
+            findsOneWidget);
+        expect(
+            (tester.widget(
+                        find.widgetWithText(TextField, 'Wprowadź kod odbioru'))
+                    as TextField)
+                .controller!
+                .text,
+            '');
+      });
+
+      testWidgets('AppBar and TextField icon', (WidgetTester tester) async {
+        await tester.pumpWidget(
+          MaterialApp(
+            home: AdminHomePage(),
+          ),
+        );
+
+        // Check if AppBar name is correct
+        expect(find.text('Shop X'), findsOneWidget);
+
+        final orderCodeEntry =
+            find.widgetWithText(TextField, 'Wprowadź kod odbioru');
+
+        final orderCodeEntryIcon = find.descendant(
+          of: orderCodeEntry,
+          matching: find.byType(Icon),
+        );
+
+        // Icon within TextField
+        expect(orderCodeEntryIcon, findsOneWidget);
+
+        await tester.tap(orderCodeEntryIcon);
+        await tester.pumpAndSettle();
       });
 
       testWidgets('Checkbox disables value field', (WidgetTester tester) async {
