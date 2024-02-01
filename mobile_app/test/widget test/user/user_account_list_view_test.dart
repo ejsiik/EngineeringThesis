@@ -31,7 +31,7 @@ void main() {
       matching: find.byType(Icon),
     );
 
-    // Sprawdź, czy znalezione zostały odpowiednie widgety jako wewnątrz GestureDetector
+    // Sprawdź, czy znalezione zostały odpowiednie widgety wewnątrz GestureDetector
     expect(listItemText, findsOneWidget);
     expect(listItemIcon, findsOneWidget);
   });
