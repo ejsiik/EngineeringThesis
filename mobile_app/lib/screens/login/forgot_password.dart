@@ -16,8 +16,10 @@ class ForgotPasswordPage extends StatefulWidget {
 class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   final TextEditingController _controllerEmail = TextEditingController();
   String? errorMessage = '';
+  bool passwordResetSuccess = false;
 
   Future<void> passwordReset() async {
+    errorMessage = null;
     try {
       bool isInternetConnected = await checkInternetConnectivity();
       if (!isInternetConnected) {
@@ -25,13 +27,20 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
 
         return;
       }
-      errorMessage = 'Link do resetu hasła został wysłany w wiadomości email';
+
       String? resetError =
           await Auth().passwordReset(email: _controllerEmail.text);
       if (resetError != null) {
         if (mounted) {
           setState(() {
             errorMessage = resetError;
+          });
+        }
+      } else {
+        if (mounted) {
+          setState(() {
+            errorMessage =
+                'Link do resetu hasła został wysłany w wiadomości email';
           });
         }
       }

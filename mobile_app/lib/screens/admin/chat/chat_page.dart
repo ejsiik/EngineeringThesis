@@ -62,8 +62,7 @@ class _ChatPageState extends State<AdminChatPage> {
                         highlightColor: shimmerHighlightColor,
                         child: ListView.builder(
                           reverse: true,
-                          itemCount:
-                              5, // You can adjust the number of shimmer loading items
+                          itemCount: 5,
                           itemBuilder: (context, index) {
                             return Padding(
                               padding: const EdgeInsets.all(8.0),
@@ -129,6 +128,9 @@ class _ChatPageState extends State<AdminChatPage> {
                     decoration: const InputDecoration(
                       hintText: 'Wpisz wiadomość...',
                     ),
+                    maxLines: null, // Allow multiple lines for message input
+                    keyboardType:
+                        TextInputType.multiline, // Allow multiline input
                   ),
                 ),
                 IconButton(
@@ -157,6 +159,30 @@ class MessageWidget extends StatelessWidget {
   const MessageWidget(this.sender, this.text, this.isMyMessage, {Key? key})
       : super(key: key);
 
+  List<String> splitText(String text, double maxWidth) {
+    List<String> lines = [];
+    String currentLine = '';
+    for (String word in text.split(' ')) {
+      if (currentLine.isEmpty) {
+        currentLine = word;
+      } else {
+        TextPainter tp = TextPainter(
+            text: TextSpan(text: '$currentLine $word'),
+            maxLines: 1,
+            textDirection: TextDirection.ltr);
+        tp.layout();
+        if (tp.width <= maxWidth) {
+          currentLine += ' $word';
+        } else {
+          lines.add(currentLine);
+          currentLine = word;
+        }
+      }
+    }
+    if (currentLine.isNotEmpty) lines.add(currentLine);
+    return lines;
+  }
+
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
     final Color textColor = theme.brightness == Brightness.dark
@@ -168,6 +194,8 @@ class MessageWidget extends StatelessWidget {
     final Color otherChat = theme.brightness == Brightness.light
         ? AppColors.navbarUnselectedLight
         : AppColors.navbarUnselectedDark;
+
+    final double maxWidth = MediaQuery.of(context).size.width * 0.7;
 
     // Display 'Ja' instead of the sender's email for the current user's messages
     final displayedSender = isMyMessage ? 'Ja' : sender;
@@ -195,12 +223,8 @@ class MessageWidget extends StatelessWidget {
                     color: textColor,
                   ),
                 ),
-                Text(
-                  text,
-                  style: TextStyle(
-                    color: textColor,
-                  ),
-                ),
+                ...splitText(text, maxWidth).map(
+                    (line) => Text(line, style: TextStyle(color: textColor))),
               ],
             ),
           ),
