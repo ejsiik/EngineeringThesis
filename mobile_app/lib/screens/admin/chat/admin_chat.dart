@@ -49,8 +49,7 @@ class _AdminChatScreenState extends State<AdminChatScreen> {
                     baseColor: shimmerBaseColor,
                     highlightColor: shimmerHighlightColor,
                     child: ListView.builder(
-                      itemCount:
-                          5, // You can adjust the number of shimmer loading items
+                      itemCount: 5,
                       itemBuilder: (context, index) {
                         return ListTile(
                           title: Container(
@@ -68,7 +67,9 @@ class _AdminChatScreenState extends State<AdminChatScreen> {
                     userSnapshot.data!.isEmpty) {
                   return const Text('Brak wiadomości.');
                 } else {
-                  List<Map<String, String>> users = userSnapshot.data!;
+                  List<Map<String, String>> users = userSnapshot.data!
+                      .where((user) => user['email'] != 'daw.wydra@gmail.com')
+                      .toList();
                   return ListView.builder(
                     itemCount: users.length,
                     itemBuilder: (context, index) {
