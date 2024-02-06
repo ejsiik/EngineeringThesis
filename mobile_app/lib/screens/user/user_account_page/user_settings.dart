@@ -55,6 +55,7 @@ class _UserSettingsState extends State<UserSettings> {
               TextField(
                 controller: _nameController,
                 decoration: InputDecoration(labelText: 'Zmień imię'),
+                maxLength: 15,
                 onChanged: (value) {
                   newName = value;
                 },
@@ -62,6 +63,10 @@ class _UserSettingsState extends State<UserSettings> {
               SizedBox(height: 16.0),
 
               ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  foregroundColor: buttonTextColor,
+                  backgroundColor: buttonBackgroundColor,
+                ),
                 onPressed: () async {
                   bool isInternetConnected = await checkInternetConnectivity();
                   if (!isInternetConnected) {
@@ -69,14 +74,18 @@ class _UserSettingsState extends State<UserSettings> {
                     return;
                   }
                   try {
-                    if (newName.trim().isNotEmpty) {
-                      Data().changeUserName(newName);
-                      _nameController.clear();
-                      showSnackBarSimpleMessage('Imię zostało zmienione');
-                    } else {
-                      _nameController.clear();
+                    if (newName.trim().isEmpty) {
                       showSnackBarSimpleMessage('Imię nie może być puste');
+                      return;
                     }
+                    if (newName.length > 15) {
+                      showSnackBarSimpleMessage(
+                          'Imię nie może być dłuższe niż 15 znaków');
+                      return;
+                    }
+                    Data().changeUserName(newName);
+                    _nameController.clear();
+                    showSnackBarSimpleMessage('Imię zostało zmienione');
                   } catch (error) {
                     showSnackBarSimpleMessage('Błąd podczas zmiany imienia');
                   }
