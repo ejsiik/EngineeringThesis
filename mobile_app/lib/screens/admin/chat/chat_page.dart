@@ -160,8 +160,10 @@ class MessageWidget extends StatelessWidget {
       : super(key: key);
 
   List<String> splitText(String text, double maxWidth) {
-    List<String> lines = [];
-    String currentLine = '';
+    List<String> lines = []; // List to store the lines of text
+    String currentLine =
+        ''; // Variable to store the current line being processed
+    // Loop through each word in the input text
     for (String word in text.split(' ')) {
       if (currentLine.isEmpty) {
         currentLine = word;
@@ -169,8 +171,8 @@ class MessageWidget extends StatelessWidget {
         TextPainter tp = TextPainter(
             text: TextSpan(text: '$currentLine $word'),
             maxLines: 1,
-            textDirection: TextDirection.ltr);
-        tp.layout();
+            textDirection: TextDirection.ltr); // left-to-right
+        tp.layout(); // Perform layout to measure the width of the combined text
         if (tp.width <= maxWidth) {
           currentLine += ' $word';
         } else {
